@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Allow: /hirehub.html
+Allow: /jobs/
+Disallow: /api/
+Disallow: /_next/
+
+Sitemap: https://hirehub.vercel.app/sitemap.xml

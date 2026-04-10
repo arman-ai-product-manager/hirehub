@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "netstat -ano 2>/dev/null | grep -q ':3000.*LISTEN' || (cd \"C:/arman/claude code/hub\" && npm run dev > /tmp/hirehub-dev.log 2>&1 &)",
+            "async": true,
+            "statusMessage": "Starting dev server..."
+          }
+        ]
+      }
+    ]
+  }
+}
