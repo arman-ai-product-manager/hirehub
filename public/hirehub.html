@@ -9,7 +9,10 @@
 <meta property="og:title" content="Hire Hub — Find Jobs &amp; Hire Talent in India">
 <meta property="og:description" content="AI-powered job matching. Post jobs, find candidates. India's smartest job platform.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>"/>
-<link href="https://fonts.googleapis.com/css2?family=Mona+Sans:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Mona+Sans:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet" media="print" onload="this.media='all'"/>
+<noscript><link href="https://fonts.googleapis.com/css2?family=Mona+Sans:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet"/></noscript>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -133,10 +136,10 @@ textarea{resize:vertical}
 body{-webkit-text-size-adjust:100%}
 *{-webkit-tap-highlight-color:transparent}
 </style>
-<!-- Razorpay Checkout -->
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-<!-- Supabase Auth + DB client -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<!-- Supabase Auth + DB client (defer = non-blocking) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js" defer></script>
+<!-- Razorpay Checkout (defer = non-blocking, only needed at payment) -->
+<script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
 <script>
   // Replace these with your actual Supabase project values
   // (safe to expose — RLS policies enforce security)
@@ -913,15 +916,15 @@ function openShare(icon,headline,sub){
     '<div style="font-size:40px;margin-bottom:9px">'+icon+'</div>'+
     '<div style="font-weight:800;font-size:18px;color:#fff;margin-bottom:5px;line-height:1.2">'+headline+'</div>'+
     '<div style="font-size:13px;color:rgba(255,255,255,.8);margin-bottom:14px">'+sub+'</div>'+
-    '<div style="background:rgba(255,255,255,.25);border-radius:8px;padding:4px 13px;display:inline-block;font-size:12px;font-weight:700;color:#fff">Hire Hub · app.supraman.in</div></div>'+
+    '<div style="background:rgba(255,255,255,.25);border-radius:8px;padding:4px 13px;display:inline-block;font-size:12px;font-weight:700;color:#fff">Hire Hub · hirehub360.in</div></div>'+
     '<p style="font-size:13px;color:var(--mu);text-align:center;margin-bottom:12px">Share to your network</p>';
-  var txt=headline+"\n"+sub+"\n\napp.supraman.in";
+  var txt=headline+"\n"+sub+"\n\nhirehub360.in";
   window._shareText=txt;
   document.getElementById("m-share-p").innerHTML=
     [["📱 WhatsApp","#25D366"],["📸 Instagram","#E1306C"],["💼 LinkedIn","#0077B5"]].map(function(x){
-      return '<button class="btn sm" style="background:transparent;border:1.5px solid '+x[1]+';color:'+x[1]+'" onclick="navigator.clipboard&&navigator.clipboard.writeText(window._shareText||\'app.supraman.in\').then(function(){nt(\'🔗 Copied!\')})">'+x[0]+'</button>';
+      return '<button class="btn sm" style="background:transparent;border:1.5px solid '+x[1]+';color:'+x[1]+'" onclick="navigator.clipboard&&navigator.clipboard.writeText(window._shareText||\'hirehub360.in\').then(function(){nt(\'🔗 Copied!\')})">'+x[0]+'</button>';
     }).join('')+
-    '<button class="btn gh sm" onclick="navigator.clipboard&&navigator.clipboard.writeText(window._shareText||\'app.supraman.in\').then(function(){nt(\'🔗 Copied!\')})">🔗 Copy</button>';
+    '<button class="btn gh sm" onclick="navigator.clipboard&&navigator.clipboard.writeText(window._shareText||\'hirehub360.in\').then(function(){nt(\'🔗 Copied!\')})">🔗 Copy</button>';
   mOpen("m-share");
 }
 
@@ -1037,7 +1040,7 @@ function drawIG(ctx,sz,th,co,title,sal,loc){
   // Bottom brand stamp
   ctx.fillStyle=th.badge; rr(ctx,mx,466,sz.w-mx*2,44,10); ctx.fill();
   sf(ctx,12,"600"); ctx.fillStyle=th.sub; ctx.textAlign="center";
-  ctx.fillText("100% Verified · Zero Ghosting · AI Powered · app.supraman.in",sz.w/2,494);
+  ctx.fillText("100% Verified · Zero Ghosting · AI Powered · hirehub360.in",sz.w/2,494);
   ctx.textAlign="left";
 }
 
@@ -1091,7 +1094,7 @@ function drawWA(ctx,sz,th,co,title,sal,loc){
   ctx.fillText("Apply: hirehub.in",rx+(sz.w-rx-mx-24)/2,209); ctx.textAlign="left";
   // Footer
   sf(ctx,11,"500"); ctx.fillStyle="rgba(255,255,255,.38)";
-  ctx.fillText("hirehub.in · Verified Jobs · AI Powered · app.supraman.in",mx+24,sz.h-32);
+  ctx.fillText("hirehub.in · Verified Jobs · AI Powered · hirehub360.in",mx+24,sz.h-32);
 }
 
 // ─ LinkedIn Banner (700×280) ─
@@ -1136,7 +1139,7 @@ function copyCardText(){
   var ttl= (document.getElementById("sc-title")||{}).value||"";
   var sal= (document.getElementById("sc-sal")  ||{}).value||"";
   var loc= (document.getElementById("sc-loc")  ||{}).value||"";
-  var txt="We're Hiring! 🚀\n"+ttl+" at "+co+"\n💰 "+sal+"  📍 "+loc+"\nApply: app.supraman.in";
+  var txt="We're Hiring! 🚀\n"+ttl+" at "+co+"\n💰 "+sal+"  📍 "+loc+"\nApply: hirehub360.in";
   if(navigator.clipboard)navigator.clipboard.writeText(txt).then(function(){nt("🔗 Share text copied!");});
   else nt("🔗 Text ready to share!");
 }
@@ -1529,12 +1532,12 @@ function doPostJob(){
     if(si>=SEO_S.length){
       var jobSlug = mkSlug(job.title)+"-"+mkSlug(job.company)+"-"+mkSlug(job.loc);
       var seo={
-        url:"https://app.supraman.in/jobs/"+jobSlug,
+        url:"https://hirehub360.in/jobs/"+jobSlug,
         metaTitle:job.title+" at "+job.company+" — "+job.loc+" | Hire Hub",
         metaDesc:"Hiring "+job.title+" at "+job.company+". Location: "+job.loc+". "+(job.shide?"Competitive salary":job.sal)+". Experience: "+job.exp+". Apply on Hire Hub — 100% verified jobs.",
         ogTitle:job.company+" is Hiring — "+job.title,
         keywords:[job.title,job.title+" jobs",job.title+" "+job.loc,job.company+" careers","jobs in "+job.loc,job.sec+" jobs","Hire Hub India"],
-        canonical:"https://app.supraman.in/jobs/"+jobSlug,
+        canonical:"https://hirehub360.in/jobs/"+jobSlug,
         schema:JSON.stringify({
           "@context":"https://schema.org/",
           "@type":"JobPosting",
@@ -1544,7 +1547,7 @@ function doPostJob(){
           "datePosted":job.createdAt?job.createdAt.split("T")[0]:new Date().toISOString().split("T")[0],
           "validThrough":new Date(Date.now()+30*864e5).toISOString().split("T")[0],
           "employmentType":(job.type||"FULL_TIME").toUpperCase().replace(/-/g,"_").replace(/ /g,"_"),
-          "hiringOrganization":{"@type":"Organization","name":job.company,"sameAs":"https://app.supraman.in"},
+          "hiringOrganization":{"@type":"Organization","name":job.company,"sameAs":"https://hirehub360.in"},
           "jobLocation":{"@type":"Place","address":{"@type":"PostalAddress","addressLocality":job.loc,"addressCountry":"IN"}},
           "baseSalary":job.shide?undefined:{"@type":"MonetaryAmount","currency":job.curr||"INR","value":{"@type":"QuantitativeValue","minValue":job.smin||300000,"maxValue":job.smax||1200000,"unitText":"YEAR"}},
           "skills":(job.skills||[]).join(", "),
@@ -1552,10 +1555,10 @@ function doPostJob(){
           "directApply":true,
           "applicantLocationRequirements":{"@type":"Country","name":"India"},
           "jobBenefits":"Competitive benefits package",
-          "url":"https://app.supraman.in/jobs/"+jobSlug,
-          "applicationContact":{"@type":"ContactPoint","contactType":"HR","url":"https://app.supraman.in/jobs/"+jobSlug+"/apply"}
+          "url":"https://hirehub360.in/jobs/"+jobSlug,
+          "applicationContact":{"@type":"ContactPoint","contactType":"HR","url":"https://hirehub360.in/jobs/"+jobSlug+"/apply"}
         }),
-        sitemapEntry:"<url><loc>https://app.supraman.in/jobs/"+jobSlug+"</loc><lastmod>"+new Date().toISOString().split("T")[0]+"</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>",
+        sitemapEntry:"<url><loc>https://hirehub360.in/jobs/"+jobSlug+"</loc><lastmod>"+new Date().toISOString().split("T")[0]+"</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>",
         crossPostLinks:{
           linkedin:"https://www.linkedin.com/job-posting/api/jobs?title="+encodeURIComponent(job.title)+"&company="+encodeURIComponent(job.company)+"&location="+encodeURIComponent(job.loc),
           indeed:"https://employers.indeed.com/jobPosting/start?title="+encodeURIComponent(job.title)+"&location="+encodeURIComponent(job.loc),
@@ -2667,7 +2670,7 @@ function escapeHtml(str) {
 }
 
 function generateSitemap(jobs) {
-  var base = "https://app.supraman.in";
+  var base = "https://hirehub360.in";
   var xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
   xml += '<url><loc>'+base+'</loc><changefreq>daily</changefreq><priority>1.0</priority></url>\n';
   SEO_LANDING_PAGES.forEach(function(pg){
@@ -2696,7 +2699,7 @@ function generateSchemaBlock(jobs) {
     "hiringOrganization":{"@type":"Organization","name":job.company},
     "jobLocation":{"@type":"Place","address":{"@type":"PostalAddress","addressLocality":job.loc,"addressCountry":"IN"}},
     "directApply":true,
-    "url":"https://app.supraman.in/jobs/"+slug
+    "url":"https://hirehub360.in/jobs/"+slug
   }, null, 2);
 }
 
@@ -2724,11 +2727,11 @@ function copyLandingPageHTML(slug, role, city, country) {
   var c = CURRENCIES[detectCurrency(city+" "+country)]||CURRENCIES.INR;
   var html = '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8"/>\n<title>'+role+' in '+city+' | Hire Hub</title>\n'+
     '<meta name="description" content="Find the best '+role+' in '+city+', '+country+'. AI-matched. Verified employers. Apply in 1 tap on Hire Hub."/>\n'+
-    '<link rel="canonical" href="https://app.supraman.in/jobs/'+slug+'"/>\n'+
-    '<script type="application/ld+json">{"@context":"https://schema.org","@type":"ItemList","name":"'+role+' in '+city+'","url":"https://app.supraman.in/jobs/'+slug+'"}</scr'+'ipt>\n'+
+    '<link rel="canonical" href="https://hirehub360.in/jobs/'+slug+'"/>\n'+
+    '<script type="application/ld+json">{"@context":"https://schema.org","@type":"ItemList","name":"'+role+' in '+city+'","url":"https://hirehub360.in/jobs/'+slug+'"}</scr'+'ipt>\n'+
     '</head>\n<body>\n<h1>'+role+' in '+city+', '+country+'</h1>\n'+
     '<p>Browse verified '+role+' in '+city+'. AI matches you to the best fit. Apply in 1 tap.</p>\n'+
-    '<a href="https://app.supraman.in">View All Jobs on Hire Hub</a>\n</body>\n</html>';
+    '<a href="https://hirehub360.in">View All Jobs on Hire Hub</a>\n</body>\n</html>';
   if(navigator.clipboard) navigator.clipboard.writeText(html).then(function(){ nt("📋 Landing page HTML copied for /jobs/"+slug); });
 }
 
@@ -2939,13 +2942,13 @@ function renderCoBrand(el) {
     '<div>'+
     '<label class="lbl">Your Branded Career Page Link</label>'+
     '<div style="display:flex;gap:8px">'+
-    '<input value="app.supraman.in/careers/'+mkSlug(br.name||"your-company")+'" readonly style="background:var(--bg);font-size:13px;color:var(--mu)"/>'+
+    '<input value="hirehub360.in/careers/'+mkSlug(br.name||"your-company")+'" readonly style="background:var(--bg);font-size:13px;color:var(--mu)"/>'+
     '<button class="btn fi sm" onclick="copyCareerLink()">Copy</button>'+
     '</div></div>'+
     '<div>'+
     '<label class="lbl">WhatsApp Share Text</label>'+
     '<div style="display:flex;gap:8px">'+
-    '<input id="wa-share-txt" value="We are hiring at '+(br.name||"our company")+'! View all open positions: app.supraman.in/careers/'+mkSlug(br.name||"your-company")+'" readonly style="background:var(--bg);font-size:12px;color:var(--mu)"/>'+
+    '<input id="wa-share-txt" value="We are hiring at '+(br.name||"our company")+'! View all open positions: hirehub360.in/careers/'+mkSlug(br.name||"your-company")+'" readonly style="background:var(--bg);font-size:12px;color:var(--mu)"/>'+
     '<button class="btn gf sm" onclick="copyWAText()">📱 Copy</button>'+
     '</div></div></div>'+
     '<button class="btn sm" style="background:transparent;border:1.5px solid var(--bl);color:var(--bl)" onclick="copyEmbedCode()">🔗 Copy Website Embed Code</button>'+
@@ -3093,7 +3096,7 @@ function previewCareerPage() {
 function copyEmbedCode() {
   var br = getBrandFromForm();
   var slug = mkSlug(br.name||"your-company");
-  var code = '<iframe src="https://app.supraman.in/embed/'+slug+'" width="100%" height="600" frameborder="0" style="border-radius:16px;border:none" title="'+br.name+' Careers"></iframe>';
+  var code = '<iframe src="https://hirehub360.in/embed/'+slug+'" width="100%" height="600" frameborder="0" style="border-radius:16px;border:none" title="'+br.name+' Careers"></iframe>';
   if(navigator.clipboard) {
     navigator.clipboard.writeText(code).then(function(){ nt("🔗 Embed code copied! Paste it on your website."); });
   } else { nt("🔗 Embed code ready!"); }

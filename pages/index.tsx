@@ -498,8 +498,9 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
   )
 }
 
-export async function getServerSideProps({ query }: { query: Record<string, string> }) {
-  const forCompany = query.for === 'company'
+// ISR: page is statically cached, rebuilds in background every 60s
+// This makes the homepage load instantly instead of waiting for DB on every request
+export async function getStaticProps() {
   let jobs: Job[] = []
   let total = 0
 
@@ -521,5 +522,8 @@ export async function getServerSideProps({ query }: { query: Record<string, stri
     total = DEMO_JOBS.length
   }
 
-  return { props: { jobs, total, forCompany } }
+  return {
+    props: { jobs, total, forCompany: false },
+    revalidate: 60, // rebuild in background every 60 seconds
+  }
 }
