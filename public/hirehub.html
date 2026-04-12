@@ -2321,6 +2321,27 @@ function downloadCv(){
   nt("✅ CV opened — use browser Print → Save as PDF");
 }
 
+function downloadCandCV(encodedName){
+  var name = decodeURIComponent(encodedName||"candidate");
+  // Candidate CV download for company — opens print dialog
+  var cands = dbList("cd:profile").map(function(k){return dbGet(k);}).filter(Boolean);
+  var cand = cands.find(function(c){return (c.name||"")=== name;});
+  if(!cand){nt("⚠️ CV not available for this candidate");return;}
+  var w = window.open('','_blank');
+  w.document.write('<html><head><title>CV — '+name+'</title><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,sans-serif;padding:32px;color:#1d1d1f}</style></head><body>'+
+    '<h1 style="font-size:24px;font-weight:800;margin-bottom:4px">'+name+'</h1>'+
+    '<p style="color:#666;margin-bottom:16px">'+(cand.current_role||'')+(cand.current_company?' · '+cand.current_company:'')+'</p>'+
+    '<p>📍 '+(cand.location||'')+'  |  💰 '+(cand.salary_expectation||'')+'  |  ⏱ '+(cand.notice_period||'')+'</p>'+
+    '<hr style="margin:16px 0"/>'+
+    '<p><strong>Experience:</strong> '+(cand.experience_years||'')+'</p>'+
+    '<p><strong>Skills:</strong> '+((cand.skills||[]).join(', '))+'</p>'+
+    (cand.bio?'<p style="margin-top:12px">'+cand.bio+'</p>':'')+
+    '</body></html>');
+  w.document.close(); w.focus();
+  setTimeout(function(){w.print();w.close();},400);
+  nt("📄 CV opened — Save as PDF");
+}
+
 function renderCdJobs(el){
   el.innerHTML='<div style="display:flex;gap:9px;margin-bottom:13px;flex-wrap:wrap;align-items:center">'+
     '<div style="flex:1;min-width:165px;position:relative"><span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none;font-size:15px">🔍</span><input id="js" placeholder="Search jobs, companies, skills…" style="padding-left:40px" oninput="rJL()"/></div>'+
