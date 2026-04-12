@@ -480,49 +480,44 @@ function _dbPush(k,v){
 // Pull user data from Supabase into localStorage on login
 function _hydrate(user, cb){
   S._uid = user.id;
-  S.phone = user.email; // reuse S.phone as identifier throughout the app
+  S.phone = user.email;
   var meta = user.user_metadata || {};
   if(meta.name){ var n=document.getElementById("ph-nav"); if(n) n.textContent=meta.name; }
   if(!window.SB){ if(cb) cb(); return; }
-  var done=0, total=3;
-  function check(){ done++; if(done===total && cb) cb(); }
 
-  SB.from("companies").select("*").eq("id",user.id).maybeSingle().then(function(r){
-    if(r.data){
-      var co=r.data;
-      var coObj={id:co.id,name:co.company_name,gst:co.gst,city:co.city,
-        sector:co.sector,verified:co.verified,plan:co.plan,website:co.website,phone:user.email};
+  // Timeout safety — never hang more than 4 seconds
+  var called=false;
+  var timer=setTimeout(function(){ if(!called){called=true;if(cb)cb();} },4000);
+
+  // All 3 queries in parallel via Promise.all
+  Promise.all([
+    SB.from("companies").select("*").eq("id",user.id).maybeSingle(),
+    SB.from("candidates").select("*").eq("id",user.id).maybeSingle(),
+    SB.from("jobs").select("id,title,company_name,location,salary_label,salary_hidden,experience,job_type,sector,skills,currency,remote_policy,visa_sponsor,company_id,status,slug,created_at").eq("status","active").order("created_at",{ascending:false}).limit(30)
+  ]).then(function(results){
+    var coR=results[0], cdR=results[1], jobsR=results[2];
+    if(coR.data){
+      var co=coR.data;
+      var coObj={id:co.id,name:co.company_name,gst:co.gst,city:co.city,sector:co.sector,verified:co.verified,plan:co.plan,website:co.website,phone:user.email};
       try{localStorage.setItem(user.email+"_co:profile",JSON.stringify(coObj));}catch(e){}
       S.co=coObj;
     }
-    check();
-  }).catch(function(){check();});
-
-  SB.from("candidates").select("*").eq("id",user.id).maybeSingle().then(function(r){
-    if(r.data){
-      var cd=r.data;
-      var cdObj={name:cd.name,location:cd.location,current_role:cd.position,
-        current_company:cd.company,experience_years:cd.experience_years,
-        notice_period:cd.notice_period,salary_expectation:cd.salary_expectation,
-        skills:cd.skills||[],bio:cd.bio,fit_score:cd.fit_score};
+    if(cdR.data){
+      var cd=cdR.data;
+      var cdObj={name:cd.name,location:cd.location,current_role:cd.position,current_company:cd.company,experience_years:cd.experience_years,notice_period:cd.notice_period,salary_expectation:cd.salary_expectation,skills:cd.skills||[],bio:cd.bio,fit_score:cd.fit_score};
       try{localStorage.setItem(user.email+"_cd:profile",JSON.stringify(cdObj));}catch(e){}
       S.cp=cdObj;
     }
-    check();
-  }).catch(function(){check();});
-
-  SB.from("jobs").select("*").eq("status","active").order("created_at",{ascending:false}).limit(30).then(function(r){
-    if(r.data) r.data.forEach(function(j){
-      var jobObj={id:j.id,title:j.title,company:j.company_name,loc:j.location,
-        sal:j.salary_label,smin:j.salary_min,smax:j.salary_max,shide:j.salary_hidden,
-        exp:j.experience,type:j.job_type,sec:j.sector,desc:j.description,
-        skills:j.skills||[],curr:j.currency,remote:j.remote_policy,
-        visa:j.visa_sponsor,companyId:j.company_id,status:j.status,
-        slug:j.slug,createdAt:j.created_at,source:"Hire Hub"};
+    if(jobsR.data) jobsR.data.forEach(function(j){
+      var jobObj={id:j.id,title:j.title,company:j.company_name,loc:j.location,sal:j.salary_label,shide:j.salary_hidden,exp:j.experience,type:j.job_type,sec:j.sector,skills:j.skills||[],curr:j.currency,remote:j.remote_policy,visa:j.visa_sponsor,companyId:j.company_id,status:j.status,slug:j.slug,createdAt:j.created_at,source:"Hire Hub"};
       try{localStorage.setItem("sh_job:"+j.id,JSON.stringify(jobObj));}catch(e){}
     });
-    check();
-  }).catch(function(){check();});
+    clearTimeout(timer);
+    if(!called){called=true;if(cb)cb();}
+  }).catch(function(){
+    clearTimeout(timer);
+    if(!called){called=true;if(cb)cb();}
+  });
 }
 
 
@@ -1775,11 +1770,18 @@ var DEFAULT_JOBS=[
 function loadCdJobs(){
   var lk=dbList("job:").filter(function(k){return k.indexOf("seo")<0;});
   var live=lk.map(function(k){return dbGet(k);}).filter(function(j){return j&&j.status==="active";});
-  // Start with local + default jobs
+  // Start with local + default jobs immediately (no waiting)
   S.jobs = live.length>0 ? live.concat(DEFAULT_JOBS) : DEFAULT_JOBS.slice();
-  // Fetch from NCS India (free govt API) + Jooble in background
-  fetchNCSJobs();
-  fetchJoobleJobs();
+  // Load cached external jobs instantly if available (< 30 min old)
+  try {
+    var ncsCache = localStorage.getItem("_ncs_cache");
+    if(ncsCache){ var nc=JSON.parse(ncsCache); if(nc.ts&&Date.now()-nc.ts<1800000&&nc.jobs){ S.jobs=S.jobs.concat(nc.jobs); } }
+    var jblCache = localStorage.getItem("_jbl_cache");
+    if(jblCache){ var jc=JSON.parse(jblCache); if(jc.ts&&Date.now()-jc.ts<1800000&&jc.jobs){ S.jobs=S.jobs.concat(jc.jobs); } }
+  } catch(e){}
+  // Fetch fresh external data in background after 3s delay — never block UI
+  setTimeout(function(){ fetchNCSJobs(); }, 3000);
+  setTimeout(function(){ fetchJoobleJobs(); }, 5000);
 }
 
 // ── NCS India Free API ─────────────────────────────────────────
@@ -1810,14 +1812,15 @@ function fetchNCSJobs() {
         };
       }).filter(function(j){ return j.title && j.title !== "Job Opening" || j.company !== "Government / PSU"; });
       if(ncsJobs.length > 0) {
+        // Cache for 30 min
+        try{ localStorage.setItem("_ncs_cache", JSON.stringify({ts:Date.now(),jobs:ncsJobs})); }catch(e){}
         // Remove old NCS jobs, add new
         S.jobs = S.jobs.filter(function(j){ return j.source !== "NCS India"; }).concat(ncsJobs);
-        nt("📡 "+ncsJobs.length+" live NCS India jobs loaded");
         // Re-render if on jobs tab
         if(S.cdStep===3) renderJList();
       }
     })
-    .catch(function(){ /* NCS unavailable — use defaults */ });
+    .catch(function(){ /* NCS unavailable — use cache */ });
 }
 
 // ── Jooble API (Global Jobs) ───────────────────────────────────
@@ -1864,6 +1867,8 @@ function fetchJoobleJobs() {
       };
     });
     if(jJobs.length>0){
+      // Cache for 30 min
+      try{ localStorage.setItem("_jbl_cache", JSON.stringify({ts:Date.now(),jobs:jJobs})); }catch(e){}
       S.jobs = S.jobs.filter(function(j){ return j.source!=="Jooble"; }).concat(jJobs);
       if(S.cdStep===3) renderJList();
     }
