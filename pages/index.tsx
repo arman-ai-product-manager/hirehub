@@ -199,6 +199,7 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
         <a href="/" className="logo">Hire <span>Hub</span></a>
         <div className="nav-links">
           <a href="/" className="hide-mob">Browse Jobs</a>
+          <a href="/pricing" className="hide-mob">Pricing</a>
           <a href="/hirehub.html" className="hide-mob">Sign In</a>
           <a href="/hirehub.html" className="btn-post">Post a Job →</a>
         </div>
