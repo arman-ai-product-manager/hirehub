@@ -69,12 +69,12 @@ export default function BlogIndex({ posts }) {
   )
 }
 
-export async function getServerSideProps() {
+export async function getStaticProps() {
   const { data: posts } = await supabaseService
     .from('blogs')
     .select('id,title,slug,excerpt,cover_image,author,tags,created_at')
     .eq('published', true)
     .order('created_at', { ascending: false })
 
-  return { props: { posts: posts || [] } }
+  return { props: { posts: posts || [] }, revalidate: 300 }
 }

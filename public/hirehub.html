@@ -1036,7 +1036,7 @@ function drawIG(ctx,sz,th,co,title,sal,loc){
   hline(ctx,mx,416,sz.w-mx*2,th.line);
   // CTA
   sf(ctx,17,"700"); ctx.fillStyle=th.txt;
-  ctx.fillText("Apply Now → hirehub.in",mx,452);
+  ctx.fillText("Apply Now → hirehub360.in",mx,452);
   // Bottom brand stamp
   ctx.fillStyle=th.badge; rr(ctx,mx,466,sz.w-mx*2,44,10); ctx.fill();
   sf(ctx,12,"600"); ctx.fillStyle=th.sub; ctx.textAlign="center";
@@ -1063,7 +1063,7 @@ function drawSTORY(ctx,sz,th,co,title,sal,loc){
   // CTA box
   ctx.fillStyle=th.badge; rr(ctx,mx,sz.h-134,sz.w-mx*2,72,14); ctx.fill();
   sf(ctx,18,"800"); ctx.fillStyle=th.txt; ctx.textAlign="center";
-  ctx.fillText("Apply Now → hirehub.in",sz.w/2,sz.h-90);
+  ctx.fillText("Apply Now → hirehub360.in",sz.w/2,sz.h-90);
   sf(ctx,13,"500"); ctx.fillStyle=th.sub;
   ctx.fillText("Tap link in bio · 100% Verified",sz.w/2,sz.h-64);
   ctx.textAlign="left";
@@ -1091,10 +1091,10 @@ function drawWA(ctx,sz,th,co,title,sal,loc){
   // CTA button
   ctx.fillStyle="rgba(255,255,255,.24)"; rr(ctx,rx,180,sz.w-rx-mx-24,46,10); ctx.fill();
   sf(ctx,14,"800"); ctx.fillStyle=th.txt; ctx.textAlign="center";
-  ctx.fillText("Apply: hirehub.in",rx+(sz.w-rx-mx-24)/2,209); ctx.textAlign="left";
+  ctx.fillText("Apply: hirehub360.in",rx+(sz.w-rx-mx-24)/2,209); ctx.textAlign="left";
   // Footer
   sf(ctx,11,"500"); ctx.fillStyle="rgba(255,255,255,.38)";
-  ctx.fillText("hirehub.in · Verified Jobs · AI Powered · hirehub360.in",mx+24,sz.h-32);
+  ctx.fillText("hirehub360.in · Verified Jobs · AI Powered · hirehub360.in",mx+24,sz.h-32);
 }
 
 // ─ LinkedIn Banner (700×280) ─
@@ -1120,10 +1120,10 @@ function drawLI(ctx,sz,th,co,title,sal,loc){
   sf(ctx,15,"800"); ctx.fillStyle=th.txt; ctx.textAlign="center";
   ctx.fillText("Apply Now →",rx+rw/2,ry+24);
   sf(ctx,12,"500"); ctx.fillStyle=th.sub;
-  ctx.fillText("hirehub.in",rx+rw/2,ry+44); ctx.textAlign="left";
+  ctx.fillText("hirehub360.in",rx+rw/2,ry+44); ctx.textAlign="left";
   // Footer
   sf(ctx,10,"500"); ctx.fillStyle="rgba(255,255,255,.35)";
-  ctx.fillText("hirehub.in · 100% Verified · Zero Ghosting · AI Powered",mx,sz.h-14);
+  ctx.fillText("hirehub360.in · 100% Verified · Zero Ghosting · AI Powered",mx,sz.h-14);
 }
 
 function downloadCard(){
@@ -1628,45 +1628,54 @@ function updApp(id,status){
   renderCoCands(document.getElementById("co-body"));
 }
 function renderCoVenue(el){
-  var cats=[
-    {id:"offsite",icon:"🏕️",name:"Corporate Offsite & Retreat",desc:"Full-day team offsites, leadership retreats, company-wide summits. End-to-end planning support included."},
-    {id:"annual-day",icon:"🏆",name:"Annual Day & Awards Night",desc:"Celebrate milestones with a memorable awards night. Custom trophies, stage setup, AV team — fully managed."},
-    {id:"conference",icon:"🎤",name:"Conference & Product Launch",desc:"Industry conferences, keynotes, panel discussions, and high-energy product reveals. Full AV and staging."},
-    {id:"client-dinner",icon:"🍽️",name:"Client & Stakeholder Events",desc:"Curated premium business dinners, investor meets, and corporate hospitality experiences."},
-    {id:"team-sports",icon:"🎳",name:"Team Bonding & Sports Day",desc:"Bowling, go-karting, cricket, paintball, laser tag & more. The ultimate team bonding experience."},
+  var venues=[
+    {icon:"🎮",name:"The Game Palacio",desc:"Boutique bowling, state-of-the-art gaming, fine dining and much more all under one roof.",locs:["Lower Parel","Bandra","Kurla","Thane","Pune","Chandigarh","Noida","Hyderabad","Ansal Plaza","Pitampura"],upcoming:["Connaught Place","Gurgaon","Mohali","Wadala","Ghatkopar","Andheri","Bangalore"],color:"#7c3aed"},
+    {icon:"🌙",name:"Luna Et Sol",desc:"A living canvas — light, time & mood shift from sunlit Alpine warmth to moonlit indulgence beneath ever-changing skies.",locs:["Mumbai"],upcoming:["Delhi"],color:"#6d28d9"},
+    {icon:"🌺",name:"Koa",desc:"Bohemian vibes meet premium experiences. Embrace your free spirit at our café and bar — a haven of Boho Bliss.",locs:["Juhu","Thane"],upcoming:["Wadala"],color:"#d97706"},
+    {icon:"🍖",name:"The Game Ranch",desc:"Old west charm meets modern gaming, global cuisine & exhilarating nightlife — a one-of-a-kind entertainment experience.",locs:["Powai","Malad"],upcoming:["Airoli","Bangalore"],color:"#b45309"},
+    {icon:"🤸",name:"Pokiddo",desc:"Dynamic trampoline park where every leap defies limits and ignites joy.",locs:["Pune","Noida","Thane"],upcoming:[],color:"#0891b2"},
+    {icon:"🍣",name:"Pink Wasabi",desc:"Hyper-maximalist Pan-Asian boutique café — pink-hued fantasy meets bold sushi, baos & crafted cocktails.",locs:[],upcoming:["South Mumbai"],color:"#db2777"},
+    {icon:"🎪",name:"The Game Garden",desc:"Bowling lanes, arcade thrills & crave-worthy bites — your go-to playground for unforgettable entertainment.",locs:["Navi Mumbai"],upcoming:[],color:"#0891b2"},
+    {icon:"🎯",name:"The Game",desc:"India's premium indoor entertainment — cutting-edge tech with Gyro, Air Walk & Magic Lanes.",locs:["Mumbai"],upcoming:[],color:"#4f46e5"},
+    {icon:"🍕",name:"American Pie",desc:"Flavour-forward cloud kitchen — signature butter-crust Neapolitan pizzas, pastas, sandwiches & desserts.",locs:["Malad","Bandra","Seawoods","Powai","BKC","Kurla","Juhu","Thane","Pune","Noida","Chandigarh","Worli"],upcoming:[],color:"#dc2626"},
+    {icon:"🌿",name:"Amazonia",desc:"Luxurious rainforest-inspired dining paradise — exquisite cuisines, cocktails & enchanting live performances.",locs:["Mumbai"],upcoming:["Hyderabad","Bangalore"],color:"#16a34a"},
+    {icon:"🏎️",name:"Formula Karting",desc:"India's premier go-karting destination — high-speed adrenaline with uncompromising safety & world-class track design.",locs:["Pune","Noida"],upcoming:["Delhi","Bhiwandi","Dwarka"],color:"#dc2626"},
+    {icon:"🏄",name:"The Game Superpark",desc:"Four flagship experiences in one — The Game Palacio, Snow World, Formula Karting & Pokiddo!",locs:["Pune"],upcoming:["Borivali"],color:"#ff6b00"},
+    {icon:"❄️",name:"Snow World",desc:"India's leading indoor real-snow theme park — ice skating, sledging, snow dances & magical winter escapes.",locs:["Mumbai","Navi Mumbai","Pune","Ahmedabad"],upcoming:["Noida","Gurugram"],color:"#0284c7"},
+    {icon:"🧒",name:"Pokiddo Junior",desc:"Immersive game zones, pretend-play rooms & a dedicated party space — designed for endless kids' fun!",locs:["Lower Parel"],upcoming:["Mohali","Noida","Gurgaon","Pune","Bangalore","Borivali"],color:"#7c3aed"},
+    {icon:"🍹",name:"Leo's",desc:"Concept-driven neighbourhood bar — vintage-chic vibes meet global tapas & expertly crafted cocktails.",locs:[],upcoming:["Mumbai"],color:"#92400e"},
+    {icon:"🍺",name:"The Beer Garden",desc:"Vibrant garden where every sip sparks a story — craft brews from local legends to global icons.",locs:["Navi Mumbai"],upcoming:["Goregaon"],color:"#ca8a04"},
+    {icon:"🇮🇹",name:"Verde",desc:"Immersive Italian escape — timeless cucina meets modern artistry, hand-rolled pastas & Neapolitan pizzas.",locs:["Noida","Hyderabad"],upcoming:[],color:"#15803d"},
+    {icon:"🍸",name:"Kamikaze",desc:"Ultra-luxury bar-first experience where mixology meets obsession — blurred nights & electric energy.",locs:["Noida"],upcoming:["Hyderabad"],color:"#1e1b4b"},
   ];
   el.innerHTML=
-    '<div style="background:linear-gradient(135deg,#0f0f0f 0%,#1a0a00 100%);color:#fff;border-radius:20px;padding:40px 24px;margin-bottom:24px">'+
-    '<h2 style="font-size:28px;font-weight:900;color:#fff;margin-bottom:12px">Every company moment,<br><span style="color:#ff6b00">made unforgettable.</span></h2>'+
-    '<p style="color:#aaa;font-size:14px;margin-bottom:16px">From hiring drives to board retreats — we book the perfect venue for every company occasion. Confirm in minutes, our team handles the rest.</p>'+
-    '<div style="background:#ff6b00;color:#fff;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;display:inline-block;margin-bottom:24px">⚡ Instant Booking · Any Group Size · Venues Across India</div>'+
-    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px">'+
-    cats.map(function(c){
-      return '<div style="background:#1e1e1e;border:1px solid #333;border-radius:16px;padding:20px;cursor:pointer;transition:all .2s" onclick="openVenueForm(\''+c.id+'\',\''+c.name+'\')" onmouseover="this.style.background=\'#2a2a2a\';this.style.borderColor=\'#ff6b00\'" onmouseout="this.style.background=\'#1e1e1e\';this.style.borderColor=\'#333\'">'+
-        '<div style="font-size:38px;margin-bottom:10px">'+c.icon+'</div>'+
-        '<div style="font-weight:800;font-size:15px;color:#fff;margin-bottom:6px">'+c.name+'</div>'+
-        '<p style="font-size:12px;color:#aaa;line-height:1.6;margin-bottom:14px">'+c.desc+'</p>'+
-        '<button style="background:#ff6b00;color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;width:100%">Request Booking →</button>'+
-        '</div>';
+    '<div style="background:linear-gradient(135deg,#0f0f0f 0%,#1a0a00 100%);color:#fff;border-radius:20px;padding:28px 24px 24px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px">'+
+    '<div>'+
+    '<h2 style="font-size:24px;font-weight:900;color:#fff;margin-bottom:8px">Book a Venue for Your Team</h2>'+
+    '<p style="color:#aaa;font-size:13px;margin:0">Celebrations · Team Outings · Client Dinners · Corporate Events</p>'+
+    '</div>'+
+    '<div style="background:#ff6b00;color:#fff;border-radius:10px;padding:10px 18px;font-size:12px;font-weight:700;white-space:nowrap">⚡ Confirm in 2 hours</div>'+
+    '</div>'+
+    '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px">'+
+    venues.map(function(v){
+      var hasLocs=v.locs.length>0;
+      var locPills=v.locs.map(function(l){return '<span style="background:rgba(255,107,0,.15);color:#ff6b00;border-radius:999px;padding:3px 9px;font-size:10px;font-weight:700">'+l+'</span>';}).join('');
+      var upcomingHtml=v.upcoming.length?'<div style="font-size:10px;color:#666;margin-top:6px">📍 Coming: '+v.upcoming.join(' · ')+'</div>':"";
+      var badge=!hasLocs?'<span style="background:#333;color:#aaa;border-radius:999px;padding:2px 9px;font-size:10px;font-weight:700">Coming Soon</span>':"";
+      return '<div style="background:#1a1a1a;border:1.5px solid #2a2a2a;border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:9px;transition:all .2s;cursor:pointer" onclick="openVenueForm(\'team-sports\',\''+v.name+'\')" onmouseover="this.style.borderColor=\''+v.color+'\';this.style.background=\'#222\'" onmouseout="this.style.borderColor=\'#2a2a2a\';this.style.background=\'#1a1a1a\'">'+
+        '<div style="display:flex;align-items:center;gap:10px">'+
+        '<div style="width:42px;height:42px;border-radius:10px;background:'+v.color+'25;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">'+v.icon+'</div>'+
+        '<div>'+
+        '<div style="font-weight:800;font-size:14px;color:#fff;line-height:1.2">'+v.name+'</div>'+
+        badge+
+        '</div>'+
+        '</div>'+
+        '<p style="font-size:12px;color:#999;line-height:1.55;margin:0">'+v.desc+'</p>'+
+        (hasLocs?'<div style="display:flex;flex-wrap:wrap;gap:5px">'+locPills+'</div>':'')+
+        upcomingHtml+
+        '<button style="margin-top:6px;background:'+v.color+';color:#fff;border:none;border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;width:100%;opacity:'+(hasLocs?'1':'.6')+'">'+(hasLocs?'Book This Venue →':'Notify Me'+'</button>');
     }).join('')+
-    '</div></div>'+
-    // Reference brands
-    '<div class="card" style="padding:18px 20px;background:var(--bg)">'+
-    '<div style="font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--mu);text-transform:uppercase;margin-bottom:12px">🌟 OUR PARTNER VENUES</div>'+
-    '<div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center">'+
-    [
-      {name:"Formula Karting",loc:"Noida · Pune",icon:"🏎️"},
-      {name:"The Game Palacio",loc:"Noida · Mumbai · Pune",icon:"🎮"},
-      {name:"Game Ranch",loc:"Mumbai",icon:"🍖"},
-      {name:"Smaaash",loc:"Multiple cities",icon:"🎳"},
-      {name:"E-Zone",loc:"Mall venues",icon:"🕹️"},
-    ].map(function(v){
-      return '<div style="display:flex;align-items:center;gap:8px;padding:8px 14px;background:#fff;border-radius:999px;border:1px solid var(--ln)">'+
-        '<span style="font-size:16px">'+v.icon+'</span>'+
-        '<div><div style="font-size:12px;font-weight:700">'+v.name+'</div><div style="font-size:10px;color:var(--mu)">'+v.loc+'</div></div>'+
-        '</div>';
-    }).join('')+
-    '</div></div>';
+    '</div>';
 }
 
 function openVenueForm(categoryId, categoryName){

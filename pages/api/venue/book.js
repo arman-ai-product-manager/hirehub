@@ -35,7 +35,7 @@ export default async function handler(req, res) {
       const resend = new Resend(process.env.RESEND_API_KEY)
 
       await resend.emails.send({
-        from: 'bookings@hirehub.in',
+        from: 'bookings@hirehub360.in',
         to: [process.env.BOOKING_EMAIL || 'armanshk612@gmail.com'],
         subject: `[Venue Booking] ${category} — ${name} — ${date}`,
         html: `<h2>New Venue Booking</h2>
@@ -47,7 +47,7 @@ export default async function handler(req, res) {
       })
 
       await resend.emails.send({
-        from: 'bookings@hirehub.in',
+        from: 'bookings@hirehub360.in',
         to: [email],
         subject: `Booking Request Received — ${category}`,
         html: `<h2>Hi ${name}!</h2>

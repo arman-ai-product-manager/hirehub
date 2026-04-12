@@ -99,7 +99,14 @@ export default function BlogPost({ post }) {
   )
 }
 
-export async function getServerSideProps({ params }) {
+export async function getStaticPaths() {
+  const { data: posts } = await supabaseService
+    .from('blogs').select('slug').eq('published', true).limit(200)
+  const paths = (posts || []).map(p => ({ params: { slug: p.slug } }))
+  return { paths, fallback: 'blocking' }
+}
+
+export async function getStaticProps({ params }) {
   const { data: post } = await supabaseService
     .from('blogs')
     .select('*')
@@ -108,5 +115,5 @@ export async function getServerSideProps({ params }) {
     .single()
 
   if (!post) return { notFound: true }
-  return { props: { post } }
+  return { props: { post }, revalidate: 3600 }
 }
