@@ -136,13 +136,11 @@ textarea{resize:vertical}
 body{-webkit-text-size-adjust:100%}
 *{-webkit-tap-highlight-color:transparent}
 </style>
-<!-- Supabase Auth + DB client (defer = non-blocking) -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js" defer></script>
-<!-- Razorpay Checkout (defer = non-blocking, only needed at payment) -->
+<!-- Supabase Auth + DB client — blocking load so SB is ready before any code runs -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<!-- Razorpay Checkout (defer = only needed at payment time) -->
 <script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
 <script>
-  // Replace these with your actual Supabase project values
-  // (safe to expose — RLS policies enforce security)
   var _SB_URL  = 'https://wtczsvzhyitpvdevpqkw.supabase.co';
   var GSHEET_URL = 'https://script.google.com/macros/s/AKfycbydrY-w7Uqh_fgcEKjc1e5a_ZxWszVGqJps4iIq_dfW0N_vfCbSybSJphohmIkGXywv/exec';
   var _SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0Y3pzdnpoeWl0cHZkZXZwcWt3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyODM5NzksImV4cCI6MjA5MDg1OTk3OX0.HhSyC39tQeak6zp3Qa-fSNzxv9m2YAbFr4oVbkLVU9w';
