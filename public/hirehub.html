@@ -1642,31 +1642,29 @@ function renderCoVenue(el){
     {icon:"🍸",name:"Kamikaze",desc:"Ultra-luxury bar-first experience where mixology meets obsession — blurred nights & electric energy.",locs:["Noida"],upcoming:["Hyderabad"],color:"#1e1b4b"},
   ];
   el.innerHTML=
-    '<div style="background:linear-gradient(135deg,#0f0f0f 0%,#1a0a00 100%);color:#fff;border-radius:20px;padding:28px 24px 24px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px">'+
-    '<div>'+
-    '<h2 style="font-size:24px;font-weight:900;color:#fff;margin-bottom:8px">Book a Venue for Your Team</h2>'+
-    '<p style="color:#aaa;font-size:13px;margin:0">Celebrations · Team Outings · Client Dinners · Corporate Events</p>'+
-    '</div>'+
+    '<div style="background:linear-gradient(135deg,#111 0%,#1c0a00 100%);border-radius:18px;padding:24px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">'+
+    '<div><h2 style="font-size:22px;font-weight:900;color:#fff;margin-bottom:6px">Book a Venue for Your Team</h2>'+
+    '<p style="color:#aaa;font-size:13px;margin:0">Celebrations · Team Outings · Client Dinners · Corporate Events</p></div>'+
     '<div style="background:#ff6b00;color:#fff;border-radius:10px;padding:10px 18px;font-size:12px;font-weight:700;white-space:nowrap">⚡ Confirm in 2 hours</div>'+
     '</div>'+
-    '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px">'+
+    '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">'+
     venues.map(function(v){
       var hasLocs=v.locs.length>0;
-      var locPills=v.locs.map(function(l){return '<span style="background:rgba(255,107,0,.15);color:#ff6b00;border-radius:999px;padding:3px 9px;font-size:10px;font-weight:700">'+l+'</span>';}).join('');
-      var upcomingHtml=v.upcoming.length?'<div style="font-size:10px;color:#666;margin-top:6px">📍 Coming: '+v.upcoming.join(' · ')+'</div>':"";
-      var badge=!hasLocs?'<span style="background:#333;color:#aaa;border-radius:999px;padding:2px 9px;font-size:10px;font-weight:700">Coming Soon</span>':"";
-      return '<div style="background:#1a1a1a;border:1.5px solid #2a2a2a;border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:9px;transition:all .2s;cursor:pointer" onclick="openVenueForm(\'team-sports\',\''+v.name+'\')" onmouseover="this.style.borderColor=\''+v.color+'\';this.style.background=\'#222\'" onmouseout="this.style.borderColor=\'#2a2a2a\';this.style.background=\'#1a1a1a\'">'+
+      var locPills=v.locs.slice(0,4).map(function(l){return '<span style="background:rgba(255,107,0,.18);color:#ff6b00;border-radius:999px;padding:2px 8px;font-size:10px;font-weight:700;white-space:nowrap">'+l+'</span>';}).join('');
+      var moreLocs=v.locs.length>4?'<span style="font-size:10px;color:#888">+' +(v.locs.length-4)+' more</span>':'';
+      var upcomingHtml=v.upcoming.length?'<div style="font-size:10px;color:#666;margin-top:4px">📍 '+v.upcoming.slice(0,3).join(' · ')+(v.upcoming.length>3?' +more':'')+'</div>':"";
+      var btn=hasLocs
+        ?'<button onclick="event.stopPropagation();openVenueForm(\'team-sports\',\''+v.name+'\')" style="margin-top:8px;background:'+v.color+';color:#fff;border:none;border-radius:8px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;width:100%">Book →</button>'
+        :'<button style="margin-top:8px;background:#2a2a2a;color:#666;border:none;border-radius:8px;padding:8px 12px;font-size:12px;font-weight:600;cursor:default;width:100%">Coming Soon</button>';
+      return '<div onclick="openVenueForm(\'team-sports\',\''+v.name+'\')" style="background:#1c1c1e;border:1.5px solid #2c2c2e;border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:8px;cursor:pointer;transition:border-color .18s" onmouseover="this.style.borderColor=\''+v.color+'\'" onmouseout="this.style.borderColor=\'#2c2c2e\'">'+
         '<div style="display:flex;align-items:center;gap:10px">'+
-        '<div style="width:42px;height:42px;border-radius:10px;background:'+v.color+'25;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">'+v.icon+'</div>'+
-        '<div>'+
-        '<div style="font-weight:800;font-size:14px;color:#fff;line-height:1.2">'+v.name+'</div>'+
-        badge+
+        '<div style="width:40px;height:40px;border-radius:10px;background:'+v.color+'22;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">'+v.icon+'</div>'+
+        '<div style="font-weight:800;font-size:14px;color:#fff;line-height:1.3">'+v.name+'</div>'+
         '</div>'+
-        '</div>'+
-        '<p style="font-size:12px;color:#999;line-height:1.55;margin:0">'+v.desc+'</p>'+
-        (hasLocs?'<div style="display:flex;flex-wrap:wrap;gap:5px">'+locPills+'</div>':'')+
-        upcomingHtml+
-        '<button style="margin-top:6px;background:'+v.color+';color:#fff;border:none;border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;width:100%;opacity:'+(hasLocs?'1':'.6')+'">'+(hasLocs?'Book This Venue →':'Notify Me'+'</button>');
+        '<p style="font-size:11px;color:#888;line-height:1.5;margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">'+v.desc+'</p>'+
+        (hasLocs?'<div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center">'+locPills+moreLocs+'</div>':'')+
+        upcomingHtml+btn+
+        '</div>';
     }).join('')+
     '</div>';
 }
