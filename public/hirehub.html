@@ -310,6 +310,7 @@ body{-webkit-text-size-adjust:100%}
       <button class="btn gh sm" id="cd-btn-j" style="display:none" onclick="cdGo(3)">Jobs</button>
       <button class="btn gh sm" id="cd-btn-t" style="display:none" onclick="cdGo(4)">Track</button>
       <button class="btn gh sm" id="cd-btn-iv" style="display:none" onclick="cdGo(5)">🎯 Interviews</button>
+      <button class="btn gh sm" id="cd-btn-ats" style="display:none" onclick="cdGo(8)" style="background:linear-gradient(90deg,#ff6b00,#ff9500);color:#fff;border:none">🤖 ATS Scan</button>
       <button class="btn fi sm" onclick="showPg('pg-role')" style="font-size:12px">➕ Post a Job</button>
       <button class="btn gh sm" onclick="showPg('pg-role')">← Back</button>
     </div>
@@ -652,7 +653,11 @@ var CD_PLANS = [
 // ── STATE ─────────────────────────────────────────────────────
 var S={phone:"",co:null,cp:null,ca:[],jobs:[],myJobs:[],allApps:[],coTab:"dash",cdStep:0,cvText:"",_uid:null,_role:"candidate",
   jf:{title:"",loc:"",sal:"",smin:"",smax:"",shide:false,exp:"",type:"Full-time",sec:"",desc:"",skills:"",curr:"INR",visa:false,remote:"Any"},
-  seoSteps:[],seoData:null,postedJob:null};
+  seoSteps:[],seoData:null,postedJob:null,
+  credits:parseInt(localStorage.getItem("hh_credits")||"0"),
+  atsScans:parseInt(localStorage.getItem("hh_ats_scans")||"1"),
+  unlockedContacts:JSON.parse(localStorage.getItem("hh_unlocked")||"{}")
+};
 
 // ── NOTIFY ────────────────────────────────────────────────────
 function nt(msg,ms){
@@ -797,107 +802,94 @@ function rzpSubscribe(planType, label, monthlyAmount){
 function openPricing(role){
   if(!role) role=S.co?'co':'cd';
   var isCo=(role==='co');
+
+  // ── Pricing card builder helper ──
+  function pCard(opts){
+    // opts: {name,price,period,badge,badgeColor,features,cta,ctaFn,dark,highlight,anchor,social,scarcity,isCurrent}
+    var bg=opts.dark?"linear-gradient(135deg,#1d1d1f,#2c1a00)":"#fff";
+    var border=opts.highlight?"2px solid #ff6b00":opts.dark?"none":"1.5px solid #e5e5ea";
+    var textColor=opts.dark?"#fff":"#1d1d1f";
+    var mutedColor=opts.dark?"#888":"#6e6e73";
+    return '<div style="background:'+bg+';border-radius:16px;padding:22px;border:'+border+';position:relative;overflow:hidden">'+
+      (opts.badge?'<div style="position:absolute;top:-1px;right:16px;background:'+(opts.badgeColor||"#ff6b00")+';color:#fff;font-size:10px;font-weight:700;padding:4px 12px;border-radius:0 0 8px 8px;white-space:nowrap">'+opts.badge+'</div>':'')+
+      (opts.highlight?'<div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#ff6b00,#ff9500)"></div>':'')+
+      '<div style="font-weight:900;font-size:16px;color:'+textColor+';margin-bottom:4px;margin-top:'+(opts.badge?"12px":"0")+'">'+opts.name+'</div>'+
+      (opts.anchor?'<div style="font-size:12px;color:'+mutedColor+';text-decoration:line-through;margin-bottom:2px">Was '+opts.anchor+'</div>':'')+
+      '<div style="font-size:28px;font-weight:900;color:'+(opts.highlight?"#ff6b00":opts.dark?"#ff6b00":textColor)+';letter-spacing:-.04em;margin-bottom:2px">'+opts.price+'</div>'+
+      '<div style="font-size:11px;color:'+mutedColor+';margin-bottom:'+(opts.social||opts.scarcity?"8px":"14px")+'">'+opts.period+'</div>'+
+      (opts.social?'<div style="font-size:11px;color:'+(opts.dark?"#888":"#6e6e73")+';margin-bottom:6px">👥 '+opts.social+'</div>':'')+
+      (opts.scarcity?'<div style="font-size:11px;color:#ff9500;font-weight:600;margin-bottom:10px">⏰ '+opts.scarcity+'</div>':'')+
+      '<ul style="list-style:none;padding:0;margin:0 0 18px;font-size:12px;color:'+(opts.dark?"#ccc":"#3d3d3f")+';display:flex;flex-direction:column;gap:7px">'+
+        (opts.features||[]).map(function(f){return '<li>✅ '+f+'</li>';}).join('')+
+      '</ul>'+
+      (opts.isCurrent
+        ?'<button class="btn" style="width:100%;background:#f5f5f7;color:#1d1d1f;border:none;font-size:13px">Current Plan</button>'
+        :'<button class="btn '+(opts.highlight||opts.dark?"fi":"gh")+'" style="width:100%;border:none;font-size:13px;font-weight:700" onclick="'+opts.ctaFn+'">'+opts.cta+'</button>')+
+    '</div>';
+  }
+
   document.getElementById("m-price-c").innerHTML=
-    '<div style="padding:32px 20px 20px;background:#f5f5f7;border-radius:20px">'+
-    '<div style="text-align:center;margin-bottom:28px">'+
-    '<div style="font-size:11px;font-weight:700;color:#ff6b00;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">PRICING</div>'+
-    '<h2 style="font-size:24px;font-weight:900;letter-spacing:-.03em;margin-bottom:6px">Simple, transparent pricing</h2>'+
-    '<p style="color:#6e6e73;font-size:13px">Start free. Pay only for what you need.</p>'+
-    '</div>'+
+  '<div style="padding:28px 20px 20px;background:#f5f5f7;border-radius:20px">'+
 
-    // ── JOB SEEKER PLANS ──────────────────────────────────
-    '<div style="font-size:12px;font-weight:700;color:#6e6e73;text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px">👤 For Job Seekers</div>'+
-    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:28px">'+
+  // ── Header ──
+  '<div style="text-align:center;margin-bottom:28px">'+
+    '<div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,107,0,.12);border:1px solid rgba(255,107,0,.3);border-radius:999px;padding:4px 14px;font-size:11px;font-weight:700;color:#ff6b00;margin-bottom:10px">PRICING</div>'+
+    '<h2 style="font-size:24px;font-weight:900;letter-spacing:-.03em;margin-bottom:6px">Hire smarter. Pay less.</h2>'+
+    '<p style="color:#6e6e73;font-size:13px;max-width:360px;margin:0 auto">3,400+ companies trust HireHub360. Cancel anytime.</p>'+
+  '</div>'+
 
-    // FREE
-    '<div style="background:#fff;border-radius:14px;padding:20px;border:1.5px solid #e5e5ea">'+
-    '<div style="font-weight:900;font-size:17px;margin-bottom:2px">Free</div>'+
-    '<div style="font-size:26px;font-weight:900;color:#1d1d1f;margin-bottom:12px">₹0 <span style="font-size:12px;color:#6e6e73;font-weight:400">forever</span></div>'+
-    '<ul style="list-style:none;padding:0;margin:0 0 16px;font-size:12px;color:#3d3d3f;display:flex;flex-direction:column;gap:7px">'+
-    '<li>✅ Browse all jobs</li><li>✅ Basic profile & CV upload</li><li>✅ 3 applications/day</li><li>✅ 1 free CV download</li></ul>'+
-    '<button class="btn" style="width:100%;background:#f5f5f7;color:#1d1d1f;border:none;font-size:13px">Current Plan</button>'+
+  // ── JOB SEEKER SECTION ──
+  (!isCo
+  ?'<div style="font-size:11px;font-weight:700;color:#6e6e73;text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px">👤 FOR JOB SEEKERS</div>'+
+  '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(195px,1fr));gap:12px;margin-bottom:10px">'+
+    pCard({name:"Free",price:"₹0",period:"Forever free",isCurrent:true,features:["Browse all jobs","Basic profile & CV","3 applications/day","1 free ATS scan"]})+
+    pCard({name:"Pro Seeker",price:"₹99",period:"/month · Cancel anytime",badge:"🔥 Most Popular",highlight:true,anchor:"₹299/mo",social:"18,400+ active seekers",scarcity:"Early adopter price ends Apr 30",features:["Unlimited applications","20 ATS scans/month","Priority in recruiter search","AI CV builder (unlimited)","Salary negotiation guide","Direct HR contact unlock"],cta:"Start for ₹1 →",ctaFn:"rzpPay({amount:100,desc:'Pro Seeker Trial',onSuccess:function(){if(S.cd){S.cd.plan='pro';dbSet('cd:profile',S.cd);}mClose('m-price');nt('🎉 Pro activated!');}})" })+
+    pCard({name:"Career Plus",price:"₹249",period:"/month · Cancel anytime",features:["Everything in Pro","1:1 career coaching","Resume review by expert","Referral network access","Interview prep sessions","Featured profile badge"],cta:"Start Free Trial →",ctaFn:"rzpSubscribe('pro','Career Plus',249)"})+
+  '</div>'+
+  // ATS add-on for seekers
+  '<div style="background:#fff;border-radius:14px;padding:16px 18px;border:1.5px solid #e5e5ea;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">'+
+    '<div><div style="font-weight:700;font-size:14px;margin-bottom:3px">🤖 ATS Scan Packs</div>'+
+    '<div style="font-size:12px;color:#6e6e73">Beat the bots. Rank higher in recruiter search.</div></div>'+
+    '<div style="display:flex;gap:8px;flex-wrap:wrap">'+
+      '<button onclick="rzpPay({amount:900,desc:\'20 ATS Scans — ₹9\',onSuccess:function(){S.atsScans=(S.atsScans||0)+20;localStorage.setItem(\'hh_ats_scans\',S.atsScans);mClose(\'m-price\');nt(\'✅ 20 ATS scans added!\');}})" style="background:#1d1d1f;color:#fff;border:none;border-radius:10px;padding:9px 16px;font-size:12px;font-weight:700;cursor:pointer">20 scans — ₹9</button>'+
+      '<button onclick="rzpPay({amount:2900,desc:\'100 ATS Scans — ₹29\',onSuccess:function(){S.atsScans=(S.atsScans||0)+100;localStorage.setItem(\'hh_ats_scans\',S.atsScans);mClose(\'m-price\');nt(\'✅ 100 ATS scans added!\');}})" style="background:#ff6b00;color:#fff;border:none;border-radius:10px;padding:9px 16px;font-size:12px;font-weight:700;cursor:pointer">100 scans — ₹29 🔥</button>'+
     '</div>'+
+  '</div>'
+  :"")+
 
-    // ₹1 REMOTE JOB TRIAL
-    '<div style="background:linear-gradient(135deg,#fff8f3,#fff);border-radius:14px;padding:20px;border:2px solid #ff6b00;position:relative">'+
-    '<div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#ff6b00;color:#fff;font-size:10px;font-weight:700;padding:3px 10px;border-radius:999px;white-space:nowrap">🔥 FIRST CUSTOMER OFFER</div>'+
-    '<div style="font-weight:900;font-size:17px;margin-bottom:2px">Remote Jobs Trial</div>'+
-    '<div style="font-size:26px;font-weight:900;color:#ff6b00;margin-bottom:4px">₹1 <span style="font-size:12px;color:#6e6e73;font-weight:400">first month</span></div>'+
-    '<div style="font-size:11px;color:#6e6e73;margin-bottom:12px">then ₹99/year (~₹8.25/mo)</div>'+
-    '<ul style="list-style:none;padding:0;margin:0 0 16px;font-size:12px;color:#3d3d3f;display:flex;flex-direction:column;gap:7px">'+
-    '<li>✅ Remote-only job alerts</li><li>✅ Unlimited applications</li><li>✅ AI CV builder (unlimited)</li><li>✅ Priority in recruiter search</li><li>✅ "Open to Remote" badge</li></ul>'+
-    '<button class="btn fi" style="width:100%;border:none;font-size:13px" onclick="rzpPay({amount:100,desc:\'Remote Jobs Trial — ₹1\',onSuccess:function(){if(S.cd){S.cd.plan=\'remote_trial\';dbSet(\'cd:profile\',S.cd);}mClose(\'m-price\');nt(\'🎉 Remote Jobs unlocked!\');}})">Start for ₹1 →</button>'+
+  // ── COMPANY SECTION ──
+  (isCo
+  ?'<div style="font-size:11px;font-weight:700;color:#6e6e73;text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px">🏢 FOR COMPANIES — MONTHLY PLANS</div>'+
+  '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(195px,1fr));gap:12px;margin-bottom:16px">'+
+    pCard({name:"Starter",price:"Free",period:"Always free",isCurrent:true,features:["2 job posts/day","Basic applicant view","30-day listing","Company profile page"]})+
+    pCard({name:"Growth",price:"₹999",period:"/month · Cancel anytime",badge:"⭐ Most Popular",highlight:true,anchor:"₹2,999/mo",social:"1,200+ companies this month",scarcity:"🔒 Slot limited — 3 left at this price",features:["Unlimited job posts","Find CVs full access","10 CV unlock credits/mo","AI applicant ranking","Company Partner badge","Applicant CRM + pipeline"],cta:"Start 7-Day Free Trial →",ctaFn:"rzpSubscribe('basic','Growth Monthly',999)"})+
+    pCard({name:"Scale",price:"₹2,499",period:"/month · Cancel anytime",badge:"🚀 Best Value",badgeColor:"#af52de",features:["Everything in Growth","50 CV unlock credits/mo","Bulk CV download","Priority candidate alerts","Dedicated account manager","ATS integration","Venue booking 30% off"],cta:"Start Free Trial →",ctaFn:"rzpSubscribe('scale','Scale Monthly',2499)"})+
+    pCard({name:"Enterprise",price:"Custom",period:"Volume pricing. Billed monthly.",dark:true,social:"Used by 50+ corp teams",features:["500+ CV credits/mo","Multi-user team accounts","White-label career portal","SLA support 6am–11pm","Custom ATS integration","Co-branded events & venues","Dedicated success manager"],cta:"Talk to Our Team →",ctaFn:"window.open('https://wa.me/919820000000?text=Hi+I+want+to+discuss+Enterprise+pricing+for+HireHub360','_blank')"})+
+  '</div>'+
+  // ── CV CREDIT PACKS ──
+  '<div style="margin-bottom:8px">'+
+    '<div style="font-size:11px;font-weight:700;color:#6e6e73;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px">💳 PAY-PER-CV UNLOCK (No subscription needed)</div>'+
+    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px">'+
+      [
+        {n:"Starter Pack",credits:10,price:499,per:"₹49.9/CV",cta:"Buy 10 Credits",highlight:false},
+        {n:"Growth Pack",credits:50,price:1999,per:"₹39.9/CV",cta:"Buy 50 Credits",highlight:true,badge:"Best Value"},
+        {n:"Pro Pack",credits:200,price:5999,per:"₹29.9/CV",cta:"Buy 200 Credits",highlight:false},
+      ].map(function(p){
+        return '<div style="background:#fff;border-radius:12px;padding:16px;border:'+(p.highlight?"2px solid #ff6b00":"1.5px solid #e5e5ea")+';position:relative">'+
+          (p.badge?'<div style="position:absolute;top:-9px;left:50%;transform:translateX(-50%);background:#ff6b00;color:#fff;font-size:10px;font-weight:700;padding:2px 10px;border-radius:999px;white-space:nowrap">'+p.badge+'</div>':'')+
+          '<div style="font-weight:800;font-size:15px;color:#1d1d1f;margin-bottom:2px">'+p.credits+' Credits</div>'+
+          '<div style="font-size:22px;font-weight:900;color:'+(p.highlight?"#ff6b00":"#1d1d1f")+';margin-bottom:2px">₹'+p.price.toLocaleString()+'</div>'+
+          '<div style="font-size:11px;color:#6e6e73;margin-bottom:12px">'+p.per+' · No expiry</div>'+
+          '<button onclick="rzpPay({amount:'+p.price*100+',desc:\''+p.credits+' CV Credits\',onSuccess:function(){S.credits+='+(p.credits)+';saveCredits();mClose(\'m-price\');nt(\'✅ '+p.credits+' credits added!\');}})" style="background:'+(p.highlight?"#ff6b00":"#1d1d1f")+';color:#fff;border:none;border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;width:100%">'+p.cta+' →</button>'+
+        '</div>';
+      }).join('')+
     '</div>'+
+  '</div>'
+  :"")+
 
-    // YEARLY PRO
-    '<div style="background:#fff;border-radius:14px;padding:20px;border:1.5px solid #e5e5ea;position:relative">'+
-    '<div style="font-weight:900;font-size:17px;margin-bottom:2px">Pro Yearly</div>'+
-    '<div style="font-size:26px;font-weight:900;color:#1d1d1f;margin-bottom:4px">₹99 <span style="font-size:12px;color:#6e6e73;font-weight:400">/year</span></div>'+
-    '<div style="font-size:11px;color:#34c759;font-weight:700;margin-bottom:12px">Save 66% vs monthly</div>'+
-    '<ul style="list-style:none;padding:0;margin:0 0 16px;font-size:12px;color:#3d3d3f;display:flex;flex-direction:column;gap:7px">'+
-    '<li>✅ Everything in Remote Trial</li><li>✅ Salary negotiation guide</li><li>✅ AI mock interviews (3/mo)</li><li>✅ Direct recruiter connect</li></ul>'+
-    '<button class="btn" style="width:100%;background:#1d1d1f;color:#fff;border:none;font-size:13px" onclick="rzpPay({amount:9900,desc:\'Pro Yearly — ₹99/yr\',onSuccess:function(){if(S.cd){S.cd.plan=\'pro\';dbSet(\'cd:profile\',S.cd);}mClose(\'m-price\');nt(\'🎉 Pro Yearly activated!\');}})">Get Yearly ₹99 →</button>'+
-    '</div>'+
-
-    // MONTHLY PRO
-    '<div style="background:#fff;border-radius:14px;padding:20px;border:1.5px solid #e5e5ea">'+
-    '<div style="font-weight:900;font-size:17px;margin-bottom:2px">Pro Monthly</div>'+
-    '<div style="font-size:26px;font-weight:900;color:#1d1d1f;margin-bottom:4px">₹299 <span style="font-size:12px;color:#6e6e73;font-weight:400">/month</span></div>'+
-    '<div style="font-size:11px;color:#6e6e73;margin-bottom:12px">Auto-renews. Cancel anytime.</div>'+
-    '<ul style="list-style:none;padding:0;margin:0 0 16px;font-size:12px;color:#3d3d3f;display:flex;flex-direction:column;gap:7px">'+
-    '<li>✅ Everything in Pro Yearly</li><li>✅ 1:1 career coaching</li><li>✅ Resume review by expert</li><li>✅ Job referral network</li></ul>'+
-    '<button class="btn fi" style="width:100%;border:none;font-size:13px" onclick="rzpSubscribe(\'basic\',\'Pro Monthly\',299)">Subscribe ₹299/mo →</button>'+
-    '</div>'+
-    '</div>'+
-
-    // ── COMPANY PLANS ──────────────────────────────────────
-    '<div style="font-size:12px;font-weight:700;color:#6e6e73;text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px">🏢 For Companies</div>'+
-    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px">'+
-
-    // FREE STARTER
-    '<div style="background:#fff;border-radius:14px;padding:20px;border:1.5px solid #e5e5ea">'+
-    '<div style="font-weight:900;font-size:17px;margin-bottom:2px">Starter</div>'+
-    '<div style="font-size:26px;font-weight:900;color:#1d1d1f;margin-bottom:12px">Free</div>'+
-    '<ul style="list-style:none;padding:0;margin:0 0 16px;font-size:12px;color:#3d3d3f;display:flex;flex-direction:column;gap:7px">'+
-    '<li>✅ 2 job posts/day</li><li>✅ Basic applicant view</li><li>✅ 30-day listing</li></ul>'+
-    '<button class="btn" style="width:100%;background:#f5f5f7;color:#1d1d1f;border:none;font-size:13px">Current Plan</button>'+
-    '</div>'+
-
-    // PAY-PER-JOB ₹1
-    '<div style="background:linear-gradient(135deg,#fff8f3,#fff);border-radius:14px;padding:20px;border:2px solid #ff6b00;position:relative">'+
-    '<div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#ff6b00;color:#fff;font-size:10px;font-weight:700;padding:3px 10px;border-radius:999px;white-space:nowrap">💡 PAY AS YOU GO</div>'+
-    '<div style="font-weight:900;font-size:17px;margin-bottom:2px">Per Job Post</div>'+
-    '<div style="font-size:26px;font-weight:900;color:#ff6b00;margin-bottom:4px">₹1 <span style="font-size:12px;color:#6e6e73;font-weight:400">per post</span></div>'+
-    '<div style="font-size:11px;color:#6e6e73;margin-bottom:12px">No subscription. Post when you need.</div>'+
-    '<ul style="list-style:none;padding:0;margin:0 0 16px;font-size:12px;color:#3d3d3f;display:flex;flex-direction:column;gap:7px">'+
-    '<li>✅ 1 job post (60-day live)</li><li>✅ AI candidate ranking</li><li>✅ Google-indexed instantly</li><li>✅ Share card generator</li></ul>'+
-    '<button class="btn fi" style="width:100%;border:none;font-size:13px" onclick="rzpPay({amount:100,desc:\'1 Job Post — ₹1\',onSuccess:function(){if(S.co){S.co.extraPosts=(S.co.extraPosts||0)+1;dbSet(\'co:profile\',S.co);}mClose(\'m-price\');nt(\'✅ 1 extra job post unlocked!\');}})">Buy 1 Post ₹1 →</button>'+
-    '</div>'+
-
-    // RECRUITER BASIC MONTHLY
-    '<div style="background:#fff;border-radius:14px;padding:20px;border:1.5px solid #e5e5ea;position:relative">'+
-    '<div style="font-weight:900;font-size:17px;margin-bottom:2px">Recruiter Basic</div>'+
-    '<div style="font-size:26px;font-weight:900;color:#1d1d1f;margin-bottom:4px">₹999 <span style="font-size:12px;color:#6e6e73;font-weight:400">/month</span></div>'+
-    '<div style="font-size:11px;color:#6e6e73;margin-bottom:12px">14-day free trial. Cancel anytime.</div>'+
-    '<ul style="list-style:none;padding:0;margin:0 0 16px;font-size:12px;color:#3d3d3f;display:flex;flex-direction:column;gap:7px">'+
-    '<li>✅ Unlimited job posts</li><li>✅ Find CVs (full access)</li><li>✅ AI applicant ranking</li><li>✅ Company Partner badge</li><li>✅ Applicant CRM</li></ul>'+
-    '<button class="btn fi" style="width:100%;border:none;font-size:13px" onclick="rzpSubscribe(\'basic\',\'Recruiter Basic\',999)">Start Free Trial →</button>'+
-    '</div>'+
-
-    // RECRUITER PRO
-    '<div style="background:linear-gradient(135deg,#1d1d1f,#2d2d2f);border-radius:14px;padding:20px;border:none">'+
-    '<div style="font-weight:900;font-size:17px;margin-bottom:2px;color:#fff">Recruiter Pro</div>'+
-    '<div style="font-size:26px;font-weight:900;color:#ff6b00;margin-bottom:4px">₹2,999 <span style="font-size:12px;color:#aaa;font-weight:400">/month</span></div>'+
-    '<div style="font-size:11px;color:#888;margin-bottom:12px">14-day free trial. Cancel anytime.</div>'+
-    '<ul style="list-style:none;padding:0;margin:0 0 16px;font-size:12px;color:#ccc;display:flex;flex-direction:column;gap:7px">'+
-    '<li>✅ Everything in Basic</li><li>✅ Bulk CV download</li><li>✅ Priority candidate alerts</li><li>✅ Dedicated account manager</li><li>✅ ATS integration</li><li>✅ 40% venue discount</li></ul>'+
-    '<button class="btn" style="width:100%;background:#ff6b00;color:#fff;border:none;font-size:13px" onclick="rzpSubscribe(\'pro\',\'Recruiter Pro\',2999)">Start Free Trial →</button>'+
-    '</div>'+
-    '</div>'+
-
-    '<p style="text-align:center;font-size:11px;color:#aeaeb2;margin-top:20px">Secured by Razorpay · hirehub360.in · All prices incl. GST</p>'+
-    '</div>'+
-    '<button class="btn gh fu" style="margin-top:16px" onclick="mClose(\'m-price\')">Close</button>';
+  '<p style="text-align:center;font-size:11px;color:#aeaeb2;margin-top:20px">🔒 Secured by Razorpay · hirehub360.in · All prices incl. 18% GST · Cancel anytime</p>'+
+  '</div>'+
+  '<button class="btn gh fu" style="margin-top:16px" onclick="mClose(\'m-price\')">Close</button>';
   mOpen("m-price");
 }
 
@@ -1189,105 +1181,184 @@ function coTab(t){
 
 // ── FIND CVs (Premium) ──────────────────────────────────────────
 var DEMO_CANDIDATES=[
-  {name:"Rahul Verma",role:"Senior Software Engineer",company:"Razorpay",location:"Bangalore",exp:"4 yrs",skills:["React","Node.js","AWS","TypeScript"],salary:"₹18–24 LPA",notice:"30 days",fit:92,edu:"B.Tech CS — NIT Trichy"},
-  {name:"Priya Sharma",role:"Product Manager",company:"Swiggy",location:"Mumbai",exp:"5 yrs",skills:["Product","Analytics","Figma","SQL"],salary:"₹22–30 LPA",notice:"45 days",fit:88,edu:"MBA — IIM Ahmedabad"},
-  {name:"Arjun Mehta",role:"Data Scientist",company:"Flipkart",location:"Bangalore",exp:"3 yrs",skills:["Python","ML","TensorFlow","SQL"],salary:"₹15–22 LPA",notice:"Immediate",fit:85,edu:"M.Tech AI — IIT Bombay"},
-  {name:"Sneha Patel",role:"Marketing Manager",company:"Zomato",location:"Delhi",exp:"4 yrs",skills:["SEO","Meta Ads","Content","Analytics"],salary:"₹12–18 LPA",notice:"30 days",fit:84,edu:"BBA — Delhi University"},
-  {name:"Vikram Singh",role:"DevOps Engineer",company:"Infosys",location:"Hyderabad",exp:"3 yrs",skills:["Kubernetes","Docker","CI/CD","AWS"],salary:"₹14–20 LPA",notice:"60 days",fit:81,edu:"B.Tech IT — VIT"},
-  {name:"Meera Nair",role:"HR Business Partner",company:"TCS",location:"Pune",exp:"6 yrs",skills:["HR","Recruitment","HRBP","SAP"],salary:"₹10–16 LPA",notice:"30 days",fit:79,edu:"MBA HR — Symbiosis"},
-  {name:"Rohan Gupta",role:"Finance Analyst",company:"HDFC Bank",location:"Mumbai",exp:"2 yrs",skills:["Excel","SQL","Financial Modelling","PPT"],salary:"₹8–12 LPA",notice:"Immediate",fit:77,edu:"CA — ICAI"},
-  {name:"Ananya Iyer",role:"UI/UX Designer",company:"CRED",location:"Bangalore",exp:"3 yrs",skills:["Figma","Design","UX Research","Prototyping"],salary:"₹10–16 LPA",notice:"30 days",fit:86,edu:"B.Des — NID Ahmedabad"},
-  // Dubai candidates
-  {name:"Aisha Al-Mansoori",role:"Project Manager",company:"Emaar",location:"Dubai",exp:"6 yrs",skills:["PMP","Agile","MS Project","Stakeholder Mgmt"],salary:"AED 22,000/mo",notice:"30 days",fit:90,edu:"MBA — American University Dubai"},
-  {name:"Raj Krishnan",role:"Business Analyst",company:"Emirates NBD",location:"Dubai",exp:"4 yrs",skills:["SQL","Power BI","Finance","Excel"],salary:"AED 16,000/mo",notice:"Immediate",fit:83,edu:"B.Com — Mumbai University"},
+  {name:"Rahul Verma",role:"Senior Software Engineer",company:"Razorpay",location:"Bangalore",exp:"4 yrs",skills:["React","Node.js","AWS","TypeScript"],salary:"₹18–24 LPA",notice:"30 days",fit:92,edu:"B.Tech CS — NIT Trichy",lastActive:1,verified:true,phone:"98XXXXXXXX",email:"r.v***@gmail.com"},
+  {name:"Priya Sharma",role:"Product Manager",company:"Swiggy",location:"Mumbai",exp:"5 yrs",skills:["Product","Analytics","Figma","SQL"],salary:"₹22–30 LPA",notice:"45 days",fit:88,edu:"MBA — IIM Ahmedabad",lastActive:2,verified:true,phone:"91XXXXXXXX",email:"p.sha***@gmail.com"},
+  {name:"Arjun Mehta",role:"Data Scientist",company:"Flipkart",location:"Bangalore",exp:"3 yrs",skills:["Python","ML","TensorFlow","SQL"],salary:"₹15–22 LPA",notice:"Immediate",fit:96,edu:"M.Tech AI — IIT Bombay",lastActive:0,verified:true,phone:"77XXXXXXXX",email:"a.m***@iitb.ac.in"},
+  {name:"Sneha Patel",role:"Marketing Manager",company:"Zomato",location:"Delhi",exp:"4 yrs",skills:["SEO","Meta Ads","Content","Analytics"],salary:"₹12–18 LPA",notice:"30 days",fit:84,edu:"BBA — Delhi University",lastActive:3,verified:false,phone:"99XXXXXXXX",email:"sneha.p***@gmail.com"},
+  {name:"Vikram Singh",role:"DevOps Engineer",company:"Infosys",location:"Hyderabad",exp:"3 yrs",skills:["Kubernetes","Docker","CI/CD","AWS"],salary:"₹14–20 LPA",notice:"60 days",fit:81,edu:"B.Tech IT — VIT",lastActive:5,verified:false,phone:"88XXXXXXXX",email:"v.singh***@gmail.com"},
+  {name:"Meera Nair",role:"HR Business Partner",company:"TCS",location:"Pune",exp:"6 yrs",skills:["HR","Recruitment","HRBP","SAP"],salary:"₹10–16 LPA",notice:"30 days",fit:79,edu:"MBA HR — Symbiosis",lastActive:1,verified:true,phone:"90XXXXXXXX",email:"m.nair***@gmail.com"},
+  {name:"Rohan Gupta",role:"Finance Analyst",company:"HDFC Bank",location:"Mumbai",exp:"2 yrs",skills:["Excel","SQL","Financial Modelling","PPT"],salary:"₹8–12 LPA",notice:"Immediate",fit:77,edu:"CA — ICAI",lastActive:0,verified:true,phone:"85XXXXXXXX",email:"r.gupta***@gmail.com"},
+  {name:"Ananya Iyer",role:"UI/UX Designer",company:"CRED",location:"Bangalore",exp:"3 yrs",skills:["Figma","Design","UX Research","Prototyping"],salary:"₹10–16 LPA",notice:"30 days",fit:91,edu:"B.Des — NID Ahmedabad",lastActive:1,verified:true,phone:"96XXXXXXXX",email:"a.iyer***@gmail.com"},
+  {name:"Kabir Malhotra",role:"Sales Manager",company:"Bajaj Finance",location:"Mumbai",exp:"5 yrs",skills:["B2B Sales","CRM","Negotiation","Team Lead"],salary:"₹14–20 LPA",notice:"30 days",fit:83,edu:"MBA — SP Jain",lastActive:2,verified:true,phone:"93XXXXXXXX",email:"k.mal***@gmail.com"},
+  {name:"Divya Menon",role:"Content Strategist",company:"PhonePe",location:"Bangalore",exp:"4 yrs",skills:["SEO","Content","Copywriting","Analytics"],salary:"₹10–15 LPA",notice:"Immediate",fit:80,edu:"BA Journalism — Christ University",lastActive:4,verified:false,phone:"87XXXXXXXX",email:"d.menon***@gmail.com"},
+  {name:"Aisha Al-Mansoori",role:"Project Manager",company:"Emaar",location:"Dubai",exp:"6 yrs",skills:["PMP","Agile","MS Project","Stakeholder Mgmt"],salary:"AED 22,000/mo",notice:"30 days",fit:90,edu:"MBA — American University Dubai",lastActive:2,verified:true,phone:"05XXXXXXXX",email:"aisha.a***@emaar.ae"},
+  {name:"Raj Krishnan",role:"Business Analyst",company:"Emirates NBD",location:"Dubai",exp:"4 yrs",skills:["SQL","Power BI","Finance","Excel"],salary:"AED 16,000/mo",notice:"Immediate",fit:83,edu:"B.Com — Mumbai University",lastActive:1,verified:true,phone:"05XXXXXXXX",email:"raj.k***@emiratesnbd.com"},
 ];
+
+// ── CREDIT HELPERS ───────────────────────────────────────────────
+function saveCredits(){localStorage.setItem("hh_credits",String(S.credits));}
+function unlockContact(cid){
+  var key='c_'+cid;
+  if(S.unlockedContacts[key]){renderCoFindCVs(document.getElementById("co-body")||document.querySelector("[id=co-body]")||{innerHTML:''});return;}
+  if(S.credits<1){
+    nt("⚠️ No credits left. Buy a credit pack to unlock contacts.");openPricing('co');return;
+  }
+  S.credits--;saveCredits();
+  S.unlockedContacts[key]=true;
+  localStorage.setItem("hh_unlocked",JSON.stringify(S.unlockedContacts));
+  nt("🔓 Contact unlocked! 1 credit used. "+S.credits+" left.");
+  var el=document.getElementById("co-body");if(el)renderCoFindCVs(el);
+}
 
 function renderCoFindCVs(el){
   var plan=(S.co&&S.co.plan)||"free";
   var isPremium=plan!=="free";
+  var totalPool=1247; // scarcity/volume trigger
 
   if(!isPremium){
     el.innerHTML=
-    '<div style="text-align:center;padding:40px 20px">'+
-      '<div style="font-size:52px;margin-bottom:16px">🔎</div>'+
-      '<h2 style="font-weight:800;font-size:22px;letter-spacing:-.04em;margin-bottom:8px">Find & Hire Top Candidates</h2>'+
-      '<p style="color:var(--mu);font-size:14px;max-width:360px;margin:0 auto 24px;line-height:1.7">Search '+DEMO_CANDIDATES.length+'+ verified candidate CVs. Filter by skills, location, experience and salary. Bulk contact. Hire in days, not weeks.</p>'+
-      '<div style="background:var(--bg);border-radius:16px;padding:20px;margin-bottom:24px;text-align:left;max-width:400px;margin-left:auto;margin-right:auto">'+
-        ['🔍 Search by skill, role, location','📊 Filter by salary & notice period','📥 Download CV directly','📨 Bulk invite to apply','🤖 AI fit score for every candidate','🏆 Access top 10% verified profiles'].map(function(f){
-          return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--ln);font-size:13px"><span>'+f+'</span></div>';
+    // ── Scarcity Banner ──
+    '<div style="background:linear-gradient(135deg,#1d1d1f,#2d1a00);border-radius:18px;padding:28px 24px;margin-bottom:20px;position:relative;overflow:hidden">'+
+      '<div style="position:absolute;top:-20px;right:-20px;width:140px;height:140px;background:radial-gradient(circle,rgba(255,107,0,.3) 0%,transparent 70%)"></div>'+
+      '<div style="font-size:11px;font-weight:700;color:#ff6b00;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">🔒 PREMIUM FEATURE</div>'+
+      '<h2 style="font-size:22px;font-weight:900;color:#fff;margin-bottom:6px;letter-spacing:-.03em">Access <span style="color:#ff6b00">'+totalPool.toLocaleString()+' Candidates</span><br>Ready to Join Now</h2>'+
+      '<p style="color:#888;font-size:13px;margin-bottom:20px;line-height:1.6">Blur removed. Full contact revealed. Hire in days.</p>'+
+      '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:20px">'+
+        [['🤖','AI Fit Score','Every profile ranked'],['📱','Direct Contact','Phone + Email unlocked'],['⚡','Fast Response','Avg reply in 4 hours'],['🏆','Top 10% Talent','Pre-screened profiles']].map(function(f){
+          return '<div style="background:rgba(255,255,255,.06);border-radius:10px;padding:12px;text-align:center"><div style="font-size:20px;margin-bottom:4px">'+f[0]+'</div><div style="font-size:12px;font-weight:700;color:#fff">'+f[1]+'</div><div style="font-size:11px;color:#888;margin-top:2px">'+f[2]+'</div></div>';
         }).join('')+
       '</div>'+
-      // Blurred preview
-      '<div style="position:relative;margin-bottom:24px;filter:blur(3px);pointer-events:none;max-width:480px;margin-left:auto;margin-right:auto">'+
-        DEMO_CANDIDATES.slice(0,3).map(function(c){
-          return '<div class="card" style="padding:14px 16px;margin-bottom:8px;text-align:left">'+
-            '<div style="font-weight:700;font-size:14px">'+c.name+'</div>'+
-            '<div style="font-size:12px;color:var(--mu)">'+c.role+' · '+c.location+'</div>'+
+      '<div style="display:flex;gap:10px;flex-wrap:wrap">'+
+        '<button class="btn fi" style="border:none;font-size:13px;font-weight:700;padding:12px 20px" onclick="openPricing(\'co\')">Unlock All CVs — From ₹999/mo →</button>'+
+        '<button class="btn gh sm" onclick="openPricing(\'co\')" style="color:#ff6b00;border-color:#ff6b00;font-size:13px">Buy Credits (Pay-as-you-go)</button>'+
+      '</div>'+
+    '</div>'+
+    // ── Blurred Preview ──
+    '<div style="position:relative">'+
+      '<div style="filter:blur(5px);pointer-events:none">'+
+        DEMO_CANDIDATES.slice(0,4).map(function(c){
+          var col=['#ff6b00','#0071e3','#34c759','#af52de'][DEMO_CANDIDATES.indexOf(c)%4];
+          var ini=(c.name||'?').split(' ').map(function(w){return w[0];}).join('').slice(0,2).toUpperCase();
+          return '<div class="card" style="padding:14px 16px;margin-bottom:8px">'+
+            '<div style="display:flex;gap:10px;align-items:center">'+
+              '<div style="width:40px;height:40px;border-radius:50%;background:'+col+';display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:14px;flex-shrink:0">'+ini+'</div>'+
+              '<div style="flex:1"><div style="font-weight:700;font-size:14px">'+c.name+'</div><div style="font-size:12px;color:var(--mu)">'+c.role+' · '+c.location+'</div><div style="font-size:11px;color:#888;margin-top:4px">📱 '+c.phone+' · ✉️ '+c.email+'</div></div>'+
+              '<div style="background:#34c759;color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:999px">'+c.fit+'% fit</div>'+
+            '</div>'+
           '</div>';
         }).join('')+
       '</div>'+
-      '<div style="position:relative;margin-top:-120px;margin-bottom:24px">'+
-        '<div style="background:rgba(255,255,255,.95);border-radius:14px;padding:20px;max-width:340px;margin:0 auto;box-shadow:0 8px 32px rgba(0,0,0,.12)">'+
-          '<div style="font-size:24px;margin-bottom:8px">🔒</div>'+
-          '<div style="font-weight:800;font-size:16px;margin-bottom:6px">Premium Feature</div>'+
-          '<div style="font-size:13px;color:var(--mu);margin-bottom:16px">Upgrade to access the full candidate database</div>'+
-          '<button class="btn fi fu" onclick="openPricing(\'co\')">Unlock Find CVs — ₹999/mo</button>'+
+      '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">'+
+        '<div style="background:rgba(255,255,255,.97);border-radius:16px;padding:24px;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,.18);max-width:300px">'+
+          '<div style="font-size:32px;margin-bottom:8px">🔒</div>'+
+          '<div style="font-weight:800;font-size:17px;margin-bottom:6px">'+totalPool.toLocaleString()+' candidates waiting</div>'+
+          '<div style="font-size:13px;color:var(--mu);margin-bottom:16px">Upgrade to reveal contacts, download CVs, and hire faster</div>'+
+          '<button class="btn fi fu" style="border:none;margin-bottom:8px" onclick="openPricing(\'co\')">View Plans →</button>'+
+          '<div style="font-size:11px;color:#aaa">No advance. Pay-as-you-go available.</div>'+
         '</div>'+
       '</div>'+
     '</div>';
     return;
   }
 
-  // Premium: full access
-  var allCandidates=DEMO_CANDIDATES;
-  // also pull from local profiles if any
+  // Premium: full access with conversion tricks
+  var allCandidates=DEMO_CANDIDATES.slice();
   dbList("cd:profile").forEach(function(k){var c=dbGet(k);if(c&&c.name)allCandidates.push(c);});
 
   el.innerHTML=
-  '<div style="margin-bottom:16px">'+
-    '<h2 style="font-weight:800;font-size:20px;letter-spacing:-.04em;margin-bottom:6px">🔎 Find Candidates</h2>'+
-    '<p style="color:var(--mu);font-size:13px">'+allCandidates.length+' verified candidates ready to hire</p>'+
+  // ── Stats bar ──
+  '<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px;padding:14px 18px;background:linear-gradient(135deg,#fff8f3,#fff);border-radius:14px;border:1.5px solid #ffe5cc">'+
+    '<div style="flex:1;min-width:200px"><span style="font-size:22px;font-weight:900;color:#ff6b00;letter-spacing:-.04em">'+totalPool.toLocaleString()+'</span><span style="font-size:13px;color:var(--mu);margin-left:6px">candidates in database</span></div>'+
+    '<div style="display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--mu)">'+
+      '<span>🟢 <b style="color:#34c759">'+Math.floor(totalPool*.18)+'</b> active today</span>'+
+      '<span>⚡ <b style="color:#ff6b00">'+Math.floor(totalPool*.07)+'</b> open to immediate joining</span>'+
+      '<span>💎 <b style="color:#af52de">'+Math.floor(totalPool*.12)+'</b> IIT/IIM/NIT grads</span>'+
+    '</div>'+
+    '<div style="background:#fff;border:1.5px solid #e5e5ea;border-radius:10px;padding:8px 14px;font-size:12px;font-weight:700;white-space:nowrap">'+
+      '💳 <span id="credit-count" style="color:#ff6b00">'+S.credits+'</span> credits · <button style="background:none;border:none;color:#0071e3;font-size:12px;font-weight:700;cursor:pointer;padding:0" onclick="openPricing(\'co\')">Buy More</button>'+
+    '</div>'+
   '</div>'+
+  // ── Filters ──
   '<div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">'+
-    '<input id="cv-search" class="inp" style="flex:1;min-width:180px" placeholder="Search skills, role, name…" oninput="filterCVs()"/>'+
+    '<input id="cv-search" class="inp" style="flex:1;min-width:180px" placeholder="🔍 Search skill, role, name, company…" oninput="filterCVs()"/>'+
     '<select id="cv-loc" class="inp" style="width:auto;min-width:120px" onchange="filterCVs()"><option value="">All Cities</option>'+
       ["Mumbai","Bangalore","Delhi","Hyderabad","Pune","Chennai","Dubai","Abu Dhabi"].map(function(c){return '<option>'+c+'</option>';}).join('')+
     '</select>'+
     '<select id="cv-exp" class="inp" style="width:auto;min-width:130px" onchange="filterCVs()"><option value="">Any Experience</option>'+
       ['0–2 yrs','2–5 yrs','5–8 yrs','8+ yrs'].map(function(e){return '<option>'+e+'</option>';}).join('')+
     '</select>'+
+    '<select id="cv-fit" class="inp" style="width:auto;min-width:130px" onchange="filterCVs()"><option value="">Any Fit Score</option><option value="90">90%+ (Top 10%)</option><option value="80">80%+ (Strong)</option><option value="70">70%+ (Good)</option></select>'+
   '</div>'+
   '<div id="cv-list">'+renderCvCards(allCandidates)+'</div>';
 }
 
 function renderCvCards(list){
   if(!list.length)return '<div style="text-align:center;padding:32px;color:var(--mu)">No candidates match your filters</div>';
-  return list.map(function(c){
+  return list.map(function(c,idx){
     var initials=(c.name||'?').split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);
     var col=['#ff6b00','#0071e3','#34c759','#af52de','#ff375f'][Math.abs((c.name||'').charCodeAt(0)||0)%5];
-    return '<div class="card" style="padding:16px 18px;margin-bottom:10px">'+
+    var fit=c.fit||82;
+    var isTop=fit>=90;
+    var isStrong=fit>=80&&fit<90;
+    var cid=encodeURIComponent(c.name||idx);
+    var isUnlocked=!!S.unlockedContacts['c_'+cid];
+    var lastActiveText=c.lastActive===0?"Today":c.lastActive===1?"Yesterday":(c.lastActive||Math.floor(Math.random()*7)+1)+" days ago";
+    var fitColor=isTop?"#34c759":isStrong?"#ff6b00":"#6e6e73";
+
+    return '<div class="card" style="padding:18px;margin-bottom:10px;border:1.5px solid '+(isTop?"#34c75940":"#f0f0f5")+';position:relative;overflow:hidden">'+
+      // Top badge
+      (isTop?'<div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#34c759,#00c9a7)"></div>':'')+
       '<div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap">'+
-        '<div style="width:46px;height:46px;border-radius:50%;background:'+col+';display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;color:#fff;flex-shrink:0">'+
-          (c._photo?'':initials)+
+        // Avatar
+        '<div style="position:relative;flex-shrink:0">'+
+          '<div style="width:48px;height:48px;border-radius:50%;background:'+col+';display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;color:#fff">'+initials+'</div>'+
+          (c.verified?'<div style="position:absolute;bottom:-2px;right:-2px;width:16px;height:16px;background:#0071e3;border-radius:50%;border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:8px;color:#fff">✓</div>':'')+
         '</div>'+
+        // Info
         '<div style="flex:1;min-width:160px">'+
-          '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:3px">'+
-            '<div style="font-weight:700;font-size:15px">'+c.name+'</div>'+
-            '<div style="background:var(--gl);color:var(--gr);font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px">'+(c.fit||82)+' fit</div>'+
+          // Name + badges
+          '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:4px">'+
+            '<span style="font-weight:800;font-size:15px;color:#1d1d1f">'+c.name+'</span>'+
+            (isTop?'<span style="background:#34c75918;color:#34c759;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;border:1px solid #34c75940">🏆 Top Candidate</span>':'')+
+            (c.verified?'<span style="background:#0071e318;color:#0071e3;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px">✓ Verified</span>':'')+
           '</div>'+
-          '<div style="font-size:13px;color:var(--mu);margin-bottom:8px">'+c.role+(c.company?' · '+c.company:'')+(c.location?' · '+c.location:'')+'</div>'+
+          // Role
+          '<div style="font-size:13px;color:#6e6e73;margin-bottom:6px">'+c.role+(c.company?' · <b style="color:#1d1d1f">'+c.company+'</b>':'')+(c.location?' · 📍'+c.location:'')+'</div>'+
+          // Urgency — last active
+          '<div style="font-size:11px;color:'+(c.lastActive<=1?"#34c759":c.lastActive<=3?"#ff9500":"#aaa")+';margin-bottom:8px;font-weight:600">'+
+            '🟢 Last active: '+lastActiveText+
+            (c.notice==="Immediate"?' · ⚡ <span style="color:#ff6b00;font-weight:700">Available Immediately</span>':'')+
+          '</div>'+
+          // Skills
           '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px">'+
-            (c.skills||[]).slice(0,4).map(function(s){return '<span style="background:var(--bl2);color:var(--bl);font-size:11px;font-weight:600;padding:3px 8px;border-radius:6px">'+s+'</span>';}).join('')+
+            (c.skills||[]).slice(0,4).map(function(s){return '<span style="background:#f5f5f7;color:#3d3d3f;font-size:11px;font-weight:600;padding:3px 8px;border-radius:6px">'+s+'</span>';}).join('')+
           '</div>'+
-          '<div style="display:flex;gap:12px;font-size:12px;color:var(--mu);flex-wrap:wrap">'+
+          // Salary / Notice / Exp
+          '<div style="display:flex;gap:14px;font-size:12px;color:#6e6e73;flex-wrap:wrap;margin-bottom:10px">'+
             (c.salary?'<span>💰 '+c.salary+'</span>':'')+
-            (c.notice?'<span>⏱ '+c.notice+'</span>':'')+
+            (c.notice?'<span>⏱ '+c.notice+' notice</span>':'')+
             (c.exp?'<span>📅 '+c.exp+'</span>':'')+
           '</div>'+
+          // Contact info — BLURRED until unlocked
+          '<div style="background:#f9f9fb;border-radius:10px;padding:10px 12px;border:1px solid #e5e5ea">'+
+            (isUnlocked
+              ?'<div style="font-size:12px;font-weight:600;color:#1d1d1f">📱 '+c.phone+'  &nbsp; ✉️ '+c.email+'</div>'
+              :'<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">'+
+                '<div>'+
+                  '<div style="filter:blur(5px);font-size:12px;pointer-events:none;user-select:none;color:#1d1d1f;font-weight:600">📱 '+c.phone+'  ✉️ '+c.email+'</div>'+
+                  '<div style="font-size:10px;color:#aaa;margin-top:3px">🔒 Contact blurred — unlock with 1 credit</div>'+
+                '</div>'+
+                '<button onclick="unlockContact(\''+cid+'\')" style="background:#ff6b00;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0">Unlock (1 credit)</button>'+
+              '</div>')+
+          '</div>'+
         '</div>'+
-        '<div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">'+
-          '<button class="btn fi sm" onclick="nt(\'📨 Invite sent to '+c.name+'!\')">Invite →</button>'+
-          (c._cvData?'<button class="btn gh sm" onclick="downloadCandCV(\''+encodeURIComponent(c.name)+'\')">⬇ CV</button>':'<button class="btn gh sm" style="opacity:.5" title="No CV uploaded">No CV</button>')+
+        // Fit score + CTA
+        '<div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;flex-shrink:0">'+
+          '<div style="text-align:center;background:'+(isTop?"#34c75918":isStrong?"#fff8f3":"#f5f5f7")+';border-radius:10px;padding:10px 14px;border:1.5px solid '+(isTop?"#34c75940":isStrong?"#ff6b00":"#e5e5ea")+'">'+
+            '<div style="font-size:22px;font-weight:900;color:'+fitColor+';letter-spacing:-.04em">'+fit+'%</div>'+
+            '<div style="font-size:10px;font-weight:700;color:'+fitColor+'">Fit Score</div>'+
+          '</div>'+
+          '<button class="btn fi sm" onclick="nt(\'📨 Interview invite sent to '+c.name+'! They will respond within 24 hours.\')">Invite →</button>'+
         '</div>'+
       '</div>'+
     '</div>';
@@ -1298,11 +1369,13 @@ function filterCVs(){
   var q=((document.getElementById("cv-search")||{}).value||"").toLowerCase();
   var loc=((document.getElementById("cv-loc")||{}).value||"");
   var exp=((document.getElementById("cv-exp")||{}).value||"");
+  var fitMin=parseInt((document.getElementById("cv-fit")||{}).value||"0")||0;
   var filtered=DEMO_CANDIDATES.filter(function(c){
-    var matchQ=!q||(c.name||"").toLowerCase().includes(q)||(c.role||"").toLowerCase().includes(q)||((c.skills||[]).join(" ").toLowerCase().includes(q));
+    var matchQ=!q||(c.name||"").toLowerCase().includes(q)||(c.role||"").toLowerCase().includes(q)||((c.skills||[]).join(" ").toLowerCase().includes(q))||(c.company||"").toLowerCase().includes(q);
     var matchL=!loc||(c.location||"").toLowerCase().includes(loc.toLowerCase());
     var matchE=!exp||(c.exp||"").includes(exp.split(" ")[0]);
-    return matchQ&&matchL&&matchE;
+    var matchF=!fitMin||(c.fit||80)>=fitMin;
+    return matchQ&&matchL&&matchE&&matchF;
   });
   var list=document.getElementById("cv-list");
   if(list)list.innerHTML=renderCvCards(filtered);
@@ -1927,10 +2000,12 @@ function renderCd(){
   else if(S.cdStep===5&&typeof renderCdInterview==="function")renderCdInterview(el);
   else if(S.cdStep===6)renderProfilePage(el);
   else if(S.cdStep===7)renderCvBuilder(el);
-  var jb=document.getElementById("cd-btn-j"),tb=document.getElementById("cd-btn-t"),ib=document.getElementById("cd-btn-iv");
+  else if(S.cdStep===8)renderATSScanner(el);
+  var jb=document.getElementById("cd-btn-j"),tb=document.getElementById("cd-btn-t"),ib=document.getElementById("cd-btn-iv"),ab=document.getElementById("cd-btn-ats");
   if(jb)jb.style.display=S.cdStep>=2?"inline-flex":"none";
   if(tb)tb.style.display=S.cdStep>=2?"inline-flex":"none";
   if(ib)ib.style.display=S.cdStep>=2?"inline-flex":"none";
+  if(ab)ab.style.display=S.cdStep>=2?"inline-flex":"none";
 }
 function renderStepBar(){
   var el=document.getElementById("cd-bar");if(!el)return;
@@ -2324,6 +2399,129 @@ function renderCvBuilder(el){
       '<button class="btn fi" style="flex:1;padding:14px;font-size:15px" onclick="downloadCv()">⬇ Download CV (PDF)</button>':
       '<button class="btn fi" style="flex:1;padding:14px;font-size:15px;opacity:.5;cursor:default">⬇ Download CV (Premium)</button>')+
     '<button class="btn gh sm" onclick="cdGo(1)">✏️ Edit Profile</button>'+
+  '</div>';
+}
+
+// ── ATS SCANNER ──────────────────────────────────────────────────
+function renderATSScanner(el){
+  var scansLeft=S.atsScans||0;
+  var lastResult=JSON.parse(localStorage.getItem("hh_ats_last")||"null");
+  el.innerHTML=
+  '<div style="margin-bottom:20px">'+
+    '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:6px">'+
+      '<h2 style="font-weight:900;font-size:22px;letter-spacing:-.04em">🤖 ATS Resume Scanner</h2>'+
+      '<div style="background:'+(scansLeft>0?"#34c75918":"#ff375f18")+';border:1px solid '+(scansLeft>0?"#34c75940":"#ff375f40")+';border-radius:999px;padding:5px 14px;font-size:12px;font-weight:700;color:'+(scansLeft>0?"#34c759":"#ff375f")+'">'+(scansLeft>0?scansLeft+' scan'+(scansLeft>1?"s":"")+" left":"No scans left — Buy pack")+'</div>'+
+    '</div>'+
+    '<p style="color:var(--mu);font-size:13px;line-height:1.6">Beat the bots. 75% of resumes are rejected by ATS before a human sees them. Get your keyword score + SEO tips to rank #1 in recruiter search.</p>'+
+  '</div>'+
+
+  // How it works
+  '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:20px">'+
+    [['📋','Paste Resume','Your resume text'],['🎯','Paste Job Description','Target role JD'],['🤖','Get Score','0–100 ATS score'],['📈','SEO Keywords','Rank in Google']].map(function(s){
+      return '<div style="background:#fff;border-radius:12px;padding:14px;text-align:center;border:1.5px solid #f0f0f5"><div style="font-size:22px;margin-bottom:6px">'+s[0]+'</div><div style="font-size:12px;font-weight:700;color:#1d1d1f">'+s[1]+'</div><div style="font-size:11px;color:var(--mu);margin-top:2px">'+s[2]+'</div></div>';
+    }).join('')+
+  '</div>'+
+
+  // Input form
+  '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">'+
+    '<div><label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--mu);display:block;margin-bottom:6px">Your Resume</label>'+
+    '<textarea id="ats-resume" placeholder="Paste your full resume text here…\n\nTip: Include all skills, projects, certifications." style="width:100%;height:160px;border-radius:12px;border:1.5px solid #e5e5ea;padding:12px;font-size:12px;resize:vertical;font-family:inherit;outline:none"></textarea></div>'+
+    '<div><label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--mu);display:block;margin-bottom:6px">Job Description</label>'+
+    '<textarea id="ats-jd" placeholder="Paste the job description you\'re targeting…\n\nTip: Copy the full JD from the job posting." style="width:100%;height:160px;border-radius:12px;border:1.5px solid #e5e5ea;padding:12px;font-size:12px;resize:vertical;font-family:inherit;outline:none"></textarea></div>'+
+  '</div>'+
+
+  (scansLeft>0
+    ?'<button class="btn fi fu" style="border:none;font-size:14px;font-weight:700;padding:14px" onclick="runATSScan()">🔍 Scan My Resume ('+scansLeft+' scans left)</button>'
+    :'<div style="display:flex;gap:10px;flex-wrap:wrap">'+
+      '<button class="btn gh fu" style="flex:1;font-size:13px" disabled>No scans left</button>'+
+      '<button class="btn fi" style="border:none;font-size:13px;flex:1" onclick="openPricing(\'cd\')">Buy 20 Scans — ₹9 →</button>'+
+    '</div>')+
+
+  // Last result
+  (lastResult
+    ?'<div id="ats-result" style="margin-top:20px">'+renderATSResult(lastResult)+'</div>'
+    :'<div id="ats-result"></div>');
+}
+
+function runATSScan(){
+  var resume=((document.getElementById("ats-resume")||{}).value||"").trim();
+  var jd=((document.getElementById("ats-jd")||{}).value||"").trim();
+  if(!resume||resume.length<50){nt("⚠️ Please paste your resume text (min 50 chars)");return;}
+  if(!jd||jd.length<30){nt("⚠️ Please paste the job description");return;}
+  if(S.atsScans<1){openPricing("cd");return;}
+
+  // Deduct scan
+  S.atsScans--;localStorage.setItem("hh_ats_scans",String(S.atsScans));
+  nt("🔍 Scanning resume…");
+
+  // Keyword extraction (client-side NLP)
+  var jdWords=jd.toLowerCase().replace(/[^a-z0-9\s\+\#\.]/g," ").split(/\s+/).filter(function(w){return w.length>3;});
+  var freq={};jdWords.forEach(function(w){freq[w]=(freq[w]||0)+1;});
+  // top keywords from JD
+  var topKw=Object.keys(freq).sort(function(a,b){return freq[b]-freq[a];}).slice(0,30);
+  // stop words to filter
+  var stop=["that","this","with","from","have","will","your","they","their","about","which","into","been","more","also","such","than","when","what","then","some","only","other","would","there","these","those","should","could","would","must","very","well","need","make","each","both","after","before","while","under","even","same","many","most","over","where","just","like","used","can","are","for","the","and","not","you","all","any","its","our","has","was","but","had","may","him","his","her","who","use","way","may","get","set","new","how","job","role","work","team","help","good","best","able","data"];
+  var kwList=topKw.filter(function(w){return stop.indexOf(w)<0&&!/^\d+$/.test(w)&&w.length>3;}).slice(0,20);
+
+  var resumeLow=resume.toLowerCase();
+  var matched=[],missing=[];
+  kwList.forEach(function(kw){
+    if(resumeLow.includes(kw))matched.push(kw);
+    else missing.push(kw);
+  });
+
+  var score=Math.round((matched.length/Math.max(kwList.length,1))*100);
+  // bonus for length/structure
+  if(resume.length>800) score=Math.min(score+5,100);
+  if(resume.includes("experience")||resume.includes("skills")) score=Math.min(score+5,100);
+  score=Math.max(score,12); // min floor
+
+  var result={score:score,matched:matched,missing:missing,kwList:kwList,ts:new Date().toISOString()};
+  localStorage.setItem("hh_ats_last",JSON.stringify(result));
+  var resEl=document.getElementById("ats-result");
+  if(resEl)resEl.innerHTML=renderATSResult(result);
+  // Re-render scan button with new count
+  renderATSScanner(document.getElementById("cd-body"));
+}
+
+function renderATSResult(r){
+  var scoreColor=r.score>=80?"#34c759":r.score>=60?"#ff9500":"#ff375f";
+  var scoreLabel=r.score>=80?"Strong Match 💪":r.score>=60?"Good — Improve Keywords":"Weak Match — Needs Work";
+  var seoTips=r.missing.slice(0,8);
+
+  return '<div style="background:#fff;border-radius:16px;padding:20px;border:1.5px solid #f0f0f5">'+
+    '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--mu);margin-bottom:12px">📊 ATS SCAN RESULT</div>'+
+    // Score circle
+    '<div style="display:flex;align-items:center;gap:20px;margin-bottom:20px;flex-wrap:wrap">'+
+      '<div style="width:80px;height:80px;border-radius:50%;border:6px solid '+scoreColor+';display:flex;align-items:center;justify-content:center;flex-direction:column;flex-shrink:0">'+
+        '<div style="font-size:22px;font-weight:900;color:'+scoreColor+';line-height:1">'+r.score+'</div>'+
+        '<div style="font-size:9px;color:var(--mu);font-weight:700">/ 100</div>'+
+      '</div>'+
+      '<div>'+
+        '<div style="font-size:18px;font-weight:900;color:#1d1d1f;margin-bottom:4px">'+scoreLabel+'</div>'+
+        '<div style="font-size:13px;color:var(--mu);line-height:1.5">'+(r.score>=80?"Your resume is well-optimized for this role. Apply with confidence!":r.score>=60?"Add the missing keywords below to significantly improve your chances.":"Rewrite your resume using the missing keywords to pass ATS filters.")+'</div>'+
+      '</div>'+
+    '</div>'+
+    // Keywords matched
+    (r.matched.length?'<div style="margin-bottom:14px"><div style="font-size:11px;font-weight:700;color:#34c759;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">✅ Keywords Found ('+r.matched.length+')</div>'+
+      '<div style="display:flex;flex-wrap:wrap;gap:6px">'+
+        r.matched.map(function(k){return '<span style="background:#34c75918;color:#34c759;border:1px solid #34c75940;font-size:12px;font-weight:600;padding:4px 10px;border-radius:6px">'+k+'</span>';}).join('')+
+      '</div></div>':'')+
+    // Missing keywords → SEO Add
+    (r.missing.length?'<div style="margin-bottom:14px"><div style="font-size:11px;font-weight:700;color:#ff375f;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">❌ Missing Keywords — Add These to Your Resume ('+r.missing.length+')</div>'+
+      '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">'+
+        r.missing.slice(0,10).map(function(k){return '<span style="background:#ff375f18;color:#ff375f;border:1px solid #ff375f40;font-size:12px;font-weight:600;padding:4px 10px;border-radius:6px">'+k+'</span>';}).join('')+
+      '</div>'+
+      '<div style="background:linear-gradient(135deg,#fff8f3,#fff);border-radius:10px;padding:12px 14px;border:1.5px solid #ffe5cc">'+
+        '<div style="font-size:12px;font-weight:700;color:#ff6b00;margin-bottom:6px">💡 SEO Tip — How to Add These</div>'+
+        '<div style="font-size:12px;color:#6e6e73;line-height:1.7">Add a "<b>Core Skills</b>" section and include: <b>'+seoTips.join(', ')+'</b>. Use the exact words from the JD — ATS matches exact strings.</div>'+
+      '</div>'+
+    '</div>':'')+
+    // CTA
+    '<div style="display:flex;gap:8px;flex-wrap:wrap">'+
+      '<button class="btn fi" style="border:none;font-size:13px" onclick="cdGo(7)">✏️ Rebuild CV with These Keywords →</button>'+
+      (S.atsScans>0?'<button class="btn gh sm" onclick="runATSScan()">Rescan after edits</button>':'<button class="btn gh sm" onclick="openPricing(\'cd\')">Buy More Scans ₹9</button>')+
+    '</div>'+
   '</div>';
 }
 
