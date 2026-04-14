@@ -10,7 +10,7 @@ const nextConfig: NextConfig = {
       {
         source: '/hirehub.html',
         headers: [
-          { key: 'Cache-Control', value: 'public, max-age=300, stale-while-revalidate=60' },
+          { key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' },
         ],
       },
       {
