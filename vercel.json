@@ -3,6 +3,14 @@
     {
       "path": "/api/cron/daily-blog?secret=hirehub-cron-2026",
       "schedule": "0 4 * * *"
+    },
+    {
+      "path": "/api/cron/venue-blog?secret=hirehub-cron-2026&slot=a",
+      "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/cron/venue-blog?secret=hirehub-cron-2026&slot=b",
+      "schedule": "0 10 * * *"
     }
   ]
 }
