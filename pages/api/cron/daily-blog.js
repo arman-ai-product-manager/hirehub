@@ -55,10 +55,34 @@ Requirements:
 - Include a table showing top job roles and avg applications in 24 hours
 - Include a "How to Post a Job" step-by-step section
 - Include FAQ section (4 questions)
-- End with a CTA linking to https://hirehub360.in
 - Mention the pincodes: ${topic.pincodes.join(', ')} naturally in content
 - Do NOT use generic filler. Be specific to ${topic.city} and ${topic.sector}.
 - Tone: professional but direct. Built for Indian HR professionals.
+
+── LINKING RULES (Google E-E-A-T 2026 — MANDATORY) ──
+You MUST include EXACTLY these links naturally within the body content:
+
+INTERNAL LINKS (3–4 links, descriptive anchor text, contextual placement):
+- [Post a job for free on HireHub360](https://hirehub360.in) — use in intro or "how to post" section
+- [Browse ${topic.city} job listings](https://hirehub360.in/jobs/in/${topic.city.toLowerCase().split(' ')[0]}) — use in pincode/area section
+- [View hiring plans and pricing](https://hirehub360.in/pricing) — use in CTA or cost section
+- [Read more HR hiring guides](https://hirehub360.in/blog) — use in FAQ or closing section
+
+EXTERNAL LINKS (2–3 links, only high-authority sources, opens context of facts you mention):
+- [Ministry of Labour & Employment, India](https://labour.gov.in) — cite when mentioning employment trends or regulations
+- [NASSCOM India workforce data](https://nasscom.in) — cite when mentioning IT/tech hiring data (only if sector is IT/tech)
+- [SHRM HR best practices](https://www.shrm.org) — cite when mentioning HR practices or hiring benchmarks
+- [People Matters HR India](https://www.peoplematters.in) — cite when mentioning India HR industry statistics
+- [India Brand Equity Foundation](https://www.ibef.org) — cite when mentioning India industry/sector growth data
+
+Rules for links:
+1. ALL links must appear naturally mid-sentence — never in a "References" section
+2. Anchor text must be descriptive (never "click here", "read more", "this link")
+3. Internal links = dofollow. External links = include naturally, no rel attribute needed in markdown
+4. Each link must be contextually relevant to the sentence it appears in
+5. Do NOT stuff links. Each link earns its place.
+
+End with a strong CTA: "**Ready to hire in ${topic.city}?** [Post your first job free on HireHub360](https://hirehub360.in) and get verified candidates within 24 hours."
 
 Write only the blog content in markdown. No intro, no "here is the blog", just the markdown content starting with ## heading.`
 

@@ -219,11 +219,36 @@ Requirements:
 - "Why Enterprise HR Teams Choose HireHub360" section
 - "How to Book in 3 Steps" section — fast, premium, zero hassle
 - FAQ section — 4 questions relevant to large corporates (GST billing, buyouts, group size, cancellation)
-- Strong CTA: "Book Your Corporate Venue on HireHub360 → hirehub360.in"
 - Mention areas: ${topic.areas.join(', ')}
 - Tone: authoritative, strategic, written for senior HR professionals and CHROs
 - Reference real enterprise context: "companies of 200–1,000 employees", "quarterly engagement calendar", "dedicated event manager", "corporate invoice within 24 hours"
 - Do NOT mention pricing below ₹1,500 per head. Do NOT use words like "budget", "affordable", "cheap", "under ₹X".
+
+── LINKING RULES (Google E-E-A-T 2026 — MANDATORY) ──
+You MUST weave EXACTLY these links naturally into the body content:
+
+INTERNAL LINKS (3–4 links — contextual, descriptive anchor text):
+- [Book a corporate venue on HireHub360](https://hirehub360.in) — in intro or "How to Book" section
+- [Explore all corporate venue packages](https://hirehub360.in/pricing) — in pricing/package section
+- [Read more corporate outing guides](https://hirehub360.in/blog) — in closing or FAQ section
+- [Post jobs & manage your team on HireHub360](https://hirehub360.in) — in "about HireHub360" context
+
+EXTERNAL LINKS (2–3 links — only .gov.in, .org, established Indian publications):
+- [Great Place to Work India](https://www.greatplacetowork.in) — cite when mentioning employee engagement benchmarks or certified employers
+- [People Matters](https://www.peoplematters.in) — cite when referencing HR industry data or workforce statistics
+- [SHRM Global HR Standards](https://www.shrm.org) — cite when mentioning team building research or HR best practices
+- [India Brand Equity Foundation](https://www.ibef.org) — cite when referencing India's hospitality/entertainment industry growth
+- [Ministry of Corporate Affairs India](https://www.mca.gov.in) — cite when mentioning corporate compliance, GST invoicing requirements
+
+Linking rules (strictly follow):
+1. Links must appear naturally mid-sentence — NEVER in a separate "Sources" or "References" section
+2. Anchor text must describe the destination (never "click here", "here", "this link", "read more")
+3. Each link placed only where it genuinely adds context for the reader
+4. Do NOT repeat the same URL more than once
+5. Internal links signal site structure to Google. External links signal E-E-A-T trust.
+
+End with strong CTA:
+"**Planning your next corporate outing?** [Book your venue instantly on HireHub360](https://hirehub360.in) — 18+ premium venues, confirmed in 2 hours, dedicated event manager, GST invoice guaranteed."
 
 Write ONLY the blog markdown. Start directly with ## heading. No preamble.`
 
