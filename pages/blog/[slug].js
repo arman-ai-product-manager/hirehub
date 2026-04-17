@@ -17,7 +17,7 @@ export default function BlogPost({ post }) {
   return (
     <>
       <Head>
-        <title>{post.title} | Hire Hub Blog</title>
+        <title>{post.title} | HireHub360 Blog</title>
         <meta name="description" content={post.excerpt || post.title} />
         <meta name="robots" content="index,follow" />
         <link rel="canonical" href={`https://hirehub360.in/blog/${post.slug}`} />
@@ -32,8 +32,8 @@ export default function BlogPost({ post }) {
           headline: post.title,
           description: post.excerpt,
           image: post.cover_image,
-          author: {'@type':'Organization', name: post.author || 'Hire Hub Team'},
-          publisher: {'@type':'Organization', name:'Hire Hub', url:'https://hirehub360.in'},
+          author: {'@type':'Organization', name: post.author || 'HireHub360 Team'},
+          publisher: {'@type':'Organization', name:'HireHub360', url:'https://hirehub360.in'},
           datePublished: post.created_at,
           dateModified: post.updated_at,
           mainEntityOfPage: `https://hirehub360.in/blog/${post.slug}`
@@ -41,7 +41,7 @@ export default function BlogPost({ post }) {
       </Head>
 
       <nav style={{background:'#fff',borderBottom:'1px solid #eee',padding:'0 24px',display:'flex',alignItems:'center',gap:32,height:56,position:'sticky',top:0,zIndex:100}}>
-        <Link href="/" style={{fontWeight:800,fontSize:20,color:'#111',textDecoration:'none'}}>Hire <span style={{color:'#ff6b00'}}>Hub</span></Link>
+        <Link href="/" style={{fontWeight:800,fontSize:20,color:'#111',textDecoration:'none'}}>Hire<span style={{color:'#ff6b00'}}>Hub</span><span style={{color:'#ff6b00',fontSize:'0.7em',verticalAlign:'super'}}>360</span></Link>
         <Link href="/" style={{color:'#444',textDecoration:'none',fontSize:15}}>Browse Jobs</Link>
         <Link href="/blog" style={{color:'#ff6b00',textDecoration:'none',fontSize:15,fontWeight:600}}>Blog</Link>
       </nav>
@@ -58,7 +58,7 @@ export default function BlogPost({ post }) {
         <h1 style={{fontSize:36,fontWeight:800,lineHeight:1.25,color:'#111',margin:'0 0 16px'}}>{post.title}</h1>
 
         <div style={{display:'flex',gap:20,fontSize:14,color:'#888',marginBottom:32,paddingBottom:24,borderBottom:'1px solid #eee'}}>
-          <span>✍️ {post.author || 'Hire Hub Team'}</span>
+          <span>✍️ {post.author || 'HireHub360 Team'}</span>
           <span>📅 {new Date(post.created_at).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})}</span>
         </div>
 
@@ -80,7 +80,7 @@ export default function BlogPost({ post }) {
       </main>
 
       <footer style={{background:'#111',color:'#aaa',textAlign:'center',padding:'32px 24px',marginTop:80,fontSize:14}}>
-        <p>© 2026 Hire Hub | <Link href="/" style={{color:'#ff6b00',textDecoration:'none'}}>Find Jobs</Link> | <Link href="/blog" style={{color:'#ff6b00',textDecoration:'none'}}>Blog</Link></p>
+        <p>© 2026 HireHub360 | <Link href="/" style={{color:'#ff6b00',textDecoration:'none'}}>Find Jobs</Link> | <Link href="/blog" style={{color:'#ff6b00',textDecoration:'none'}}>Blog</Link></p>
       </footer>
 
       <style>{`

@@ -73,7 +73,7 @@ export default function CityJobsPage({ city, cfg, jobs, totalCount }) {
   )
 
   const isUAE = cfg.countryCode === 'AE'
-  const pageTitle = `Jobs in ${cfg.name} ${cfg.flag} | ${totalCount} ${cfg.name} Job Vacancies 2026 | Hire Hub`
+  const pageTitle = `Jobs in ${cfg.name} ${cfg.flag} | ${totalCount} ${cfg.name} Job Vacancies 2026 | HireHub360`
   const metaDesc = `${totalCount} jobs in ${cfg.name}, ${isUAE ? cfg.country : cfg.region}. ${cfg.desc} Apply in 30 seconds. ${cfg.roles.slice(0,3).join(', ')} and more roles. Updated daily.`
   const canonicalUrl = `https://hirehub360.in/jobs/in/${city}`
 
@@ -101,7 +101,7 @@ export default function CityJobsPage({ city, cfg, jobs, totalCount }) {
   const localBizSchema = {
     '@context': 'https://schema.org',
     '@type': 'EmploymentAgency',
-    name: `Hire Hub — Jobs in ${cfg.name}`,
+    name: `HireHub360 — Jobs in ${cfg.name}`,
     description: `Find ${totalCount} jobs in ${cfg.name}. AI-powered matching, instant apply.`,
     areaServed: { '@type': 'City', name: cfg.name },
     url: canonicalUrl,
@@ -200,7 +200,7 @@ export default function CityJobsPage({ city, cfg, jobs, totalCount }) {
 
       {/* NAV */}
       <nav className="nav">
-        <a href="/" className="logo">Hire <span>Hub</span></a>
+        <a href="/" className="logo">Hire<span>Hub</span><span style={{color:'#ff6b00',fontSize:'0.7em',verticalAlign:'super'}}>360</span></a>
         <div style={{ display:'flex', gap:8 }}>
           <a href="/hirehub.html" className="nav-btn ghost">Sign In</a>
           <a href="/hirehub.html" className="nav-btn primary">Post a Job</a>
@@ -213,7 +213,7 @@ export default function CityJobsPage({ city, cfg, jobs, totalCount }) {
           <a href="/">Home</a> › <a href="/">Jobs</a> › {cfg.name}
         </div>
         <h1>{cfg.flag} {totalCount} Jobs in {cfg.name}, {isUAE ? cfg.country : cfg.region}</h1>
-        <p>{cfg.desc} Find your next career move on Hire Hub.</p>
+        <p>{cfg.desc} Find your next career move on HireHub360.</p>
         <div className="stat-row">
           <div><div className="stat-n">{totalCount}</div><div className="stat-l">Open Roles</div></div>
           <div><div className="stat-n">{cfg.population}</div><div className="stat-l">City Population</div></div>
@@ -263,14 +263,14 @@ export default function CityJobsPage({ city, cfg, jobs, totalCount }) {
           <div className="faq">
             <h2>Jobs in {cfg.name} — Frequently Asked Questions</h2>
             <div className="faq-q">How many jobs are available in {cfg.name}?</div>
-            <div className="faq-a">Hire Hub currently lists {totalCount} active job openings in {cfg.name} across tech, finance, sales, HR, marketing, and operations. New jobs are added daily.</div>
+            <div className="faq-a">HireHub360 currently lists {totalCount} active job openings in {cfg.name} across tech, finance, sales, HR, marketing, and operations. New jobs are added daily.</div>
             <div className="faq-q">What is the average salary for jobs in {cfg.name}?</div>
             <div className="faq-a">{isUAE ? `Salaries in ${cfg.name} are tax-free. Entry-level roles start from ${isUAE ? 'AED 5,000' : '₹3 LPA'}/month. Senior professionals in tech, finance, and management earn ${cfg.salaryRange}.` : `Salaries in ${cfg.name} range from ${cfg.salaryRange} depending on role, industry, and experience level. Tech and finance roles typically pay the most.`}</div>
             <div className="faq-q">Which companies are actively hiring in {cfg.name}?</div>
             <div className="faq-a">{isUAE ? `Major companies hiring in ${cfg.name} include Emirates, ${cfg.name === 'Dubai' ? 'Careem, Noon, Emaar, Emirates NBD, Accenture, KPMG, PwC' : 'ADNOC, Mubadala, Abu Dhabi Commercial Bank, Deloitte'}.` : `Top employers in ${cfg.name} include ${cfg.name === 'Mumbai' ? 'Reliance, HDFC, Tata Group, WPP, Swiggy, and leading BFSI companies' : cfg.name === 'Bangalore' ? 'Infosys, Wipro, Flipkart, CRED, Razorpay, Google, Amazon, and top startups' : 'TCS, Infosys, Wipro, and growing startups and MNCs'}.`}</div>
             <div className="faq-q">How do I apply for jobs in {cfg.name}?</div>
-            <div className="faq-a">Click "Apply →" on any listing above. Sign in with Google or email — your Hire Hub profile is your CV. Applications are submitted in under 30 seconds, with real-time status tracking.</div>
-            {isUAE && <><div className="faq-q">Do I need a work visa for jobs in {cfg.name}?</div><div className="faq-a">Most companies hiring on Hire Hub in {cfg.name} sponsor employment visas for qualified candidates. UAE employer visa sponsorship is standard for full-time roles.</div></>}
+            <div className="faq-a">Click "Apply →" on any listing above. Sign in with Google or email — your HireHub360 profile is your CV. Applications are submitted in under 30 seconds, with real-time status tracking.</div>
+            {isUAE && <><div className="faq-q">Do I need a work visa for jobs in {cfg.name}?</div><div className="faq-a">Most companies hiring on HireHub360 in {cfg.name} sponsor employment visas for qualified candidates. UAE employer visa sponsorship is standard for full-time roles.</div></>}
           </div>
 
           {/* Nearby cities */}
@@ -327,7 +327,7 @@ export default function CityJobsPage({ city, cfg, jobs, totalCount }) {
             {Object.entries(CITY_CONFIG).map(([k, c]) => <a key={k} href={`/jobs/in/${k}`} className="seo-link">{c.name} Jobs</a>)}
           </div>
           <div style={{ marginTop:24, paddingTop:20, borderTop:'1px solid rgba(255,255,255,.1)', fontSize:12, color:'#555', display:'flex', justifyContent:'space-between', flexWrap:'wrap', gap:8 }}>
-            <span>© 2026 Hire Hub — AI Job Platform for India & UAE</span>
+            <span>© 2026 HireHub360 — AI Job Platform for India & UAE</span>
             <span><a href="/" style={{ color:'#888' }}>Home</a> · <a href="/hirehub.html" style={{ color:'#888' }}>Sign In</a> · <a href="/hirehub.html" style={{ color:'#888' }}>Post a Job</a></span>
           </div>
         </div>

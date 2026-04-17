@@ -64,13 +64,13 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
   const slug  = (j: Job) => mkSlug(j.title)+'-'+mkSlug(j.company_name)+'-'+mkSlug(j.location)
 
   const schemaWebsite = {
-    '@context':'https://schema.org','@type':'WebSite',name:'Hire Hub',
+    '@context':'https://schema.org','@type':'WebSite',name:'HireHub360',
     url:'https://hirehub360.in',
     description:'India\'s AI-powered job platform — find jobs, hire candidates, 10,000+ listings',
     potentialAction:{'@type':'SearchAction','target':{'@type':'EntryPoint','urlTemplate':'https://hirehub360.in/?q={search_term_string}'},'query-input':'required name=search_term_string'}
   }
   const schemaOrg = {
-    '@context':'https://schema.org','@type':'Organization',name:'Hire Hub',
+    '@context':'https://schema.org','@type':'Organization',name:'HireHub360',
     url:'https://hirehub360.in',
     description:'India\'s smart job portal — AI-matched jobs, instant apply, trusted hiring platform'
   }
@@ -82,10 +82,10 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
   return (
     <>
       <Head>
-        <title>Hire Hub — Jobs in India | Search {total.toLocaleString()}+ Jobs | Find Jobs, Hire Candidates</title>
-        <meta name="description" content={`Search ${total.toLocaleString()}+ jobs in India. Find software engineer, marketing, finance, HR jobs in Mumbai, Bangalore, Delhi, Hyderabad, Pune. AI-matched job search. Apply instantly on Hire Hub.`} />
+        <title>HireHub360 — Jobs in India | Search {total.toLocaleString()}+ Jobs | Find Jobs, Hire Candidates</title>
+        <meta name="description" content={`Search ${total.toLocaleString()}+ jobs in India. Find software engineer, marketing, finance, HR jobs in Mumbai, Bangalore, Delhi, Hyderabad, Pune. AI-matched job search. Apply instantly on HireHub360.`} />
         <meta name="keywords" content="jobs in india, job search, find jobs, naukri, indeed india, linkedin jobs, glassdoor india, monster jobs, shine jobs, timesjobs, freshersworld, angellist, foundit, cutshort, internshala, apna jobs, hirect, quikr jobs, workindia, jobhai, adzuna india, simplyhired, job portal india, hire candidates india, software engineer jobs, marketing jobs, fresher jobs india, remote jobs india, jobs in mumbai, jobs in bangalore, jobs in delhi, jobs in hyderabad, jobs in pune, jobs in chennai, part time jobs, walk in interview" />
-        <meta property="og:title" content="Hire Hub — Find Jobs in India | 10,000+ Listings" />
+        <meta property="og:title" content="HireHub360 — Find Jobs in India | 10,000+ Listings" />
         <meta property="og:description" content="India's smartest job platform. AI-matched jobs, instant apply, trusted by thousands of job seekers and companies across India." />
         <meta property="og:type" content="website" />
         <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1" />
@@ -196,7 +196,7 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
 
       {/* NAV */}
       <nav className="nav">
-        <a href="/" className="logo">Hire <span>Hub</span></a>
+        <a href="/" className="logo">Hire<span>Hub</span><span style={{color:'#ff6b00',fontSize:'0.75em',fontWeight:900,verticalAlign:'super',marginLeft:1}}>360</span></a>
         <div className="nav-links">
           <a href="/" className="hide-mob">Browse Jobs</a>
           <a href="/pricing" className="hide-mob">Pricing</a>
@@ -261,7 +261,7 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
           <div style={{textAlign:'center',padding:'48px 20px',color:'#6e6e73'}}>
             <div style={{fontSize:44,marginBottom:12}}>🔍</div>
             <p style={{fontSize:16,marginBottom:8}}>No jobs matching your search.</p>
-            <a href="/hirehub.html" style={{color:'#ff6b00',fontWeight:700,fontSize:14}}>Browse all jobs on Hire Hub →</a>
+            <a href="/hirehub.html" style={{color:'#ff6b00',fontWeight:700,fontSize:14}}>Browse all jobs on HireHub360 →</a>
           </div>
         ) : (
           <div className="grid">
@@ -287,7 +287,7 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
                     <button className="ab" style={{background:'#f5f5f7',color:'#1d1d1f',border:'1.5px solid #e5e5ea'}}
                       onClick={()=>{
                         const url = window.location.origin+'/jobs/'+slug(j)
-                        const text = `${j.title} at ${j.company_name} — ${j.location} | Hire Hub`
+                        const text = `${j.title} at ${j.company_name} — ${j.location} | HireHub360`
                         if(navigator.share){navigator.share({title:text,url}).catch(()=>{})}
                         else{navigator.clipboard?.writeText(url);setCopied(j.id);setTimeout(()=>setCopied(''),2000)}
                       }}>
@@ -303,7 +303,7 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
 
         <div style={{textAlign:'center',marginTop:28}}>
           <a href="/hirehub.html" style={{display:'inline-block',background:'#1d1d1f',color:'#fff',padding:'12px 32px',borderRadius:999,fontWeight:700,fontSize:14}}>
-            Browse All Jobs on Hire Hub →
+            Browse All Jobs on HireHub360 →
           </a>
         </div>
       </section>
@@ -408,7 +408,7 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
       {/* TRUST */}
       <div className="trust">
         <h2>Trusted by Job Seekers & Companies Across India</h2>
-        <p>From freshers to senior leaders — Hire Hub powers every career step</p>
+        <p>From freshers to senior leaders — HireHub360 powers every career step</p>
         <div className="trust-stats">
           <div className="ts"><span className="n">10,000+</span><span className="l">Active Job Seekers</span></div>
           <div className="ts"><span className="n">500+</span><span className="l">Verified Companies</span></div>
@@ -421,7 +421,7 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
       <footer>
         <div className="fg">
           <div className="fc-col">
-            <div style={{fontWeight:900,fontSize:21,color:'#fff',marginBottom:8,letterSpacing:'-.04em'}}>Hire <span style={{color:'#ff6b00'}}>Hub</span></div>
+            <div style={{fontWeight:900,fontSize:21,color:'#fff',marginBottom:8,letterSpacing:'-.04em'}}>Hire<span style={{color:'#ff6b00'}}>Hub</span><span style={{color:'#ff6b00',fontSize:'0.7em',verticalAlign:'super'}}>360</span></div>
             <p style={{fontSize:13,lineHeight:1.7,marginBottom:0}}>India's AI-powered job platform. Find jobs, hire top candidates, and celebrate milestones — all in one place.</p>
           </div>
           <div className="fc-col">
@@ -435,7 +435,7 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
             ))}
           </div>
           <div className="fc-col">
-            <h4>Hire Hub</h4>
+            <h4>HireHub360</h4>
             <a href="/">Find Jobs</a>
             <a href="/hirehub.html">Post Jobs</a>
             <a href="/hirehub.html">Company Dashboard</a>
@@ -444,7 +444,7 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
           </div>
         </div>
         <div className="fb">
-          <span>© 2026 Hire Hub. All rights reserved. India's Job Search Platform.</span>
+          <span>© 2026 HireHub360. All rights reserved. India's Job Search Platform.</span>
           <span style={{color:'#444'}}>Jobs in India · Job Search · Hire Candidates · Job Portal</span>
         </div>
       </footer>
@@ -486,7 +486,7 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
               <div style={{display:'flex',gap:8}}>
                 <a href={`https://wa.me/?text=${encodeURIComponent(applyJob.title+' at '+applyJob.company_name+' — '+applyJob.location+' | '+window.location.origin+'/jobs/'+slug(applyJob))}`} target="_blank" rel="noopener" style={{flex:1,background:'#25D366',color:'#fff',padding:'9px',borderRadius:9,textAlign:'center' as const,fontSize:13,fontWeight:700,textDecoration:'none'}}>WhatsApp</a>
                 <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.origin+'/jobs/'+slug(applyJob))}`} target="_blank" rel="noopener" style={{flex:1,background:'#0077B5',color:'#fff',padding:'9px',borderRadius:9,textAlign:'center' as const,fontSize:13,fontWeight:700,textDecoration:'none'}}>LinkedIn</a>
-                <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(applyJob.title+' at '+applyJob.company_name+' — Apply on Hire Hub')}&url=${encodeURIComponent(window.location.origin+'/jobs/'+slug(applyJob))}`} target="_blank" rel="noopener" style={{flex:1,background:'#000',color:'#fff',padding:'9px',borderRadius:9,textAlign:'center' as const,fontSize:13,fontWeight:700,textDecoration:'none'}}>X/Twitter</a>
+                <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(applyJob.title+' at '+applyJob.company_name+' — Apply on HireHub360')}&url=${encodeURIComponent(window.location.origin+'/jobs/'+slug(applyJob))}`} target="_blank" rel="noopener" style={{flex:1,background:'#000',color:'#fff',padding:'9px',borderRadius:9,textAlign:'center' as const,fontSize:13,fontWeight:700,textDecoration:'none'}}>X/Twitter</a>
               </div>
             </div>
 

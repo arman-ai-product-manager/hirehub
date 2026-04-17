@@ -19,7 +19,7 @@ export default async function handler(req, res) {
       excerpt: excerpt || null,
       content: content || '',
       cover_image: cover_image || null,
-      author: author || 'Hire Hub Team',
+      author: author || 'HireHub360 Team',
       tags: Array.isArray(tags) ? tags : [],
       published: !!published,
       updated_at: new Date().toISOString()

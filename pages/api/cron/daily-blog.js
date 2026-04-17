@@ -146,7 +146,7 @@ export default async function handler(req, res) {
       slug,
       excerpt,
       content,
-      author: 'Hire Hub Team',
+      author: 'HireHub360 Team',
       tags: ['job posting', topic.city.toLowerCase(), topic.sector.toLowerCase(), 'fast hiring', 'HR India'],
       published: true,
       updated_at: new Date().toISOString()

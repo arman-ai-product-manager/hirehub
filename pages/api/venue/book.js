@@ -53,7 +53,7 @@ export default async function handler(req, res) {
         html: `<h2>Hi ${name}!</h2>
           <p>Your booking request for <b>${category}</b> on <b>${date}</b> is received.</p>
           <p>Our team will call you at <b>${phone}</b> within 2 hours to confirm.</p>
-          <p>— Team Hire Hub</p>`
+          <p>— Team HireHub360</p>`
       })
     } catch (e) {
       console.error('Resend error:', e.message)

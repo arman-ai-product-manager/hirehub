@@ -6,8 +6,8 @@ export default function BlogIndex({ posts }) {
   return (
     <>
       <Head>
-        <title>Blog | Hire Hub — Career Tips, Job Search Advice & Hiring Insights</title>
-        <meta name="description" content="Career tips, job search strategies, resume writing advice, hiring insights and more from Hire Hub — India's AI-powered job platform." />
+        <title>Blog | HireHub360 — Career Tips, Job Search Advice & Hiring Insights</title>
+        <meta name="description" content="Career tips, job search strategies, resume writing advice, hiring insights and more from HireHub360 — India's AI-powered job platform." />
         <meta name="robots" content="index,follow" />
         <link rel="canonical" href="https://hirehub360.in/blog" />
         <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>" />
@@ -15,7 +15,7 @@ export default function BlogIndex({ posts }) {
       </Head>
 
       <nav style={{background:'#fff',borderBottom:'1px solid #eee',padding:'0 24px',display:'flex',alignItems:'center',gap:32,height:56,position:'sticky',top:0,zIndex:100}}>
-        <Link href="/" style={{fontWeight:800,fontSize:20,color:'#111',textDecoration:'none'}}>Hire <span style={{color:'#ff6b00'}}>Hub</span></Link>
+        <Link href="/" style={{fontWeight:800,fontSize:20,color:'#111',textDecoration:'none'}}>Hire<span style={{color:'#ff6b00'}}>Hub</span><span style={{color:'#ff6b00',fontSize:'0.7em',verticalAlign:'super'}}>360</span></Link>
         <Link href="/" style={{color:'#444',textDecoration:'none',fontSize:15}}>Browse Jobs</Link>
         <Link href="/blog" style={{color:'#ff6b00',textDecoration:'none',fontSize:15,fontWeight:600}}>Blog</Link>
       </nav>
@@ -63,7 +63,7 @@ export default function BlogIndex({ posts }) {
       </main>
 
       <footer style={{background:'#111',color:'#aaa',textAlign:'center',padding:'32px 24px',marginTop:80,fontSize:14}}>
-        <p>© 2026 Hire Hub | <Link href="/" style={{color:'#ff6b00',textDecoration:'none'}}>Find Jobs</Link> | <Link href="/blog" style={{color:'#ff6b00',textDecoration:'none'}}>Blog</Link></p>
+        <p>© 2026 HireHub360 | <Link href="/" style={{color:'#ff6b00',textDecoration:'none'}}>Find Jobs</Link> | <Link href="/blog" style={{color:'#ff6b00',textDecoration:'none'}}>Blog</Link></p>
       </footer>
     </>
   )

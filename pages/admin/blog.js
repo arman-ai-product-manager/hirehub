@@ -22,7 +22,7 @@ export default function AdminBlog({ initialPosts, authorized: serverAuth }) {
   const [msg, setMsg]           = useState('')
   const [preview, setPreview]   = useState(false)
 
-  const BLANK = { id: null, title: '', slug: '', excerpt: '', content: '', cover_image: '', author: 'Hire Hub Team', tags: '', published: false }
+  const BLANK = { id: null, title: '', slug: '', excerpt: '', content: '', cover_image: '', author: 'HireHub360 Team', tags: '', published: false }
   const [form, setForm] = useState(BLANK)
 
   function notify(m) { setMsg(m); setTimeout(() => setMsg(''), 3500) }
@@ -108,7 +108,7 @@ export default function AdminBlog({ initialPosts, authorized: serverAuth }) {
   // ── Login screen ───────────────────────────────────────────────
   if (!authed) return (
     <div style={{ minHeight: '100vh', background: '#f7f7f7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'sans-serif' }}>
-      <Head><title>Admin Login | Hire Hub</title><meta name="robots" content="noindex" /></Head>
+      <Head><title>Admin Login | HireHub360</title><meta name="robots" content="noindex" /></Head>
       <div style={{ background: '#fff', padding: '40px', borderRadius: '16px', boxShadow: '0 4px 24px rgba(0,0,0,.1)', width: '340px' }}>
         <div style={{ fontSize: 32, textAlign: 'center', marginBottom: 8 }}>🎯</div>
         <h2 style={{ margin: '0 0 24px', textAlign: 'center', color: '#111' }}>Blog Admin</h2>
@@ -169,7 +169,7 @@ export default function AdminBlog({ initialPosts, authorized: serverAuth }) {
               </div>
               <div>
                 <label style={lbl}>Author</label>
-                <input style={inp} value={form.author} onChange={e => setForm(f => ({ ...f, author: e.target.value }))} placeholder="Hire Hub Team" />
+                <input style={inp} value={form.author} onChange={e => setForm(f => ({ ...f, author: e.target.value }))} placeholder="HireHub360 Team" />
               </div>
             </div>
             <div>
@@ -203,7 +203,7 @@ export default function AdminBlog({ initialPosts, authorized: serverAuth }) {
   // ── List view ──────────────────────────────────────────────────
   return (
     <div style={{ fontFamily: 'sans-serif', minHeight: '100vh', background: '#f7f7f7' }}>
-      <Head><title>Blog Admin | Hire Hub</title><meta name="robots" content="noindex" /></Head>
+      <Head><title>Blog Admin | HireHub360</title><meta name="robots" content="noindex" /></Head>
 
       <nav style={{ background: '#fff', borderBottom: '1px solid #eee', padding: '0 24px', display: 'flex', alignItems: 'center', gap: 16, height: 56 }}>
         <span style={{ fontWeight: 800, fontSize: 18, color: '#ff6b00' }}>🎯 Blog Admin</span>

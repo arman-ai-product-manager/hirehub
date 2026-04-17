@@ -38,7 +38,7 @@ export default function JobPage({ job }) {
     </div>
   )
 
-  const shareText = `${job.title} at ${job.company_name} — ${job.location} | Apply on Hire Hub`
+  const shareText = `${job.title} at ${job.company_name} — ${job.location} | Apply on HireHub360`
 
   function handleShare() {
     if (navigator.share) {
@@ -67,10 +67,10 @@ export default function JobPage({ job }) {
   return (
     <>
       <Head>
-        <title>{job.title} at {job.company_name} — {job.location} | Hire Hub</title>
-        <meta name="description" content={`Apply for ${job.title} at ${job.company_name} in ${job.location}. ${job.experience || ''} experience. ${salary || ''}. Apply instantly on Hire Hub — India's AI job platform.`} />
+        <title>{job.title} at {job.company_name} — {job.location} | HireHub360</title>
+        <meta name="description" content={`Apply for ${job.title} at ${job.company_name} in ${job.location}. ${job.experience || ''} experience. ${salary || ''}. Apply instantly on HireHub360 — India's AI job platform.`} />
         <meta property="og:title" content={`${job.company_name} is Hiring: ${job.title}`} />
-        <meta property="og:description" content={`${job.location} · ${salary} · ${job.job_type} · Apply on Hire Hub`} />
+        <meta property="og:description" content={`${job.location} · ${salary} · ${job.job_type} · Apply on HireHub360`} />
         <meta property="og:type" content="website" />
         <meta name="robots" content="index,follow" />
         <link rel="canonical" href={`https://hirehub360.in/jobs/${mkSlug(job.title)}-${mkSlug(job.company_name)}-${mkSlug(job.location)}`} />
@@ -116,7 +116,7 @@ export default function JobPage({ job }) {
 
       {/* NAV */}
       <nav className="nav">
-        <a href="/" className="logo">Hire <span>Hub</span></a>
+        <a href="/" className="logo">Hire<span>Hub</span><span style={{color:'#ff6b00',fontSize:'0.7em',verticalAlign:'super'}}>360</span></a>
         <div className="nav-r">
           <a href="/hirehub.html" className="nav-btn ghost">Sign In</a>
           <a href="/hirehub.html" className="nav-btn primary">Post a Job</a>
@@ -174,7 +174,7 @@ export default function JobPage({ job }) {
         <div style={{ background: '#fff', borderRadius: 16, padding: '20px 24px', marginTop: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
           <div>
             <div style={{ fontWeight: 700, fontSize: 15 }}>Looking for more {job.title} jobs?</div>
-            <div style={{ fontSize: 13, color: '#6e6e73', marginTop: 4 }}>Browse hundreds of similar roles on Hire Hub</div>
+            <div style={{ fontSize: 13, color: '#6e6e73', marginTop: 4 }}>Browse hundreds of similar roles on HireHub360</div>
           </div>
           <a href="/" style={{ background: '#ff6b00', color: '#fff', padding: '10px 22px', borderRadius: 999, fontWeight: 700, fontSize: 14 }}>Browse All Jobs →</a>
         </div>
