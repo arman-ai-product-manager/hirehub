@@ -4,7 +4,16 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <!-- Force redirect from Vercel preview URLs to production -->
-<script>if(location.hostname.indexOf('vercel.app')>=0){location.replace('https://hirehub360.in/hirehub.html'+location.search+location.hash);}</script>
+<script>
+// Always stay on production domain — never let Vercel preview URLs show to users
+if(location.hostname!=='hirehub360.in'&&location.hostname!=='localhost'&&location.hostname!=='127.0.0.1'){
+  var _redir='https://hirehub360.in/hirehub.html';
+  // Preserve Supabase OAuth hash (#access_token=...) and query params
+  if(location.hash)_redir+=location.hash;
+  else if(location.search)_redir+=location.search;
+  location.replace(_redir);
+}
+</script>
 <title>HireHub360 — AI Powered Hiring India</title>
 <meta name="description" content="HireHub360 — India's AI-powered job portal. Find jobs, hire candidates. Alternative to Naukri, Indeed, LinkedIn Jobs, Glassdoor, Monster, Shine, TimesJobs, Freshersworld, AngelList, Foundit, Apna, Hirect.">
 <meta name="keywords" content="jobs india, job search, naukri, indeed india, linkedin jobs, glassdoor, monster india, shine jobs, timesjobs, freshersworld, angellist, foundit, cutshort, internshala, apna jobs, hirect, hire candidates, job portal india, fresher jobs, remote jobs, software jobs, marketing jobs">
@@ -3458,7 +3467,7 @@ function doGoogleLogin(){
   if(!window.SB){nt('⚠️ Supabase not configured yet');return;}
   SB.auth.signInWithOAuth({
     provider:'google',
-    options:{redirectTo: window.location.origin+'/hirehub.html'}
+    options:{redirectTo:'https://hirehub360.in/hirehub.html'}
   }).then(function(r){if(r.error)nt('⚠️ '+r.error.message);});
 }
 function showSignup(){
