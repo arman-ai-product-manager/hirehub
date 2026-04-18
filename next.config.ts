@@ -3,7 +3,14 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   async redirects() {
-    return []
+    return [
+      // Redirect static hirehub.html to dynamic API route — prevents Vercel CDN caching old version
+      {
+        source: '/hirehub.html',
+        destination: '/api/app',
+        permanent: false,
+      },
+    ]
   },
   async headers() {
     return [

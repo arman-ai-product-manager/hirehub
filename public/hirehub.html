@@ -3826,12 +3826,15 @@ function finishTest(){
   if(window.SB){
     // Show login immediately — never leave user on a blank screen
     showPg("pg-login");
-    // Listen for login, logout, and OAuth redirect
+    var _hydrated=false; // prevent re-hydration on TOKEN_REFRESHED / duplicate events
     SB.auth.onAuthStateChange(function(event,session){
+      // Only act on real sign-in / sign-out events — ignore TOKEN_REFRESHED, USER_UPDATED etc.
+      if(event==='TOKEN_REFRESHED'||event==='USER_UPDATED'||event==='MFA_CHALLENGE_VERIFIED')return;
       if(session&&session.user){
+        if(_hydrated)return; // already inside app — don't re-render
+        _hydrated=true;
         _role=session.user.user_metadata&&session.user.user_metadata.role||_role;
         S._role=_role;
-        // Show loading overlay while hydrating
         var ov=document.getElementById('hydrate-overlay');
         if(ov)ov.style.display='flex';
         _hydrate(session.user,function(){
@@ -3842,6 +3845,7 @@ function finishTest(){
           _afterHydrate();
         });
       } else {
+        _hydrated=false;
         showPg("pg-login");
       }
     });
