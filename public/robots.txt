@@ -2,7 +2,11 @@ User-agent: *
 Allow: /
 Allow: /hirehub.html
 Allow: /jobs/
+Allow: /blog/
+Allow: /pricing
+Allow: /sitemap.xml
 Disallow: /api/
 Disallow: /_next/
+Disallow: /admin/
 
-Sitemap: https://hirehub.vercel.app/sitemap.xml
+Sitemap: https://hirehub360.in/sitemap.xml
