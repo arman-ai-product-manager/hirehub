@@ -6,13 +6,19 @@
 <!-- Force redirect from Vercel preview URLs to production -->
 <script>
 // Always stay on production domain — never let Vercel preview URLs show to users
-if(location.hostname!=='hirehub360.in'&&location.hostname!=='localhost'&&location.hostname!=='127.0.0.1'){
-  var _redir='https://hirehub360.in/hirehub.html';
-  // Preserve Supabase OAuth hash (#access_token=...) and query params
-  if(location.hash)_redir+=location.hash;
-  else if(location.search)_redir+=location.search;
-  location.replace(_redir);
-}
+// Supabase implicit flow puts token in hash: #access_token=...&refresh_token=...
+// We preserve the full hash so Supabase client can read it after redirect
+(function(){
+  var host=location.hostname;
+  var isProd=host==='hirehub360.in'||host==='localhost'||host==='127.0.0.1';
+  if(!isProd){
+    var _h=location.hash||'';
+    var _q=location.search||'';
+    // Supabase token is either in hash (implicit) or query ?code= (pkce)
+    var dest='https://hirehub360.in/hirehub.html'+(_h||_q);
+    location.replace(dest);
+  }
+})();
 </script>
 <title>HireHub360 — AI Powered Hiring India</title>
 <meta name="description" content="HireHub360 — India's AI-powered job portal. Find jobs, hire candidates. Alternative to Naukri, Indeed, LinkedIn Jobs, Glassdoor, Monster, Shine, TimesJobs, Freshersworld, AngelList, Foundit, Apna, Hirect.">
@@ -155,7 +161,15 @@ body{-webkit-text-size-adjust:100%}
   var _SB_URL  = 'https://wtczsvzhyitpvdevpqkw.supabase.co';
   var GSHEET_URL = 'https://script.google.com/macros/s/AKfycbydrY-w7Uqh_fgcEKjc1e5a_ZxWszVGqJps4iIq_dfW0N_vfCbSybSJphohmIkGXywv/exec';
   var _SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0Y3pzdnpoeWl0cHZkZXZwcWt3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyODM5NzksImV4cCI6MjA5MDg1OTk3OX0.HhSyC39tQeak6zp3Qa-fSNzxv9m2YAbFr4oVbkLVU9w';
-  window.SB = window.supabase.createClient(_SB_URL, _SB_ANON);
+  // Use implicit flow — token comes in URL hash, works cross-domain without redirect URL whitelist
+  window.SB = window.supabase.createClient(_SB_URL, _SB_ANON, {
+    auth: {
+      flowType: 'implicit',
+      detectSessionInUrl: true,
+      persistSession: true,
+      storageKey: 'hh_session'
+    }
+  });
 </script>
 </head>
 <body>
@@ -3465,9 +3479,14 @@ function pickRole(r){
 }
 function doGoogleLogin(){
   if(!window.SB){nt('⚠️ Supabase not configured yet');return;}
+  // redirectTo always points to hirehub360.in so after OAuth user lands on production
+  // implicit flow: token comes in #hash, top-page redirect preserves it cross-domain
   SB.auth.signInWithOAuth({
     provider:'google',
-    options:{redirectTo:'https://hirehub360.in/hirehub.html'}
+    options:{
+      redirectTo:'https://hirehub360.in/hirehub.html',
+      queryParams:{access_type:'offline',prompt:'consent'}
+    }
   }).then(function(r){if(r.error)nt('⚠️ '+r.error.message);});
 }
 function showSignup(){
