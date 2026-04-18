@@ -656,7 +656,9 @@ var S={phone:"",co:null,cp:null,ca:[],jobs:[],myJobs:[],allApps:[],coTab:"dash",
   seoSteps:[],seoData:null,postedJob:null,
   credits:parseInt(localStorage.getItem("hh_credits")||"0"),
   atsScans:parseInt(localStorage.getItem("hh_ats_scans")||"1"),
-  unlockedContacts:JSON.parse(localStorage.getItem("hh_unlocked")||"{}")
+  unlockedContacts:JSON.parse(localStorage.getItem("hh_unlocked")||"{}"),
+  assessmentScore:parseInt(localStorage.getItem("hh_assess_score")||"0"),
+  assessmentSector:localStorage.getItem("hh_assess_sector")||""
 };
 
 // ── NOTIFY ────────────────────────────────────────────────────
@@ -1181,18 +1183,18 @@ function coTab(t){
 
 // ── FIND CVs (Premium) ──────────────────────────────────────────
 var DEMO_CANDIDATES=[
-  {name:"Rahul Verma",role:"Senior Software Engineer",company:"Razorpay",location:"Bangalore",exp:"4 yrs",skills:["React","Node.js","AWS","TypeScript"],salary:"₹18–24 LPA",notice:"30 days",fit:92,edu:"B.Tech CS — NIT Trichy",lastActive:1,verified:true,phone:"98XXXXXXXX",email:"r.v***@gmail.com"},
-  {name:"Priya Sharma",role:"Product Manager",company:"Swiggy",location:"Mumbai",exp:"5 yrs",skills:["Product","Analytics","Figma","SQL"],salary:"₹22–30 LPA",notice:"45 days",fit:88,edu:"MBA — IIM Ahmedabad",lastActive:2,verified:true,phone:"91XXXXXXXX",email:"p.sha***@gmail.com"},
-  {name:"Arjun Mehta",role:"Data Scientist",company:"Flipkart",location:"Bangalore",exp:"3 yrs",skills:["Python","ML","TensorFlow","SQL"],salary:"₹15–22 LPA",notice:"Immediate",fit:96,edu:"M.Tech AI — IIT Bombay",lastActive:0,verified:true,phone:"77XXXXXXXX",email:"a.m***@iitb.ac.in"},
-  {name:"Sneha Patel",role:"Marketing Manager",company:"Zomato",location:"Delhi",exp:"4 yrs",skills:["SEO","Meta Ads","Content","Analytics"],salary:"₹12–18 LPA",notice:"30 days",fit:84,edu:"BBA — Delhi University",lastActive:3,verified:false,phone:"99XXXXXXXX",email:"sneha.p***@gmail.com"},
-  {name:"Vikram Singh",role:"DevOps Engineer",company:"Infosys",location:"Hyderabad",exp:"3 yrs",skills:["Kubernetes","Docker","CI/CD","AWS"],salary:"₹14–20 LPA",notice:"60 days",fit:81,edu:"B.Tech IT — VIT",lastActive:5,verified:false,phone:"88XXXXXXXX",email:"v.singh***@gmail.com"},
-  {name:"Meera Nair",role:"HR Business Partner",company:"TCS",location:"Pune",exp:"6 yrs",skills:["HR","Recruitment","HRBP","SAP"],salary:"₹10–16 LPA",notice:"30 days",fit:79,edu:"MBA HR — Symbiosis",lastActive:1,verified:true,phone:"90XXXXXXXX",email:"m.nair***@gmail.com"},
-  {name:"Rohan Gupta",role:"Finance Analyst",company:"HDFC Bank",location:"Mumbai",exp:"2 yrs",skills:["Excel","SQL","Financial Modelling","PPT"],salary:"₹8–12 LPA",notice:"Immediate",fit:77,edu:"CA — ICAI",lastActive:0,verified:true,phone:"85XXXXXXXX",email:"r.gupta***@gmail.com"},
-  {name:"Ananya Iyer",role:"UI/UX Designer",company:"CRED",location:"Bangalore",exp:"3 yrs",skills:["Figma","Design","UX Research","Prototyping"],salary:"₹10–16 LPA",notice:"30 days",fit:91,edu:"B.Des — NID Ahmedabad",lastActive:1,verified:true,phone:"96XXXXXXXX",email:"a.iyer***@gmail.com"},
-  {name:"Kabir Malhotra",role:"Sales Manager",company:"Bajaj Finance",location:"Mumbai",exp:"5 yrs",skills:["B2B Sales","CRM","Negotiation","Team Lead"],salary:"₹14–20 LPA",notice:"30 days",fit:83,edu:"MBA — SP Jain",lastActive:2,verified:true,phone:"93XXXXXXXX",email:"k.mal***@gmail.com"},
-  {name:"Divya Menon",role:"Content Strategist",company:"PhonePe",location:"Bangalore",exp:"4 yrs",skills:["SEO","Content","Copywriting","Analytics"],salary:"₹10–15 LPA",notice:"Immediate",fit:80,edu:"BA Journalism — Christ University",lastActive:4,verified:false,phone:"87XXXXXXXX",email:"d.menon***@gmail.com"},
-  {name:"Aisha Al-Mansoori",role:"Project Manager",company:"Emaar",location:"Dubai",exp:"6 yrs",skills:["PMP","Agile","MS Project","Stakeholder Mgmt"],salary:"AED 22,000/mo",notice:"30 days",fit:90,edu:"MBA — American University Dubai",lastActive:2,verified:true,phone:"05XXXXXXXX",email:"aisha.a***@emaar.ae"},
-  {name:"Raj Krishnan",role:"Business Analyst",company:"Emirates NBD",location:"Dubai",exp:"4 yrs",skills:["SQL","Power BI","Finance","Excel"],salary:"AED 16,000/mo",notice:"Immediate",fit:83,edu:"B.Com — Mumbai University",lastActive:1,verified:true,phone:"05XXXXXXXX",email:"raj.k***@emiratesnbd.com"},
+  {name:"Rahul Verma",role:"Senior Software Engineer",company:"Razorpay",location:"Bangalore",exp:"4 yrs",skills:["React","Node.js","AWS","TypeScript"],salary:"₹18–24 LPA",notice:"30 days",fit:92,edu:"B.Tech CS — NIT Trichy",lastActive:1,verified:true,phone:"98XXXXXXXX",email:"r.v***@gmail.com",assessScore:94,assessSector:"IT & Software"},
+  {name:"Priya Sharma",role:"Product Manager",company:"Swiggy",location:"Mumbai",exp:"5 yrs",skills:["Product","Analytics","Figma","SQL"],salary:"₹22–30 LPA",notice:"45 days",fit:88,edu:"MBA — IIM Ahmedabad",lastActive:2,verified:true,phone:"91XXXXXXXX",email:"p.sha***@gmail.com",assessScore:78,assessSector:"General"},
+  {name:"Arjun Mehta",role:"Data Scientist",company:"Flipkart",location:"Bangalore",exp:"3 yrs",skills:["Python","ML","TensorFlow","SQL"],salary:"₹15–22 LPA",notice:"Immediate",fit:96,edu:"M.Tech AI — IIT Bombay",lastActive:0,verified:true,phone:"77XXXXXXXX",email:"a.m***@iitb.ac.in",assessScore:97,assessSector:"IT & Software"},
+  {name:"Sneha Patel",role:"Marketing Manager",company:"Zomato",location:"Delhi",exp:"4 yrs",skills:["SEO","Meta Ads","Content","Analytics"],salary:"₹12–18 LPA",notice:"30 days",fit:84,edu:"BBA — Delhi University",lastActive:3,verified:false,phone:"99XXXXXXXX",email:"sneha.p***@gmail.com",assessScore:63,assessSector:"Sales"},
+  {name:"Vikram Singh",role:"DevOps Engineer",company:"Infosys",location:"Hyderabad",exp:"3 yrs",skills:["Kubernetes","Docker","CI/CD","AWS"],salary:"₹14–20 LPA",notice:"60 days",fit:81,edu:"B.Tech IT — VIT",lastActive:5,verified:false,phone:"88XXXXXXXX",email:"v.singh***@gmail.com",assessScore:82,assessSector:"IT & Software"},
+  {name:"Meera Nair",role:"HR Business Partner",company:"TCS",location:"Pune",exp:"6 yrs",skills:["HR","Recruitment","HRBP","SAP"],salary:"₹10–16 LPA",notice:"30 days",fit:79,edu:"MBA HR — Symbiosis",lastActive:1,verified:true,phone:"90XXXXXXXX",email:"m.nair***@gmail.com",assessScore:76,assessSector:"HR"},
+  {name:"Rohan Gupta",role:"Finance Analyst",company:"HDFC Bank",location:"Mumbai",exp:"2 yrs",skills:["Excel","SQL","Financial Modelling","PPT"],salary:"₹8–12 LPA",notice:"Immediate",fit:77,edu:"CA — ICAI",lastActive:0,verified:true,phone:"85XXXXXXXX",email:"r.gupta***@gmail.com",assessScore:91,assessSector:"Banking & Finance"},
+  {name:"Ananya Iyer",role:"UI/UX Designer",company:"CRED",location:"Bangalore",exp:"3 yrs",skills:["Figma","Design","UX Research","Prototyping"],salary:"₹10–16 LPA",notice:"30 days",fit:91,edu:"B.Des — NID Ahmedabad",lastActive:1,verified:true,phone:"96XXXXXXXX",email:"a.iyer***@gmail.com",assessScore:88,assessSector:"IT & Software"},
+  {name:"Kabir Malhotra",role:"Sales Manager",company:"Bajaj Finance",location:"Mumbai",exp:"5 yrs",skills:["B2B Sales","CRM","Negotiation","Team Lead"],salary:"₹14–20 LPA",notice:"30 days",fit:83,edu:"MBA — SP Jain",lastActive:2,verified:true,phone:"93XXXXXXXX",email:"k.mal***@gmail.com",assessScore:71,assessSector:"Sales"},
+  {name:"Divya Menon",role:"Content Strategist",company:"PhonePe",location:"Bangalore",exp:"4 yrs",skills:["SEO","Content","Copywriting","Analytics"],salary:"₹10–15 LPA",notice:"Immediate",fit:80,edu:"BA Journalism — Christ University",lastActive:4,verified:false,phone:"87XXXXXXXX",email:"d.menon***@gmail.com",assessScore:0,assessSector:""},
+  {name:"Aisha Al-Mansoori",role:"Project Manager",company:"Emaar",location:"Dubai",exp:"6 yrs",skills:["PMP","Agile","MS Project","Stakeholder Mgmt"],salary:"AED 22,000/mo",notice:"30 days",fit:90,edu:"MBA — American University Dubai",lastActive:2,verified:true,phone:"05XXXXXXXX",email:"aisha.a***@emaar.ae",assessScore:93,assessSector:"Operations"},
+  {name:"Raj Krishnan",role:"Business Analyst",company:"Emirates NBD",location:"Dubai",exp:"4 yrs",skills:["SQL","Power BI","Finance","Excel"],salary:"AED 16,000/mo",notice:"Immediate",fit:83,edu:"B.Com — Mumbai University",lastActive:1,verified:true,phone:"05XXXXXXXX",email:"raj.k***@emiratesnbd.com",assessScore:79,assessSector:"Banking & Finance"},
 ];
 
 // ── CREDIT HELPERS ───────────────────────────────────────────────
@@ -1279,7 +1281,7 @@ function renderCoFindCVs(el){
     '</div>'+
   '</div>'+
   // ── Filters ──
-  '<div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">'+
+  '<div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">'+
     '<input id="cv-search" class="inp" style="flex:1;min-width:180px" placeholder="🔍 Search skill, role, name, company…" oninput="filterCVs()"/>'+
     '<select id="cv-loc" class="inp" style="width:auto;min-width:120px" onchange="filterCVs()"><option value="">All Cities</option>'+
       ["Mumbai","Bangalore","Delhi","Hyderabad","Pune","Chennai","Dubai","Abu Dhabi"].map(function(c){return '<option>'+c+'</option>';}).join('')+
@@ -1288,10 +1290,24 @@ function renderCoFindCVs(el){
       ['0–2 yrs','2–5 yrs','5–8 yrs','8+ yrs'].map(function(e){return '<option>'+e+'</option>';}).join('')+
     '</select>'+
     '<select id="cv-fit" class="inp" style="width:auto;min-width:130px" onchange="filterCVs()"><option value="">Any Fit Score</option><option value="90">90%+ (Top 10%)</option><option value="80">80%+ (Strong)</option><option value="70">70%+ (Good)</option></select>'+
+    '<select id="cv-tier" class="inp" style="width:auto;min-width:140px" onchange="filterCVs()"><option value="">All Tiers</option><option value="gold">🥇 Gold Expert (90%+)</option><option value="silver">🥈 Silver Expert (75%+)</option><option value="bronze">🥉 Bronze+ Pre-Screened</option><option value="prescreened">🤖 Pre-Screened Only</option></select>'+
+  '</div>'+
+  // Expert tier quick-filter chips
+  '<div style="display:flex;gap:7px;margin-bottom:14px;flex-wrap:wrap">'+
+    '<span style="font-size:12px;color:var(--mu);align-self:center;font-weight:600">Quick Filter:</span>'+
+    ['🤖 Pre-Screened','🥇 Gold Expert','⚡ Immediate','💎 IIT/IIM/NIT','📍 Bangalore','📍 Mumbai'].map(function(tag,i){
+      return '<button style="padding:4px 11px;border-radius:999px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--ln);background:#fff;color:var(--mu)" onclick="quickFilterCVs(\''+tag+'\')" class="cv-quick-tag">'+tag+'</button>';
+    }).join('')+
   '</div>'+
   '<div id="cv-list">'+renderCvCards(allCandidates)+'</div>';
 }
 
+function _expertTier(score){
+  if(!score||score<60)return null;
+  if(score>=90)return {label:'🥇 Gold Expert',bg:'linear-gradient(135deg,#ffd700,#ffb300)',color:'#5a3e00',border:'#ffb300'};
+  if(score>=75)return {label:'🥈 Silver Expert',bg:'linear-gradient(135deg,#e8e8e8,#bdbdbd)',color:'#2c2c2c',border:'#bdbdbd'};
+  return {label:'🥉 Bronze Expert',bg:'linear-gradient(135deg,#cd7f32,#a0522d)',color:'#fff',border:'#cd7f32'};
+}
 function renderCvCards(list){
   if(!list.length)return '<div style="text-align:center;padding:32px;color:var(--mu)">No candidates match your filters</div>';
   return list.map(function(c,idx){
@@ -1304,10 +1320,13 @@ function renderCvCards(list){
     var isUnlocked=!!S.unlockedContacts['c_'+cid];
     var lastActiveText=c.lastActive===0?"Today":c.lastActive===1?"Yesterday":(c.lastActive||Math.floor(Math.random()*7)+1)+" days ago";
     var fitColor=isTop?"#34c759":isStrong?"#ff6b00":"#6e6e73";
+    var tier=_expertTier(c.assessScore||0);
+    var isPreScreened=!!(c.assessScore&&c.assessScore>0);
 
     return '<div class="card" style="padding:18px;margin-bottom:10px;border:1.5px solid '+(isTop?"#34c75940":"#f0f0f5")+';position:relative;overflow:hidden">'+
       // Top badge
-      (isTop?'<div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#34c759,#00c9a7)"></div>':'')+
+      (isTop?'<div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#34c759,#00c9a7)"></div>':
+       tier?'<div style="position:absolute;top:0;left:0;right:0;height:3px;background:'+tier.bg+'"></div>':'')+
       '<div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap">'+
         // Avatar
         '<div style="position:relative;flex-shrink:0">'+
@@ -1320,6 +1339,8 @@ function renderCvCards(list){
           '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:4px">'+
             '<span style="font-weight:800;font-size:15px;color:#1d1d1f">'+c.name+'</span>'+
             (isTop?'<span style="background:#34c75918;color:#34c759;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;border:1px solid #34c75940">🏆 Top Candidate</span>':'')+
+            (tier?'<span style="background:'+tier.bg+';color:'+tier.color+';font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px">'+tier.label+'</span>':'')+
+            (isPreScreened?'<span style="background:#e8f0fe;color:#1a73e8;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;border:1px solid #c5d9f7">🤖 Pre-Screened '+c.assessScore+'%</span>':'')+
             (c.verified?'<span style="background:#0071e318;color:#0071e3;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px">✓ Verified</span>':'')+
           '</div>'+
           // Role
@@ -1370,15 +1391,31 @@ function filterCVs(){
   var loc=((document.getElementById("cv-loc")||{}).value||"");
   var exp=((document.getElementById("cv-exp")||{}).value||"");
   var fitMin=parseInt((document.getElementById("cv-fit")||{}).value||"0")||0;
+  var tierFilter=((document.getElementById("cv-tier")||{}).value||"");
   var filtered=DEMO_CANDIDATES.filter(function(c){
     var matchQ=!q||(c.name||"").toLowerCase().includes(q)||(c.role||"").toLowerCase().includes(q)||((c.skills||[]).join(" ").toLowerCase().includes(q))||(c.company||"").toLowerCase().includes(q);
     var matchL=!loc||(c.location||"").toLowerCase().includes(loc.toLowerCase());
     var matchE=!exp||(c.exp||"").includes(exp.split(" ")[0]);
     var matchF=!fitMin||(c.fit||80)>=fitMin;
-    return matchQ&&matchL&&matchE&&matchF;
+    var as=c.assessScore||0;
+    var matchT=!tierFilter||(tierFilter==="gold"&&as>=90)||(tierFilter==="silver"&&as>=75)||(tierFilter==="bronze"&&as>=60)||(tierFilter==="prescreened"&&as>0);
+    return matchQ&&matchL&&matchE&&matchF&&matchT;
   });
   var list=document.getElementById("cv-list");
   if(list)list.innerHTML=renderCvCards(filtered);
+}
+function quickFilterCVs(tag){
+  var search=document.getElementById("cv-search");
+  var tier=document.getElementById("cv-tier");
+  // Reset all
+  if(search)search.value="";if(tier)tier.value="";
+  if(tag==='🤖 Pre-Screened'&&tier)tier.value="prescreened";
+  else if(tag==='🥇 Gold Expert'&&tier)tier.value="gold";
+  else if(tag==='⚡ Immediate'&&search)search.value="Immediate";
+  else if(tag==='💎 IIT/IIM/NIT'&&search)search.value="IIT";
+  else if(tag==='📍 Bangalore'&&search)search.value="Bangalore";
+  else if(tag==='📍 Mumbai'&&search)search.value="Mumbai";
+  filterCVs();
 }
 
 // ── COMPANY PARTNERS ────────────────────────────────────────────
@@ -1503,7 +1540,7 @@ function renderCoDash(el){
 function renderCoPost(el){
   var jf=S.jf;
   var secs=["IT & Software","Banking & Finance","Healthcare","Manufacturing","Retail & FMCG","Education","Hospitality & Tourism","Logistics","Construction"];
-  var types=["Full-time","Part-time","Remote","Hybrid","Contract","Internship"];
+  var types=["Full-time","Part-time","Remote","Hybrid","Contract","Internship","Gig / Freelance"];
   el.innerHTML=
     '<div style="margin-bottom:20px"><h2 style="font-weight:800;font-size:22px;letter-spacing:-.04em;margin-bottom:4px">Post a Job</h2><p style="color:var(--mu);font-size:14px">Google auto-index in ~3 min. AI writes the description.</p></div>'+
     '<div class="card" style="padding:24px 20px">'+
@@ -2566,11 +2603,30 @@ function downloadCandCV(encodedName){
 }
 
 function renderCdJobs(el){
-  el.innerHTML='<div style="display:flex;gap:9px;margin-bottom:13px;flex-wrap:wrap;align-items:center">'+
+  el.innerHTML='<div style="display:flex;gap:9px;margin-bottom:10px;flex-wrap:wrap;align-items:center">'+
     '<div style="flex:1;min-width:165px;position:relative"><span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none;font-size:15px">🔍</span><input id="js" placeholder="Search jobs, companies, skills…" style="padding-left:40px" oninput="rJL()"/></div>'+
     '<select id="jcy" style="width:auto;min-width:115px" onchange="rJL()"><option value="">All Cities</option>'+["Mumbai","Delhi","Bangalore","Hyderabad","Chennai","Pune","Kolkata","New York","London","Toronto","Sydney","Berlin","Singapore","Dubai"].map(function(c){return '<option>'+c+'</option>';}).join("")+'</select>'+
-    '<select id="jsc" style="width:auto;min-width:135px" onchange="rJL()"><option value="">All Sectors</option>'+["IT & Software","Banking & Finance","Healthcare","Manufacturing","Retail & FMCG","Hospitality & Tourism","Education"].map(function(s){return '<option>'+s+'</option>';}).join("")+'</select></div>'+
+    '<select id="jsc" style="width:auto;min-width:135px" onchange="rJL()"><option value="">All Sectors</option>'+["IT & Software","Banking & Finance","Healthcare","Manufacturing","Retail & FMCG","Hospitality & Tourism","Education"].map(function(s){return '<option>'+s+'</option>';}).join("")+'</select>'+
+    '</div>'+
+    // Job type filter chips
+    '<div style="display:flex;gap:7px;margin-bottom:13px;flex-wrap:wrap" id="jtype-chips">'+
+    ['All','Full-time','Remote','Hybrid','Contract','Internship','Gig / Freelance'].map(function(t,i){
+      return '<button onclick="setJTypeFilter(\''+t+'\')" id="jtc-'+i+'" style="padding:5px 13px;border-radius:999px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid '+(t==='All'?'var(--ac)':'var(--ln)')+';background:'+(t==='All'?'var(--ac)':'#fff')+';color:'+(t==='All'?'#fff':'var(--mu)')+';transition:all .15s">'+(t==='Gig / Freelance'?'💼 Gig':'')+(t==='Remote'?'🏠 ':t==='Internship'?'🎓 ':'')+t+'</button>';
+    }).join('')+
+    '</div>'+
     '<div id="jlist"></div>';
+  window._jTypeFilter='All';
+  rJL();
+}
+function setJTypeFilter(type){
+  window._jTypeFilter=type;
+  document.querySelectorAll("[id^=jtc-]").forEach(function(b,i){
+    var types=['All','Full-time','Remote','Hybrid','Contract','Internship','Gig / Freelance'];
+    var isActive=types[i]===type;
+    b.style.background=isActive?'var(--ac)':'#fff';
+    b.style.color=isActive?'#fff':'var(--mu)';
+    b.style.borderColor=isActive?'var(--ac)':'var(--ln)';
+  });
   rJL();
 }
 function renderJList(){ var el=document.getElementById("cd-body"); if(el) renderCdJobs(el); }
@@ -2581,12 +2637,14 @@ function rJL(){
   var jcurr=((document.getElementById("jcurr")||{}).value||"");
   var jvisa=((document.getElementById("jvisa")||{}).value||"");
   var viewCurr = jcurr || "INR";
+  var jtf=window._jTypeFilter||'All';
   var list=S.jobs.filter(function(j){
     return(!q||j.title.toLowerCase().indexOf(q)>=0||j.company.toLowerCase().indexOf(q)>=0||(j.skills&&j.skills.some(function(s){return s.toLowerCase().indexOf(q)>=0;})))&&
     (!cy||j.loc.indexOf(cy)>=0)&&
     (!sc||j.sec===sc)&&
     (!jcurr||!j.curr||j.curr===jcurr)&&
-    (!jvisa||j.visa===true);
+    (!jvisa||j.visa===true)&&
+    (jtf==='All'||(j.type||'Full-time')===jtf);
   }).sort(function(a,b){return b.fit-a.fit;});
   var el=document.getElementById("jlist");if(!el)return;
   el.innerHTML=
@@ -2608,7 +2666,7 @@ function rJL(){
             var dispSal = job.sal;
             return '<span class="pill" style="background:var(--gl2);color:var(--go)">'+c.flag+' 💰 '+dispSal+'</span>';
           }()))+
-        '<span class="pill" style="background:var(--bl2);color:var(--bl)">'+job.type+'</span>'+
+        (job.type==='Gig / Freelance'?'<span class="pill" style="background:#f3e8ff;color:#7c3aed;font-weight:700">💼 Gig</span>':'<span class="pill" style="background:var(--bl2);color:var(--bl)">'+job.type+'</span>')+
         '<span class="pill" style="background:var(--bg);color:var(--mu)">⏱ '+job.exp+'</span>'+
         (job.remote&&job.remote!=="Any"?'<span class="pill" style="background:var(--pl);color:var(--pu)">🏠 '+job.remote+'</span>':"")+
         (job.visa?'<span class="pill" style="background:#e8f4fd;color:#0071e3">🛂 Visa Sponsorship</span>':"")+
@@ -3649,8 +3707,35 @@ function giveFeedback(appId,name){
 
 // ─── CANDIDATE INTERVIEW ──────────────────────────────────────
 function renderCdInterview(el){
+  var tier=_expertTier(S.assessmentScore);
+  var hasTier=!!tier;
   el.innerHTML='<div style="margin-bottom:18px"><h2 style="font-weight:800;font-size:22px">🎯 Your Interview Centre</h2></div>'+
-    '<div class="card" style="padding:18px;margin-bottom:12px"><div style="font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--mu);text-transform:uppercase;margin-bottom:10px">📝 PRACTICE TEST</div><p style="font-size:13px;color:var(--mu);margin-bottom:12px">Build your Hire Hub Score™. Pick a sector to begin.</p><div id="test-sector-btns" class="fw"></div></div>';
+    // Expert Tier Status Card
+    (hasTier
+      ?'<div class="card" style="padding:20px;margin-bottom:14px;background:linear-gradient(135deg,#1d1d1f,#2c1a00);border:none;position:relative;overflow:hidden">'+
+        '<div style="position:absolute;top:-20px;right:-20px;width:100px;height:100px;background:radial-gradient(circle,rgba(255,107,0,.3),transparent 70%)"></div>'+
+        '<div style="font-size:11px;font-weight:700;letter-spacing:.1em;color:#ff6b00;text-transform:uppercase;margin-bottom:6px">YOUR EXPERT TIER</div>'+
+        '<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">'+
+          '<div style="background:'+tier.bg+';color:'+tier.color+';font-size:18px;font-weight:900;padding:10px 20px;border-radius:12px">'+tier.label+'</div>'+
+          '<div>'+
+            '<div style="color:#fff;font-weight:700;font-size:15px">'+S.assessmentScore+'% Score · '+S.assessmentSector+'</div>'+
+            '<div style="color:#888;font-size:12px;margin-top:3px">🤖 Pre-Screened badge visible to all recruiters</div>'+
+          '</div>'+
+        '</div>'+
+        '<div style="margin-top:12px;font-size:12px;color:#aaa">Retake to improve your tier. Gold (90%+) · Silver (75%+) · Bronze (60%+)</div>'+
+      '</div>'
+      :'<div class="card" style="padding:20px;margin-bottom:14px;background:linear-gradient(135deg,#f5f5f7,#e8f4fd);border:1.5px solid #c5d9f7">'+
+        '<div style="font-size:11px;font-weight:700;letter-spacing:.1em;color:#1a73e8;text-transform:uppercase;margin-bottom:6px">🤖 AI ASSESSMENT</div>'+
+        '<div style="font-weight:800;font-size:16px;color:#1d1d1f;margin-bottom:4px">Get Pre-Screened — Stand Out to Recruiters</div>'+
+        '<p style="font-size:13px;color:#6e6e73;margin-bottom:12px">Take a 8-question domain test. Earn Gold / Silver / Bronze badge. Recruiters see "Pre-Screened ✓" on your profile — boosting your interview calls by 3×.</p>'+
+        '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:4px">'+
+          '<div style="text-align:center;background:#fff;border-radius:10px;padding:10px 16px;border:1px solid #e5e5ea"><div style="font-size:20px">🥇</div><div style="font-size:11px;font-weight:700;color:#5a3e00">Gold</div><div style="font-size:10px;color:#aaa">90%+</div></div>'+
+          '<div style="text-align:center;background:#fff;border-radius:10px;padding:10px 16px;border:1px solid #e5e5ea"><div style="font-size:20px">🥈</div><div style="font-size:11px;font-weight:700;color:#2c2c2c">Silver</div><div style="font-size:10px;color:#aaa">75%+</div></div>'+
+          '<div style="text-align:center;background:#fff;border-radius:10px;padding:10px 16px;border:1px solid #e5e5ea"><div style="font-size:20px">🥉</div><div style="font-size:11px;font-weight:700;color:#a0522d">Bronze</div><div style="font-size:10px;color:#aaa">60%+</div></div>'+
+        '</div>'+
+      '</div>')+
+    // Practice Tests
+    '<div class="card" style="padding:18px;margin-bottom:12px"><div style="font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--mu);text-transform:uppercase;margin-bottom:10px">📝 '+(hasTier?'RETAKE — IMPROVE YOUR TIER':'TAKE ASSESSMENT — EARN YOUR BADGE')+'</div><p style="font-size:13px;color:var(--mu);margin-bottom:12px">Pick your domain. 8 questions. Instant result.</p><div id="test-sector-btns" class="fw"></div></div>';
   // Sector test buttons via DOM
   var sbEl=document.getElementById("test-sector-btns");
   if(sbEl){Object.keys(Q_BANK).forEach(function(sec){var btn=document.createElement("button");btn.className="btn sm gh";btn.textContent=sec;btn.onclick=function(){startSelfTest(sec);};sbEl.appendChild(btn);});}
@@ -3673,8 +3758,22 @@ function renderTestQuestion(){
 function finishTest(){
   var correct=0;currentTest.questions.forEach(function(q,i){if(currentTest.answers[i]===q.ans)correct++;});
   var score=Math.round((correct/currentTest.questions.length)*100),elapsed=Math.round((Date.now()-currentTest.startTime)/1000);
+  // Save best score
+  if(score>S.assessmentScore){
+    S.assessmentScore=score;S.assessmentSector=currentTest.sector;
+    localStorage.setItem("hh_assess_score",String(score));
+    localStorage.setItem("hh_assess_sector",currentTest.sector);
+    if(S.cp){S.cp.assessmentScore=score;S.cp.assessmentSector=currentTest.sector;dbSet("cd:profile",S.cp);}
+  }
+  var tier=_expertTier(score);
   var el=document.getElementById("cd-body"),col=score>=70?"var(--gr)":score>=50?"var(--go)":"var(--rd)";
-  el.innerHTML='<div class="card" style="padding:28px;text-align:center;margin-bottom:12px"><div style="font-size:52px;font-weight:800;color:'+col+';line-height:1;margin-bottom:8px">'+score+'%</div><div style="font-size:16px;font-weight:700;margin-bottom:6px">'+(score>=70?"🎉 Excellent!":score>=50?"👍 Good. Try again to improve.":"📚 Keep practicing!")+'</div><div style="font-size:13px;color:var(--mu);margin-bottom:14px">'+correct+'/'+currentTest.questions.length+' correct · '+elapsed+'s</div><div id="test-result-btns" class="fw" style="justify-content:center"></div></div>'+
+  el.innerHTML='<div class="card" style="padding:28px;text-align:center;margin-bottom:12px">'+
+    (tier?'<div style="display:inline-block;background:'+tier.bg+';color:'+tier.color+';font-size:13px;font-weight:800;padding:6px 18px;border-radius:999px;margin-bottom:12px">'+tier.label+' Achieved!</div><br>':'') +
+    '<div style="font-size:52px;font-weight:800;color:'+col+';line-height:1;margin-bottom:8px">'+score+'%</div>'+
+    '<div style="font-size:16px;font-weight:700;margin-bottom:6px">'+(score>=90?"🏆 Expert Level!":score>=75?"🎉 Excellent!":score>=60?"👍 Good — keep practising.":score>=50?"📈 Getting there!":"📚 Keep practicing!")+'</div>'+
+    (tier?'<div style="font-size:13px;color:#34c759;font-weight:600;margin-bottom:8px">🤖 Pre-Screened badge added to your profile — recruiters can see this!</div>':'')+
+    '<div style="font-size:13px;color:var(--mu);margin-bottom:14px">'+correct+'/'+currentTest.questions.length+' correct · '+elapsed+'s · '+currentTest.sector+'</div>'+
+    '<div id="test-result-btns" class="fw" style="justify-content:center"></div></div>'+
     '<div class="card" style="padding:16px">'+currentTest.questions.map(function(q,i){var ua=currentTest.answers[i],ok=ua===q.ans;return '<div style="padding:10px 0;border-bottom:1px solid var(--ln)"><div style="font-size:13px;font-weight:600;margin-bottom:4px">'+(i+1)+'. '+q.q+'</div><div style="font-size:12px;color:'+(ok?"var(--gr)":"var(--rd)")+'">'+(ok?"✅":"❌")+' '+q.opts[ua]+'</div>'+(!ok?'<div style="font-size:12px;color:var(--gr)">✅ '+q.opts[q.ans]+'</div>':'')+'</div>';}).join("")+'</div>';
   var rb=document.getElementById("test-result-btns");
   if(rb){[["← Back",function(){renderCdInterview(document.getElementById("cd-body"));}],["Retry",function(){startSelfTest(currentTest.sector);}]].forEach(function(b){var btn=document.createElement("button");btn.className="btn sm";btn.textContent=b[0];btn.style.cssText=b[0]==="← Back"?"background:var(--fi);color:#fff;border:none":"background:transparent;border:1.5px solid var(--ln);color:var(--mu)";btn.onclick=b[1];rb.appendChild(btn);});}
