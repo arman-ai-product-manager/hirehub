@@ -14,38 +14,55 @@ export default async function handler(req, res) {
     const results = []
 
     if (type !== 'candidate') {
-      const { data: companies, count: cCount } = await supabaseService
+      // Try with ban columns first; fall back to base columns if migration not yet run
+      let coRes = await supabaseService
         .from('companies')
-        .select('id,company_name,plan,is_banned,banned_at,created_at', { count: 'exact' })
+        .select('id,company_name,plan,is_banned,banned_at,created_at')
         .order('created_at', { ascending: false })
         .range(from, from + limit - 1)
 
-      ;(companies || []).forEach(c => results.push({
+      if (coRes.error) {
+        coRes = await supabaseService
+          .from('companies')
+          .select('id,company_name,plan,created_at')
+          .order('created_at', { ascending: false })
+          .range(from, from + limit - 1)
+      }
+
+      ;(coRes.data || []).forEach(c => results.push({
         id:        c.id,
         name:      c.company_name,
         role:      'company',
         plan:      c.plan || 'free',
-        is_banned: c.is_banned,
-        banned_at: c.banned_at,
+        is_banned: c.is_banned || false,
+        banned_at: c.banned_at || null,
         created_at:c.created_at,
         table:     'companies',
       }))
     }
 
     if (type !== 'company') {
-      const { data: candidates } = await supabaseService
+      let cdRes = await supabaseService
         .from('candidates')
         .select('id,name,is_banned,banned_at,created_at')
         .order('created_at', { ascending: false })
         .range(from, from + limit - 1)
 
-      ;(candidates || []).forEach(c => results.push({
+      if (cdRes.error) {
+        cdRes = await supabaseService
+          .from('candidates')
+          .select('id,name,created_at')
+          .order('created_at', { ascending: false })
+          .range(from, from + limit - 1)
+      }
+
+      ;(cdRes.data || []).forEach(c => results.push({
         id:        c.id,
         name:      c.name || '(no name)',
         role:      'candidate',
         plan:      'free',
-        is_banned: c.is_banned,
-        banned_at: c.banned_at,
+        is_banned: c.is_banned || false,
+        banned_at: c.banned_at || null,
         created_at:c.created_at,
         table:     'candidates',
       }))
