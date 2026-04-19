@@ -3290,7 +3290,7 @@ function renderCoBrand(el) {
     '<div>'+
     '<label class="lbl">WhatsApp Share Text</label>'+
     '<div style="display:flex;gap:8px">'+
-    '<input id="wa-share-txt" value="We are hiring at '+(br.name||"our company")+'! Apply here: https://hirehub360.in/careers/'+mkSlug(br.name||"your-company")+'" readonly style="background:var(--bg);font-size:12px;color:var(--mu)"/>'+
+    '<input id="wa-share-txt" value="We are hiring at '+(br.name||"our company")+'! View open positions — save this link and apply: hirehub360.in/careers/'+mkSlug(br.name||"your-company")+'" readonly style="background:var(--bg);font-size:12px;color:var(--mu)"/>'+
     '<button class="btn gf sm" onclick="copyWAText()">📱 Copy</button>'+
     '</div></div></div>'+
     '<button class="btn sm" style="background:transparent;border:1.5px solid var(--bl);color:var(--bl)" onclick="copyEmbedCode()">🔗 Copy Website Embed Code</button>'+
@@ -3406,25 +3406,19 @@ function saveBrand() {
   if(!br.name) { nt("⚠️ Enter brand / company name"); return; }
   dbSet("co:brand", br);
   var slug = mkSlug(br.name);
-  // Also save brand to Supabase profile so career page can read it publicly
-  if(window.SB && S._uid) {
-    SB.from('profiles').upsert({
-      id: S._uid,
-      company_name: br.name,
-      company_slug: slug,
-      brand_color: br.color,
-      brand_tagline: br.tagline,
-      brand_logo: br.logo || null,
-      brand_cta: br.cta || 'Apply Now',
-      updated_at: new Date().toISOString()
-    }, {onConflict:'id'}).then(function(r){
-      if(!r.error) nt("✅ Brand saved! Career page live at hirehub360.in/careers/"+slug);
-      else nt("✅ Brand settings saved locally!");
-    });
-  } else {
-    nt("✅ Brand settings saved!");
-  }
+  var link = _careerLink(br);
+  nt("✅ Brand saved! Career page: hirehub360.in/careers/"+slug);
   coTab("brand");
+}
+function _careerLink(br){
+  var br2 = br || getBrand();
+  var slug = mkSlug(br2.name || "your-company");
+  var params = "?n="+encodeURIComponent(br2.name||"")
+    +"&c="+encodeURIComponent(br2.color||"#ff6b00")
+    +"&t="+encodeURIComponent(br2.tagline||"")
+    +"&cta="+encodeURIComponent(br2.cta||"Apply Now")
+    +(br2.logo?"&logo="+encodeURIComponent(br2.logo):"");
+  return "https://hirehub360.in/careers/"+slug+params;
 }
 
 function previewCareerPage() {
@@ -3453,9 +3447,7 @@ function previewCareerPage() {
 }
 
 function copyCareerLink() {
-  var br = getBrand();
-  var slug = mkSlug(br.name||(S.co&&S.co.name)||"your-company");
-  var link = 'https://hirehub360.in/careers/'+slug;
+  var link = _careerLink(getBrand());
   if(navigator.clipboard) {
     navigator.clipboard.writeText(link).then(function(){ nt("✅ Career page link copied!"); });
   } else { nt("Career link: "+link); }
@@ -3463,8 +3455,8 @@ function copyCareerLink() {
 
 function copyEmbedCode() {
   var br = getBrandFromForm();
-  var slug = mkSlug(br.name||"your-company");
-  var code = '<iframe src="https://hirehub360.in/careers/'+slug+'" width="100%" height="600" frameborder="0" style="border-radius:16px;border:none" title="'+br.name+' Careers"></iframe>';
+  var link = _careerLink(br);
+  var code = '<iframe src="'+link+'" width="100%" height="600" frameborder="0" style="border-radius:16px;border:none" title="'+br.name+' Careers"></iframe>';
   if(navigator.clipboard) {
     navigator.clipboard.writeText(code).then(function(){ nt("🔗 Embed code copied! Paste it on your website."); });
   } else { nt("🔗 Embed code ready!"); }
