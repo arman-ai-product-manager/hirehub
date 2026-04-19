@@ -1,5 +1,6 @@
 const { supabaseService } = require('../../../lib/supabase')
 const { autoIndex, SITE } = require('../../../lib/autoIndex')
+const { googleIndex }     = require('../../../lib/googleIndex')
 
 // 60-day rotating topic list — cities, job categories, HR tips
 const TOPICS = [
@@ -154,13 +155,21 @@ export default async function handler(req, res) {
 
     if (error) return res.status(500).json({ error: error.message })
 
-    // Auto-index immediately
-    await autoIndex([
-      `${SITE}/blog/${slug}`,
-      `${SITE}/blog`,
+    const blogUrl = `${SITE}/blog/${slug}`
+
+    // IndexNow + sitemap pings (Bing, Yandex, Google sitemap ping)
+    await autoIndex([blogUrl, `${SITE}/blog`])
+
+    // Google Indexing API — direct crawl request
+    const [gBlog, gIndex] = await Promise.all([
+      googleIndex([blogUrl]),
+      googleIndex([`${SITE}/blog`]),
     ])
 
-    return res.json({ ok: true, slug, title, city: topic.city })
+    return res.json({
+      ok: true, slug, title, city: topic.city,
+      google_indexed: gBlog[0]?.ok,
+    })
   } catch (e) {
     return res.status(500).json({ error: e.message })
   }

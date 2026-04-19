@@ -1,5 +1,6 @@
 const { supabaseService } = require('../../../lib/supabase')
 const { autoIndex, SITE } = require('../../../lib/autoIndex')
+const { googleIndex }     = require('../../../lib/googleIndex')
 
 // ── VENUE BLOG TOPICS ──────────────────────────────────────────────────────
 // Premium-only. Targeting large corporates, MNCs, enterprise HR teams.
@@ -318,9 +319,16 @@ export default async function handler(req, res) {
 
     if (error) return res.status(500).json({ error: error.message })
 
-    await autoIndex([`${SITE}/blog/${slug}`, `${SITE}/blog`])
+    const blogUrl = `${SITE}/blog/${slug}`
+    await autoIndex([blogUrl, `${SITE}/blog`])
 
-    return res.json({ ok: true, slug, title: topic.title, keyword: topic.kw, venue: topic.venue })
+    // Google Indexing API — direct crawl request
+    const gResult = await googleIndex([blogUrl])
+
+    return res.json({
+      ok: true, slug, title: topic.title, keyword: topic.kw, venue: topic.venue,
+      google_indexed: gResult[0]?.ok,
+    })
   } catch (e) {
     return res.status(500).json({ error: e.message })
   }

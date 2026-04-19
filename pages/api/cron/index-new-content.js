@@ -5,6 +5,7 @@
  */
 const { supabaseService } = require('../../../lib/supabase')
 const { autoIndex, SITE } = require('../../../lib/autoIndex')
+const { googleIndex }     = require('../../../lib/googleIndex')
 
 function mkSlug(s) {
   return (s || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
@@ -54,12 +55,22 @@ export default async function handler(req, res) {
       return res.json({ ok: true, indexed: 0, message: 'No new content since last run' })
     }
 
-    // Always include sitemap root to signal freshness
-    urls.push(`${SITE}/sitemap.xml`)
-
+    // IndexNow + sitemap pings (Bing, Yandex, Google sitemap ping)
     await autoIndex(urls)
 
-    return res.json({ ok: true, indexed: urls.length - 1, urls })
+    // Google Indexing API — direct crawl request per URL (quota: 200/day)
+    // Limit to 50 per hourly run to preserve daily quota for multiple runs
+    const googleUrls = urls.slice(0, 50)
+    const googleResults = await googleIndex(googleUrls)
+    const googleOk = googleResults.filter(r => r.ok).length
+
+    return res.json({
+      ok: true,
+      indexed: urls.length,
+      google_submitted: googleOk,
+      google_failed: googleResults.filter(r => !r.ok).length,
+      urls,
+    })
   } catch (e) {
     return res.status(500).json({ error: e.message })
   }
