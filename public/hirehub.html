@@ -184,7 +184,7 @@ body{-webkit-text-size-adjust:100%}
 <div id="pg-login" class="login-pg pg">
   <div class="login-card" style="max-width:400px">
     <div style="font-size:48px;margin-bottom:12px;display:inline-block;animation:FL 3s ease-in-out infinite">🎯</div>
-    <div class="logo" style="font-size:24px;margin-bottom:4px">Hire <span>Hub</span></div>
+    <div class="logo" style="font-size:24px;margin-bottom:4px">Hire<span>Hub</span><span style="color:#ff6b00;font-size:.65em;font-weight:900;vertical-align:super;margin-left:1px">360</span></div>
     <p style="color:var(--mu);font-size:13px;margin-bottom:24px">India's AI Career Platform</p>
 
     <!-- Google OAuth -->
@@ -253,7 +253,7 @@ body{-webkit-text-size-adjust:100%}
     <span id="tick-t">⚡ Priya Sharma shortlisted at Swiggy — 96% AI fit score</span>
   </div>
   <nav class="nav">
-    <div class="logo">Hire <span>Hub</span></div>
+    <div class="logo">Hire<span>Hub</span><span style="color:#ff6b00;font-size:.65em;font-weight:900;vertical-align:super;margin-left:1px">360</span></div>
     <div class="fl">
       <span id="ph-nav" style="font-size:12px;color:var(--mu)"></span>
       <button class="btn gh sm" onclick="doLogout()">Logout</button>
@@ -307,7 +307,7 @@ body{-webkit-text-size-adjust:100%}
 <!-- ═══════ COMPANY PAGE ═══════ -->
 <div id="pg-co" class="pg">
   <nav class="nav">
-    <div class="logo">Hire <span>Hub</span></div>
+    <div class="logo">Hire<span>Hub</span><span style="color:#ff6b00;font-size:.65em;font-weight:900;vertical-align:super;margin-left:1px">360</span></div>
     <div style="display:flex;gap:3px;align-items:center;overflow-x:auto">
       <button class="tab-btn on" id="ct-dash" onclick="coTab('dash')">🏠 Dashboard</button>
       <button class="tab-btn" id="ct-post" onclick="coTab('post')">➕ Post Job</button>
@@ -330,14 +330,13 @@ body{-webkit-text-size-adjust:100%}
     <button onclick="document.getElementById('hire-banner').style.display='none'" style="background:none;border:none;font-size:18px;cursor:pointer;color:#aaa">×</button>
   </div>
   <nav class="nav">
-    <div class="logo">Hire <span>Hub</span></div>
+    <div class="logo" style="cursor:pointer" onclick="cdGo(3)">Hire<span>Hub</span><span style="color:#ff6b00;font-size:.65em;font-weight:900;vertical-align:super;margin-left:1px">360</span></div>
     <div class="fl">
       <button class="btn gh sm" id="cd-btn-j" style="display:none" onclick="cdGo(3)">Jobs</button>
       <button class="btn gh sm" id="cd-btn-t" style="display:none" onclick="cdGo(4)">Track</button>
       <button class="btn gh sm" id="cd-btn-iv" style="display:none" onclick="cdGo(5)">🎯 Interviews</button>
-      <button class="btn gh sm" id="cd-btn-ats" style="display:none" onclick="cdGo(8)" style="background:linear-gradient(90deg,#ff6b00,#ff9500);color:#fff;border:none">🤖 ATS Scan</button>
-      <button class="btn fi sm" onclick="showPg('pg-role')" style="font-size:12px">➕ Post a Job</button>
-      <button class="btn gh sm" onclick="showPg('pg-role')">← Back</button>
+      <button class="btn gh sm" id="cd-btn-ats" style="display:none;background:linear-gradient(90deg,#ff6b00,#ff9500);color:#fff;border:none" onclick="cdGo(8)">🤖 ATS</button>
+      <button class="btn gh sm" onclick="SB&&SB.auth.signOut().then(function(){showPg('pg-login');})" style="font-size:12px;color:#ff375f">Sign Out</button>
     </div>
   </nav>
   <div id="cd-bar"></div>
@@ -356,12 +355,18 @@ body{-webkit-text-size-adjust:100%}
 
 <!-- SEO modal -->
 <div class="mbg" id="m-seo" onclick="mClose('m-seo')">
-  <div class="mbox" onclick="event.stopPropagation()" style="max-width:540px" id="m-seo-c"></div>
+  <div class="mbox" onclick="event.stopPropagation()" style="max-width:540px;position:relative">
+    <button onclick="mClose('m-seo')" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:20px;cursor:pointer;color:#aaa;line-height:1;z-index:2">✕</button>
+    <div id="m-seo-c"></div>
+  </div>
 </div>
 
 <!-- Pricing modal -->
-<div class="mbg" id="m-price" onclick="mClose(\"m-price\")">
-  <div class="mbox" onclick="event.stopPropagation()" style="max-width:920px" id="m-price-c"></div>
+<div class="mbg" id="m-price" onclick="mClose('m-price')">
+  <div class="mbox" onclick="event.stopPropagation()" style="max-width:920px;position:relative">
+    <button onclick="mClose('m-price')" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:22px;cursor:pointer;color:#aaa;line-height:1;z-index:10">✕</button>
+    <div id="m-price-c"></div>
+  </div>
 </div>
 
 <!-- ═══════ SHARE CARD GENERATOR MODAL ═══════ -->
@@ -533,7 +538,7 @@ function _hydrate(user, cb){
       S.cp=cdObj;
     }
     if(jobsR.data) jobsR.data.forEach(function(j){
-      var jobObj={id:j.id,title:j.title,company:j.company_name,loc:j.location,sal:j.salary_label,shide:j.salary_hidden,exp:j.experience,type:j.job_type,sec:j.sector,skills:j.skills||[],curr:j.currency,remote:j.remote_policy,visa:j.visa_sponsor,companyId:j.company_id,status:j.status,slug:j.slug,createdAt:j.created_at,source:"Hire Hub"};
+      var jobObj={id:j.id,title:j.title,company:j.company_name,loc:j.location,sal:j.salary_label,shide:j.salary_hidden,exp:j.experience,type:j.job_type,sec:j.sector,skills:j.skills||[],curr:j.currency,remote:j.remote_policy,visa:j.visa_sponsor,companyId:j.company_id,status:j.status,slug:j.slug,createdAt:j.created_at,source:"HireHub360"};
       try{localStorage.setItem("sh_job:"+j.id,JSON.stringify(jobObj));}catch(e){}
     });
     clearTimeout(timer);
@@ -707,7 +712,7 @@ function showPg(id){
 }
 
 // ── TICKER ────────────────────────────────────────────────────
-var TICKS=["⚡ Priya Sharma shortlisted at Swiggy — 96% AI fit score","🎉 TechCorp hired their developer via Hire Hub today","🎳 Team of 28 celebrated at CG Meetup venue","📈 Job auto-indexed on Google in 3 minutes","🚨 5 fake listings blocked before going live","📤 Share card downloaded 1,200+ times this week"];
+var TICKS=["⚡ Priya Sharma shortlisted at Swiggy — 96% AI fit score","🎉 TechCorp hired their developer via HireHub360 today","🎳 Team of 28 celebrated at CG Meetup venue","📈 Job auto-indexed on Google in 3 minutes","🚨 5 fake listings blocked before going live","📤 Share card downloaded 1,200+ times this week"];
 var ti=0;
 setInterval(function(){ti=(ti+1)%TICKS.length;var e=document.getElementById("tick-t");if(e)e.textContent=TICKS[ti];},4200);
 
@@ -740,7 +745,7 @@ function doVerifyOTP(){
   dbSet("user:phone",S.phone);
   S.co=dbGet("co:profile");S.cp=dbGet("cd:profile");S.ca=dbGet("cd:apps")||[];
   var n=document.getElementById("ph-nav");if(n)n.textContent="+91 "+S.phone;
-  showPg("pg-role");nt("✅ Welcome to Hire Hub!");
+  showPg("pg-role");nt("✅ Welcome to HireHub360!");
   gsLog("login",{role:S.co?"company":S.cp?"candidate":"new",device:navigator.userAgent.indexOf("Mobile")>=0?"mobile":"desktop"});
 }
 function doLogout(){
@@ -783,7 +788,7 @@ function rzpPay(opts){
       key: 'rzp_test_SaBKq7P51Zw8XM', // swap to live key when go-live
       amount: d.amount,
       currency: d.currency||'INR',
-      name: 'Hire Hub 360',
+      name: 'HireHub360',
       description: opts.desc||'Payment',
       order_id: d.orderId,
       prefill: {email: email, name: uname},
@@ -809,7 +814,7 @@ function rzpSubscribe(planType, label, monthlyAmount){
     var rzp = new Razorpay({
       key: 'rzp_live_placeholder',
       subscription_id: d.subscriptionId,
-      name: 'Hire Hub 360',
+      name: 'HireHub360',
       description: label+' — Monthly',
       prefill: {email:email, name:uname},
       theme: {color:'#ff6b00'},
@@ -1651,7 +1656,7 @@ function doPostJob(){
     workAuth:(document.getElementById("j-wauth")||{}).value||"Any / Open to all",
     skills:((document.getElementById("j-sk")||{}).value||S.jf.skills).split(",").map(function(x){return x.trim();}).filter(Boolean),
     company:S.co.name,companyId:S.co.id,verified:true,status:"active",applicants:0,
-    createdAt:new Date().toISOString(),source:"Hire Hub"};
+    createdAt:new Date().toISOString(),source:"HireHub360"};
   dbSet("job:"+job.id,job);S.postedJob=job;S.seoSteps=[];
   gsLog("job_post",{id:job.id,title:job.title,company:job.company,loc:job.loc,sal:job.sal,shide:job.shide,exp:job.exp,type:job.type,sec:job.sec,skills:job.skills,curr:job.curr,visa:job.visa,remote:job.remote,companyId:job.companyId,status:job.status});
   var prog=document.getElementById("seo-prog");if(prog)prog.style.display="block";
@@ -1661,8 +1666,8 @@ function doPostJob(){
       var jobSlug = mkSlug(job.title)+"-"+mkSlug(job.company)+"-"+mkSlug(job.loc);
       var seo={
         url:"https://hirehub360.in/jobs/"+jobSlug,
-        metaTitle:job.title+" at "+job.company+" — "+job.loc+" | Hire Hub",
-        metaDesc:"Hiring "+job.title+" at "+job.company+". Location: "+job.loc+". "+(job.shide?"Competitive salary":job.sal)+". Experience: "+job.exp+". Apply on Hire Hub — 100% verified jobs.",
+        metaTitle:job.title+" at "+job.company+" — "+job.loc+" | HireHub360",
+        metaDesc:"Hiring "+job.title+" at "+job.company+". Location: "+job.loc+". "+(job.shide?"Competitive salary":job.sal)+". Experience: "+job.exp+". Apply on HireHub360 — 100% verified jobs.",
         ogTitle:job.company+" is Hiring — "+job.title,
         keywords:[job.title,job.title+" jobs",job.title+" "+job.loc,job.company+" careers","jobs in "+job.loc,job.sec+" jobs","Hire Hub India"],
         canonical:"https://hirehub360.in/jobs/"+jobSlug,
@@ -1671,7 +1676,7 @@ function doPostJob(){
           "@type":"JobPosting",
           "title":job.title,
           "description":job.desc||("We are hiring "+job.title+" at "+job.company+" in "+job.loc),
-          "identifier":{"@type":"PropertyValue","name":"Hire Hub","value":job.id},
+          "identifier":{"@type":"PropertyValue","name":"HireHub360","value":job.id},
           "datePosted":job.createdAt?job.createdAt.split("T")[0]:new Date().toISOString().split("T")[0],
           "validThrough":new Date(Date.now()+30*864e5).toISOString().split("T")[0],
           "employmentType":(job.type||"FULL_TIME").toUpperCase().replace(/-/g,"_").replace(/ /g,"_"),
@@ -2675,7 +2680,7 @@ function rJL(){
   el.innerHTML=
     '<div style="display:flex;gap:10px;margin-bottom:13px;flex-wrap:wrap;align-items:center"><span style="font-weight:700;font-size:14px">'+list.length+' Jobs Found</span>'+
     '<span class="pill" style="background:var(--bg);color:var(--mu)">Sorted by AI Fit</span>'+
-    (S.jobs.some(function(j){return j.source==="Hire Hub";})?'<span class="pill" style="background:var(--gl);color:var(--gr)">✅ Live Hire Hub jobs included</span>':"")+
+    (S.jobs.some(function(j){return j.source==="Hire Hub";})?'<span class="pill" style="background:var(--gl);color:var(--gr)">✅ Live HireHub360 jobs included</span>':"")+
     '</div>'+
     list.map(function(job){
       var ap=null;for(var i=0;i<S.ca.length;i++){if(S.ca[i].jobId===job.id){ap=S.ca[i];break;}}
@@ -3067,8 +3072,8 @@ function generateAllLandingPages() {
 
 function copyLandingPageHTML(slug, role, city, country) {
   var c = CURRENCIES[detectCurrency(city+" "+country)]||CURRENCIES.INR;
-  var html = '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8"/>\n<title>'+role+' in '+city+' | Hire Hub</title>\n'+
-    '<meta name="description" content="Find the best '+role+' in '+city+', '+country+'. AI-matched. Verified employers. Apply in 1 tap on Hire Hub."/>\n'+
+  var html = '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8"/>\n<title>'+role+' in '+city+' | HireHub360</title>\n'+
+    '<meta name="description" content="Find the best '+role+' in '+city+', '+country+'. AI-matched. Verified employers. Apply in 1 tap on HireHub360."/>\n'+
     '<link rel="canonical" href="https://hirehub360.in/jobs/'+slug+'"/>\n'+
     '<script type="application/ld+json">{"@context":"https://schema.org","@type":"ItemList","name":"'+role+' in '+city+'","url":"https://hirehub360.in/jobs/'+slug+'"}</scr'+'ipt>\n'+
     '</head>\n<body>\n<h1>'+role+' in '+city+', '+country+'</h1>\n'+
@@ -4015,7 +4020,7 @@ function finishTest(){
   <div class="bn-item" id="bn-me" onclick="bnTab('me')"><span class="bn-icon">👤</span><span class="bn-label">Profile</span></div>
 </div>
 <div id="pg-chat" class="pg" style="flex-direction:column;height:100vh;max-height:100vh">
-  <nav class="nav"><div class="logo" style="font-size:20px">Hire <span>Hub</span></div><div style="font-size:13px;color:var(--mu);font-weight:600">💬 AI Career Chat</div></nav>
+  <nav class="nav"><div class="logo" style="font-size:20px">Hire<span>Hub</span><span style="color:#ff6b00;font-size:.65em;font-weight:900;vertical-align:super;margin-left:1px">360</span></div><div style="font-size:13px;color:var(--mu);font-weight:600">💬 AI Career Chat</div></nav>
   <div id="chat-body" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;padding-bottom:80px"></div>
   <div style="position:fixed;bottom:64px;left:0;right:0;background:#fff;border-top:1px solid var(--ln);padding:10px 14px;display:flex;gap:8px;align-items:center">
     <input id="chat-inp" placeholder="Ask anything — salary, interview tips, jobs…" style="flex:1;border-radius:999px;padding:11px 18px;font-size:15px" onkeydown="if(event.key==='Enter')sendChatMsg()"/>
@@ -4048,7 +4053,7 @@ function sendChatMsg(prefill){
   addChatMsg("user",text);var ty=showTyping();
   var ctx="";if(S.cp)ctx="User: "+S.cp.name+", "+S.cp.current_role+", "+S.cp.experience_years+"yrs, skills: "+(S.cp.skills||[]).join(",");if(S.co)ctx="HR at "+S.co.name+", "+S.co.sector;
   var hist=CHAT_HISTORY.slice(-6).map(function(m){return m.role+": "+m.text;}).join("\n");
-  var prompt="You are an AI career assistant on Hire Hub. "+ctx+"\nConversation:\n"+hist+"\nUser: "+text+"\nReply in 2-4 sentences. Use **bold** for key points.";
+  var prompt="You are an AI career assistant on HireHub360. "+ctx+"\nConversation:\n"+hist+"\nUser: "+text+"\nReply in 2-4 sentences. Use **bold** for key points.";
   callAI(prompt,250,function(reply,err){
     if(ty)ty.remove();
     var r=(reply&&!err)?reply:text.toLowerCase().indexOf("salary")>=0?"For your role in India, typical range is **₹8-25 LPA** depending on experience. Always negotiate — most offers have 10-15% room.":"Check the Jobs tab to see what roles match your profile right now!";
