@@ -1,0 +1,41 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx vercel:*)",
+      "Bash(curl -s -I \"https://hirehub360.in/hirehub.html\")",
+      "Bash(curl -s \"https://hirehub360.in/hirehub.html\")",
+      "Bash(curl -s \"https://hirehub360.in/robots.txt\")",
+      "Bash(curl -s \"https://hirehub360.in/sitemap.xml\")",
+      "Bash(html)",
+      "Bash(xml)",
+      "Bash(key)",
+      "Bash(indexnow\")",
+      "Bash(curl -s \"https://hirehub360.in/hirehub2026.txt\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://www.google.com/ping?sitemap=https://hirehub360.in/sitemap.xml\")",
+      "Bash(curl -s -o /dev/null -w \"Google ping: %{http_code}\\\\n\" \"https://www.google.com/ping?sitemap=https://hirehub360.in/sitemap.xml\")",
+      "Bash(curl -s -o /dev/null -w \"Bing ping: %{http_code}\\\\n\" \"https://www.bing.com/ping?sitemap=https://hirehub360.in/sitemap.xml\")",
+      "Bash(curl -s -w '\\\\nHTTP: %{http_code}\\\\n' -X POST https://api.indexnow.org/indexnow -H 'Content-Type: application/json; charset=utf-8' -d '{\"host\":\"hirehub360.in\",\"key\":\"hirehub2026\",\"keyLocation\":\"https://hirehub360.in/hirehub2026.txt\",\"urlList\":[\"https://hirehub360.in\",\"https://hirehub360.in/blog\",\"https://hirehub360.in/pricing\",\"https://hirehub360.in/jobs/in/mumbai\",\"https://hirehub360.in/jobs/in/bangalore\",\"https://hirehub360.in/jobs/in/delhi\",\"https://hirehub360.in/jobs/in/hyderabad\",\"https://hirehub360.in/jobs/in/pune\",\"https://hirehub360.in/jobs/in/dubai\"]}')",
+      "Bash(cat .env.local)",
+      "Bash(cat .env)",
+      "Bash(cat .env.prod)",
+      "Bash(curl -s -I \"https://hirehub360.in/api/app\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://hirehub360.in/careers/test\")",
+      "Bash(curl -s \"https://hirehub360.in/careers/test\")",
+      "mcp__28b5a3c3-8bde-4a77-9bc0-77b94fc21ed1__list_tables",
+      "mcp__28b5a3c3-8bde-4a77-9bc0-77b94fc21ed1__execute_sql",
+      "Bash(curl -s 'https://wtczsvzhyitpvdevpqkw.supabase.co/rest/v1/profiles?limit=1' -H 'apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0Y3pzdnpoeWl0cHZkZXZwcWt3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTI4Mzk3OSwiZXhwIjoyMDkwODU5OTc5fQ.zTPHnZNbgvQhTLuwSWKdjF_Ew9ZSjXIaEr9mZDLCx9U' -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0Y3pzdnpoeWl0cHZkZXZwcWt3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTI4Mzk3OSwiZXhwIjoyMDkwODU5OTc5fQ.zTPHnZNbgvQhTLuwSWKdjF_Ew9ZSjXIaEr9mZDLCx9U' -H 'Accept: application/json')",
+      "Bash(curl -s 'https://wtczsvzhyitpvdevpqkw.supabase.co/rest/v1/jobs?limit=1' -H 'apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0Y3pzdnpoeWl0cHZkZXZwcWt3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTI4Mzk3OSwiZXhwIjoyMDkwODU5OTc5fQ.zTPHnZNbgvQhTLuwSWKdjF_Ew9ZSjXIaEr9mZDLCx9U' -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0Y3pzdnpoeWl0cHZkZXZwcWt3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTI4Mzk3OSwiZXhwIjoyMDkwODU5OTc5fQ.zTPHnZNbgvQhTLuwSWKdjF_Ew9ZSjXIaEr9mZDLCx9U' -H 'Accept: application/json')",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(list\\(d[0].keys\\(\\)\\) if d else 'empty'\\)\")",
+      "Bash(curl -s 'https://wtczsvzhyitpvdevpqkw.supabase.co/rest/v1/jobs?limit=1&select=*' -H 'apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0Y3pzdnpoeWl0cHZkZXZwcWt3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTI4Mzk3OSwiZXhwIjoyMDkwODU5OTc5fQ.zTPHnZNbgvQhTLuwSWKdjF_Ew9ZSjXIaEr9mZDLCx9U' -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0Y3pzdnpoeWl0cHZkZXZwcWt3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTI4Mzk3OSwiZXhwIjoyMDkwODU5OTc5fQ.zTPHnZNbgvQhTLuwSWKdjF_Ew9ZSjXIaEr9mZDLCx9U')",
+      "Bash(curl -s -w '\\\\nHTTP:%{http_code}' https://wtczsvzhyitpvdevpqkw.supabase.co/rest/v1/rpc/exec_sql -H 'apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0Y3pzdnpoeWl0cHZkZXZwcWt3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTI4Mzk3OSwiZXhwIjoyMDkwODU5OTc5fQ.zTPHnZNbgvQhTLuwSWKdjF_Ew9ZSjXIaEr9mZDLCx9U' -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0Y3pzdnpoeWl0cHZkZXZwcWt3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTI4Mzk3OSwiZXhwIjoyMDkwODU5OTc5fQ.zTPHnZNbgvQhTLuwSWKdjF_Ew9ZSjXIaEr9mZDLCx9U' -H 'Content-Type: application/json' -d '{\"sql\":\"SELECT 1\"}')",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://hirehub360.in/careers/test?n=Test+Company&c=%23ff6b00&t=Hiring+the+best+talent&cta=Apply+Now\")",
+      "Bash(sed -i 's|<div class=\"logo\" style=\"font-size:24px;margin-bottom:4px\">Hire <span>Hub</span></div>|<div class=\"logo\" style=\"font-size:24px;margin-bottom:4px\">Hire<span>Hub</span><span style=\"color:#ff6b00;font-size:.65em;font-weight:900;vertical-align:super;margin-left:1px\">360</span></div>|g' public/hirehub.html)",
+      "Bash(sed -i 's|<div class=\"logo\">Hire <span>Hub</span></div>|<div class=\"logo\">Hire<span>Hub</span><span style=\"color:#ff6b00;font-size:.65em;font-weight:900;vertical-align:super;margin-left:1px\">360</span></div>|g' public/hirehub.html)",
+      "Bash(sed -i 's|<div class=\"logo\" style=\"font-size:20px\">Hire <span>Hub</span></div>|<div class=\"logo\" style=\"font-size:20px\">Hire<span>Hub</span><span style=\"color:#ff6b00;font-size:.65em;font-weight:900;vertical-align:super;margin-left:1px\">360</span></div>|g' public/hirehub.html)",
+      "mcp__Claude_Preview__preview_start",
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "mcp__28b5a3c3-8bde-4a77-9bc0-77b94fc21ed1__list_projects",
+      "mcp__28b5a3c3-8bde-4a77-9bc0-77b94fc21ed1__apply_migration"
+    ]
+  }
+}

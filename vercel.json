@@ -11,6 +11,10 @@
     {
       "path": "/api/cron/venue-blog?secret=hirehub-cron-2026&slot=b",
       "schedule": "0 10 * * *"
+    },
+    {
+      "path": "/api/cron/reset-apply-limits",
+      "schedule": "30 18 * * *"
     }
   ]
 }

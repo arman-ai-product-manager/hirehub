@@ -1,35 +1,16 @@
 <!DOCTYPE html>
+<!-- deploy-1775903801595 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<!-- Force redirect from Vercel preview URLs to production -->
-<script>
-// Always stay on production domain — never let Vercel preview URLs show to users
-// Supabase implicit flow puts token in hash: #access_token=...&refresh_token=...
-// We preserve the full hash so Supabase client can read it after redirect
-(function(){
-  var host=location.hostname;
-  var isProd=host==='hirehub360.in'||host==='localhost'||host==='127.0.0.1';
-  if(!isProd){
-    var _h=location.hash||'';
-    var _q=location.search||'';
-    // Supabase token is either in hash (implicit) or query ?code= (pkce)
-    var dest='https://hirehub360.in/hirehub.html'+(_h||_q);
-    location.replace(dest);
-  }
-})();
-</script>
-<title>HireHub360 — AI Powered Hiring India</title>
-<meta name="description" content="HireHub360 — India's AI-powered job portal. Find jobs, hire candidates. Alternative to Naukri, Indeed, LinkedIn Jobs, Glassdoor, Monster, Shine, TimesJobs, Freshersworld, AngelList, Foundit, Apna, Hirect.">
+<title>Hire Hub — AI Powered Hiring India</title>
+<meta name="description" content="Hire Hub — India's AI-powered job portal. Find jobs, hire candidates. Alternative to Naukri, Indeed, LinkedIn Jobs, Glassdoor, Monster, Shine, TimesJobs, Freshersworld, AngelList, Foundit, Apna, Hirect.">
 <meta name="keywords" content="jobs india, job search, naukri, indeed india, linkedin jobs, glassdoor, monster india, shine jobs, timesjobs, freshersworld, angellist, foundit, cutshort, internshala, apna jobs, hirect, hire candidates, job portal india, fresher jobs, remote jobs, software jobs, marketing jobs">
-<meta property="og:title" content="HireHub360 — Find Jobs &amp; Hire Talent in India">
+<meta property="og:title" content="Hire Hub — Find Jobs &amp; Hire Talent in India">
 <meta property="og:description" content="AI-powered job matching. Post jobs, find candidates. India's smartest job platform.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>"/>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Mona+Sans:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet" media="print" onload="this.media='all'"/>
-<noscript><link href="https://fonts.googleapis.com/css2?family=Mona+Sans:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet"/></noscript>
+<link href="https://fonts.googleapis.com/css2?family=Mona+Sans:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -153,23 +134,17 @@ textarea{resize:vertical}
 body{-webkit-text-size-adjust:100%}
 *{-webkit-tap-highlight-color:transparent}
 </style>
-<!-- Supabase Auth + DB client — blocking load so SB is ready before any code runs -->
+<!-- Razorpay Checkout -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<!-- Supabase Auth + DB client -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<!-- Razorpay Checkout (defer = only needed at payment time) -->
-<script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
 <script>
+  // Replace these with your actual Supabase project values
+  // (safe to expose — RLS policies enforce security)
   var _SB_URL  = 'https://wtczsvzhyitpvdevpqkw.supabase.co';
   var GSHEET_URL = 'https://script.google.com/macros/s/AKfycbydrY-w7Uqh_fgcEKjc1e5a_ZxWszVGqJps4iIq_dfW0N_vfCbSybSJphohmIkGXywv/exec';
   var _SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0Y3pzdnpoeWl0cHZkZXZwcWt3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyODM5NzksImV4cCI6MjA5MDg1OTk3OX0.HhSyC39tQeak6zp3Qa-fSNzxv9m2YAbFr4oVbkLVU9w';
-  // Use implicit flow — token comes in URL hash, works cross-domain without redirect URL whitelist
-  window.SB = window.supabase.createClient(_SB_URL, _SB_ANON, {
-    auth: {
-      flowType: 'implicit',
-      detectSessionInUrl: true,
-      persistSession: true,
-      storageKey: 'hh_session'
-    }
-  });
+  window.SB = window.supabase.createClient(_SB_URL, _SB_ANON);
 </script>
 </head>
 <body>
@@ -184,7 +159,7 @@ body{-webkit-text-size-adjust:100%}
 <div id="pg-login" class="login-pg pg">
   <div class="login-card" style="max-width:400px">
     <div style="font-size:48px;margin-bottom:12px;display:inline-block;animation:FL 3s ease-in-out infinite">🎯</div>
-    <div class="logo" style="font-size:24px;margin-bottom:4px">Hire<span>Hub</span><span style="color:#ff6b00;font-size:.65em;font-weight:900;vertical-align:super;margin-left:1px">360</span></div>
+    <div class="logo" style="font-size:24px;margin-bottom:4px">Hire <span>Hub</span></div>
     <p style="color:var(--mu);font-size:13px;margin-bottom:24px">India's AI Career Platform</p>
 
     <!-- Google OAuth -->
@@ -253,7 +228,7 @@ body{-webkit-text-size-adjust:100%}
     <span id="tick-t">⚡ Priya Sharma shortlisted at Swiggy — 96% AI fit score</span>
   </div>
   <nav class="nav">
-    <div class="logo">Hire<span>Hub</span><span style="color:#ff6b00;font-size:.65em;font-weight:900;vertical-align:super;margin-left:1px">360</span></div>
+    <div class="logo">Hire <span>Hub</span></div>
     <div class="fl">
       <span id="ph-nav" style="font-size:12px;color:var(--mu)"></span>
       <button class="btn gh sm" onclick="doLogout()">Logout</button>
@@ -307,17 +282,16 @@ body{-webkit-text-size-adjust:100%}
 <!-- ═══════ COMPANY PAGE ═══════ -->
 <div id="pg-co" class="pg">
   <nav class="nav">
-    <div class="logo">Hire<span>Hub</span><span style="color:#ff6b00;font-size:.65em;font-weight:900;vertical-align:super;margin-left:1px">360</span></div>
+    <div class="logo">Hire <span>Hub</span></div>
     <div style="display:flex;gap:3px;align-items:center;overflow-x:auto">
       <button class="tab-btn on" id="ct-dash" onclick="coTab('dash')">🏠 Dashboard</button>
       <button class="tab-btn" id="ct-post" onclick="coTab('post')">➕ Post Job</button>
       <button class="tab-btn" id="ct-cands" onclick="coTab('cands')">👥 Applicants</button>
-      <button class="tab-btn" id="ct-venue" onclick="coTab('venue')">🏢 Venue</button>
+      <button class="tab-btn" id="ct-venue" onclick="coTab('venue')">🎳 Venue</button>
       <button class="tab-btn" id="ct-iv" onclick="coTab('iv')">🎯 Interviews</button>
       <button class="tab-btn" id="ct-seo" onclick="coTab('seo')">🔍 SEO Hub</button>
       <button class="tab-btn" id="ct-cvs" onclick="coTab('cvs')">🔎 Find CVs</button>
       <button class="tab-btn" id="ct-brand" onclick="coTab('brand')">🏷️ Brand Kit</button>
-      <button class="tab-btn" id="ct-team" onclick="coTab('team')">🧑‍💼 Team</button>
       <button class="btn gh sm" onclick="showPg('pg-role')">← Back</button>
     </div>
   </nav>
@@ -331,13 +305,13 @@ body{-webkit-text-size-adjust:100%}
     <button onclick="document.getElementById('hire-banner').style.display='none'" style="background:none;border:none;font-size:18px;cursor:pointer;color:#aaa">×</button>
   </div>
   <nav class="nav">
-    <div class="logo" style="cursor:pointer" onclick="cdGo(3)">Hire<span>Hub</span><span style="color:#ff6b00;font-size:.65em;font-weight:900;vertical-align:super;margin-left:1px">360</span></div>
+    <div class="logo">Hire <span>Hub</span></div>
     <div class="fl">
       <button class="btn gh sm" id="cd-btn-j" style="display:none" onclick="cdGo(3)">Jobs</button>
       <button class="btn gh sm" id="cd-btn-t" style="display:none" onclick="cdGo(4)">Track</button>
       <button class="btn gh sm" id="cd-btn-iv" style="display:none" onclick="cdGo(5)">🎯 Interviews</button>
-      <button class="btn gh sm" id="cd-btn-ats" style="display:none;background:linear-gradient(90deg,#ff6b00,#ff9500);color:#fff;border:none" onclick="cdGo(8)">🤖 ATS</button>
-      <button class="btn gh sm" onclick="SB&&SB.auth.signOut().then(function(){showPg('pg-login');})" style="font-size:12px;color:#ff375f">Sign Out</button>
+      <button class="btn fi sm" onclick="showPg('pg-role')" style="font-size:12px">➕ Post a Job</button>
+      <button class="btn gh sm" onclick="showPg('pg-role')">← Back</button>
     </div>
   </nav>
   <div id="cd-bar"></div>
@@ -356,18 +330,12 @@ body{-webkit-text-size-adjust:100%}
 
 <!-- SEO modal -->
 <div class="mbg" id="m-seo" onclick="mClose('m-seo')">
-  <div class="mbox" onclick="event.stopPropagation()" style="max-width:540px;position:relative">
-    <button onclick="mClose('m-seo')" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:20px;cursor:pointer;color:#aaa;line-height:1;z-index:2">✕</button>
-    <div id="m-seo-c"></div>
-  </div>
+  <div class="mbox" onclick="event.stopPropagation()" style="max-width:540px" id="m-seo-c"></div>
 </div>
 
 <!-- Pricing modal -->
-<div class="mbg" id="m-price" onclick="mClose('m-price')">
-  <div class="mbox" onclick="event.stopPropagation()" style="max-width:920px;position:relative">
-    <button onclick="mClose('m-price')" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:22px;cursor:pointer;color:#aaa;line-height:1;z-index:10">✕</button>
-    <div id="m-price-c"></div>
-  </div>
+<div class="mbg" id="m-price" onclick="mClose(\"m-price\")">
+  <div class="mbox" onclick="event.stopPropagation()" style="max-width:920px" id="m-price-c"></div>
 </div>
 
 <!-- ═══════ SHARE CARD GENERATOR MODAL ═══════ -->
@@ -510,50 +478,49 @@ function _dbPush(k,v){
 // Pull user data from Supabase into localStorage on login
 function _hydrate(user, cb){
   S._uid = user.id;
-  S.phone = user.email;
+  S.phone = user.email; // reuse S.phone as identifier throughout the app
   var meta = user.user_metadata || {};
   if(meta.name){ var n=document.getElementById("ph-nav"); if(n) n.textContent=meta.name; }
   if(!window.SB){ if(cb) cb(); return; }
+  var done=0, total=3;
+  function check(){ done++; if(done===total && cb) cb(); }
 
-  // Timeout safety — never hang more than 4 seconds
-  var called=false;
-  var timer=setTimeout(function(){ if(!called){called=true;if(cb)cb();} },4000);
-
-  // All 4 queries in parallel via Promise.all (4th is HR user lookup)
-  Promise.all([
-    SB.from("companies").select("*").eq("id",user.id).maybeSingle(),
-    SB.from("candidates").select("*").eq("id",user.id).maybeSingle(),
-    SB.from("jobs").select("id,title,company_name,location,salary_label,salary_hidden,experience,job_type,sector,skills,currency,remote_policy,visa_sponsor,company_id,status,slug,created_at").eq("status","active").order("created_at",{ascending:false}).limit(30),
-    SB.from("hr_users").select("*").eq("id",user.id).maybeSingle()
-  ]).then(function(results){
-    var coR=results[0], cdR=results[1], jobsR=results[2], hrR=results[3];
-    if(coR.data){
-      var co=coR.data;
-      var coObj={id:co.id,name:co.company_name,gst:co.gst,city:co.city,sector:co.sector,verified:co.verified,plan:co.plan,website:co.website,phone:user.email};
+  SB.from("companies").select("*").eq("id",user.id).maybeSingle().then(function(r){
+    if(r.data){
+      var co=r.data;
+      var coObj={id:co.id,name:co.company_name,gst:co.gst,city:co.city,
+        sector:co.sector,verified:co.verified,plan:co.plan,website:co.website,phone:user.email};
       try{localStorage.setItem(user.email+"_co:profile",JSON.stringify(coObj));}catch(e){}
       S.co=coObj;
     }
-    if(cdR.data){
-      var cd=cdR.data;
-      var cdObj={name:cd.name,location:cd.location,current_role:cd.position,current_company:cd.company,experience_years:cd.experience_years,notice_period:cd.notice_period,salary_expectation:cd.salary_expectation,skills:cd.skills||[],bio:cd.bio,fit_score:cd.fit_score};
+    check();
+  }).catch(function(){check();});
+
+  SB.from("candidates").select("*").eq("id",user.id).maybeSingle().then(function(r){
+    if(r.data){
+      var cd=r.data;
+      var cdObj={name:cd.name,location:cd.location,current_role:cd.position,
+        current_company:cd.company,experience_years:cd.experience_years,
+        notice_period:cd.notice_period,salary_expectation:cd.salary_expectation,
+        skills:cd.skills||[],bio:cd.bio,fit_score:cd.fit_score};
       try{localStorage.setItem(user.email+"_cd:profile",JSON.stringify(cdObj));}catch(e){}
       S.cp=cdObj;
     }
-    // HR user — set global state (takes priority over candidate routing)
-    if(hrR&&hrR.data){
-      S._hrUser=hrR.data; // { id, company_id, permissions, ... }
-      S._role='hr';
-    }
-    if(jobsR.data) jobsR.data.forEach(function(j){
-      var jobObj={id:j.id,title:j.title,company:j.company_name,loc:j.location,sal:j.salary_label,shide:j.salary_hidden,exp:j.experience,type:j.job_type,sec:j.sector,skills:j.skills||[],curr:j.currency,remote:j.remote_policy,visa:j.visa_sponsor,companyId:j.company_id,status:j.status,slug:j.slug,createdAt:j.created_at,source:"HireHub360"};
+    check();
+  }).catch(function(){check();});
+
+  SB.from("jobs").select("*").eq("status","active").order("created_at",{ascending:false}).limit(30).then(function(r){
+    if(r.data) r.data.forEach(function(j){
+      var jobObj={id:j.id,title:j.title,company:j.company_name,loc:j.location,
+        sal:j.salary_label,smin:j.salary_min,smax:j.salary_max,shide:j.salary_hidden,
+        exp:j.experience,type:j.job_type,sec:j.sector,desc:j.description,
+        skills:j.skills||[],curr:j.currency,remote:j.remote_policy,
+        visa:j.visa_sponsor,companyId:j.company_id,status:j.status,
+        slug:j.slug,createdAt:j.created_at,source:"Hire Hub"};
       try{localStorage.setItem("sh_job:"+j.id,JSON.stringify(jobObj));}catch(e){}
     });
-    clearTimeout(timer);
-    if(!called){called=true;if(cb)cb();}
-  }).catch(function(){
-    clearTimeout(timer);
-    if(!called){called=true;if(cb)cb();}
-  });
+    check();
+  }).catch(function(){check();});
 }
 
 
@@ -690,13 +657,7 @@ var CD_PLANS = [
 // ── STATE ─────────────────────────────────────────────────────
 var S={phone:"",co:null,cp:null,ca:[],jobs:[],myJobs:[],allApps:[],coTab:"dash",cdStep:0,cvText:"",_uid:null,_role:"candidate",
   jf:{title:"",loc:"",sal:"",smin:"",smax:"",shide:false,exp:"",type:"Full-time",sec:"",desc:"",skills:"",curr:"INR",visa:false,remote:"Any"},
-  seoSteps:[],seoData:null,postedJob:null,
-  credits:parseInt(localStorage.getItem("hh_credits")||"0"),
-  atsScans:parseInt(localStorage.getItem("hh_ats_scans")||"1"),
-  unlockedContacts:JSON.parse(localStorage.getItem("hh_unlocked")||"{}"),
-  assessmentScore:parseInt(localStorage.getItem("hh_assess_score")||"0"),
-  assessmentSector:localStorage.getItem("hh_assess_sector")||""
-};
+  seoSteps:[],seoData:null,postedJob:null};
 
 // ── NOTIFY ────────────────────────────────────────────────────
 function nt(msg,ms){
@@ -719,7 +680,7 @@ function showPg(id){
 }
 
 // ── TICKER ────────────────────────────────────────────────────
-var TICKS=["⚡ Priya Sharma shortlisted at Swiggy — 96% AI fit score","🎉 TechCorp hired their developer via HireHub360 today","🏢 Team of 28 booked a venue through HireHub360 in 2 hours","📈 Job auto-indexed on Google in 3 minutes","🚨 5 fake listings blocked before going live","📤 Share card downloaded 1,200+ times this week"];
+var TICKS=["⚡ Priya Sharma shortlisted at Swiggy — 96% AI fit score","🎉 TechCorp hired their developer via Hire Hub today","🎳 Team of 28 celebrated at CG Meetup venue","📈 Job auto-indexed on Google in 3 minutes","🚨 5 fake listings blocked before going live","📤 Share card downloaded 1,200+ times this week"];
 var ti=0;
 setInterval(function(){ti=(ti+1)%TICKS.length;var e=document.getElementById("tick-t");if(e)e.textContent=TICKS[ti];},4200);
 
@@ -752,7 +713,7 @@ function doVerifyOTP(){
   dbSet("user:phone",S.phone);
   S.co=dbGet("co:profile");S.cp=dbGet("cd:profile");S.ca=dbGet("cd:apps")||[];
   var n=document.getElementById("ph-nav");if(n)n.textContent="+91 "+S.phone;
-  showPg("pg-role");nt("✅ Welcome to HireHub360!");
+  showPg("pg-role");nt("✅ Welcome to Hire Hub!");
   gsLog("login",{role:S.co?"company":S.cp?"candidate":"new",device:navigator.userAgent.indexOf("Mobile")>=0?"mobile":"desktop"});
 }
 function doLogout(){
@@ -795,7 +756,7 @@ function rzpPay(opts){
       key: 'rzp_test_SaBKq7P51Zw8XM', // swap to live key when go-live
       amount: d.amount,
       currency: d.currency||'INR',
-      name: 'HireHub360',
+      name: 'Hire Hub',
       description: opts.desc||'Payment',
       order_id: d.orderId,
       prefill: {email: email, name: uname},
@@ -821,7 +782,7 @@ function rzpSubscribe(planType, label, monthlyAmount){
     var rzp = new Razorpay({
       key: 'rzp_live_placeholder',
       subscription_id: d.subscriptionId,
-      name: 'HireHub360',
+      name: 'Hire Hub',
       description: label+' — Monthly',
       prefill: {email:email, name:uname},
       theme: {color:'#ff6b00'},
@@ -841,94 +802,107 @@ function rzpSubscribe(planType, label, monthlyAmount){
 function openPricing(role){
   if(!role) role=S.co?'co':'cd';
   var isCo=(role==='co');
-
-  // ── Pricing card builder helper ──
-  function pCard(opts){
-    // opts: {name,price,period,badge,badgeColor,features,cta,ctaFn,dark,highlight,anchor,social,scarcity,isCurrent}
-    var bg=opts.dark?"linear-gradient(135deg,#1d1d1f,#2c1a00)":"#fff";
-    var border=opts.highlight?"2px solid #ff6b00":opts.dark?"none":"1.5px solid #e5e5ea";
-    var textColor=opts.dark?"#fff":"#1d1d1f";
-    var mutedColor=opts.dark?"#888":"#6e6e73";
-    return '<div style="background:'+bg+';border-radius:16px;padding:22px;border:'+border+';position:relative;overflow:hidden">'+
-      (opts.badge?'<div style="position:absolute;top:-1px;right:16px;background:'+(opts.badgeColor||"#ff6b00")+';color:#fff;font-size:10px;font-weight:700;padding:4px 12px;border-radius:0 0 8px 8px;white-space:nowrap">'+opts.badge+'</div>':'')+
-      (opts.highlight?'<div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#ff6b00,#ff9500)"></div>':'')+
-      '<div style="font-weight:900;font-size:16px;color:'+textColor+';margin-bottom:4px;margin-top:'+(opts.badge?"12px":"0")+'">'+opts.name+'</div>'+
-      (opts.anchor?'<div style="font-size:12px;color:'+mutedColor+';text-decoration:line-through;margin-bottom:2px">Was '+opts.anchor+'</div>':'')+
-      '<div style="font-size:28px;font-weight:900;color:'+(opts.highlight?"#ff6b00":opts.dark?"#ff6b00":textColor)+';letter-spacing:-.04em;margin-bottom:2px">'+opts.price+'</div>'+
-      '<div style="font-size:11px;color:'+mutedColor+';margin-bottom:'+(opts.social||opts.scarcity?"8px":"14px")+'">'+opts.period+'</div>'+
-      (opts.social?'<div style="font-size:11px;color:'+(opts.dark?"#888":"#6e6e73")+';margin-bottom:6px">👥 '+opts.social+'</div>':'')+
-      (opts.scarcity?'<div style="font-size:11px;color:#ff9500;font-weight:600;margin-bottom:10px">⏰ '+opts.scarcity+'</div>':'')+
-      '<ul style="list-style:none;padding:0;margin:0 0 18px;font-size:12px;color:'+(opts.dark?"#ccc":"#3d3d3f")+';display:flex;flex-direction:column;gap:7px">'+
-        (opts.features||[]).map(function(f){return '<li>✅ '+f+'</li>';}).join('')+
-      '</ul>'+
-      (opts.isCurrent
-        ?'<button class="btn" style="width:100%;background:#f5f5f7;color:#1d1d1f;border:none;font-size:13px">Current Plan</button>'
-        :'<button class="btn '+(opts.highlight||opts.dark?"fi":"gh")+'" style="width:100%;border:none;font-size:13px;font-weight:700" onclick="'+opts.ctaFn+'">'+opts.cta+'</button>')+
-    '</div>';
-  }
-
   document.getElementById("m-price-c").innerHTML=
-  '<div style="padding:28px 20px 20px;background:#f5f5f7;border-radius:20px">'+
-
-  // ── Header ──
-  '<div style="text-align:center;margin-bottom:28px">'+
-    '<div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,107,0,.12);border:1px solid rgba(255,107,0,.3);border-radius:999px;padding:4px 14px;font-size:11px;font-weight:700;color:#ff6b00;margin-bottom:10px">PRICING</div>'+
-    '<h2 style="font-size:24px;font-weight:900;letter-spacing:-.03em;margin-bottom:6px">Hire smarter. Pay less.</h2>'+
-    '<p style="color:#6e6e73;font-size:13px;max-width:360px;margin:0 auto">3,400+ companies trust HireHub360. Cancel anytime.</p>'+
-  '</div>'+
-
-  // ── JOB SEEKER SECTION ──
-  (!isCo
-  ?'<div style="font-size:11px;font-weight:700;color:#6e6e73;text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px">👤 FOR JOB SEEKERS</div>'+
-  '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(195px,1fr));gap:12px;margin-bottom:10px">'+
-    pCard({name:"Free",price:"₹0",period:"Forever free",isCurrent:true,features:["Browse all jobs","Basic profile & CV","3 applications/day","1 free ATS scan"]})+
-    pCard({name:"Pro Seeker",price:"₹99",period:"/month · Cancel anytime",badge:"🔥 Most Popular",highlight:true,anchor:"₹299/mo",social:"18,400+ active seekers",scarcity:"Early adopter price ends Apr 30",features:["Unlimited applications","20 ATS scans/month","Priority in recruiter search","AI CV builder (unlimited)","Salary negotiation guide","Direct HR contact unlock"],cta:"Start for ₹1 →",ctaFn:"rzpPay({amount:100,desc:'Pro Seeker Trial',onSuccess:function(){if(S.cd){S.cd.plan='pro';dbSet('cd:profile',S.cd);}mClose('m-price');nt('🎉 Pro activated!');}})" })+
-    pCard({name:"Career Plus",price:"₹249",period:"/month · Cancel anytime",features:["Everything in Pro","1:1 career coaching","Resume review by expert","Referral network access","Interview prep sessions","Featured profile badge"],cta:"Start Free Trial →",ctaFn:"rzpSubscribe('pro','Career Plus',249)"})+
-  '</div>'+
-  // ATS add-on for seekers
-  '<div style="background:#fff;border-radius:14px;padding:16px 18px;border:1.5px solid #e5e5ea;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">'+
-    '<div><div style="font-weight:700;font-size:14px;margin-bottom:3px">🤖 ATS Scan Packs</div>'+
-    '<div style="font-size:12px;color:#6e6e73">Beat the bots. Rank higher in recruiter search.</div></div>'+
-    '<div style="display:flex;gap:8px;flex-wrap:wrap">'+
-      '<button onclick="rzpPay({amount:900,desc:\'20 ATS Scans — ₹9\',onSuccess:function(){S.atsScans=(S.atsScans||0)+20;localStorage.setItem(\'hh_ats_scans\',S.atsScans);mClose(\'m-price\');nt(\'✅ 20 ATS scans added!\');}})" style="background:#1d1d1f;color:#fff;border:none;border-radius:10px;padding:9px 16px;font-size:12px;font-weight:700;cursor:pointer">20 scans — ₹9</button>'+
-      '<button onclick="rzpPay({amount:2900,desc:\'100 ATS Scans — ₹29\',onSuccess:function(){S.atsScans=(S.atsScans||0)+100;localStorage.setItem(\'hh_ats_scans\',S.atsScans);mClose(\'m-price\');nt(\'✅ 100 ATS scans added!\');}})" style="background:#ff6b00;color:#fff;border:none;border-radius:10px;padding:9px 16px;font-size:12px;font-weight:700;cursor:pointer">100 scans — ₹29 🔥</button>'+
+    '<div style="padding:32px 20px 20px;background:#f5f5f7;border-radius:20px">'+
+    '<div style="text-align:center;margin-bottom:28px">'+
+    '<div style="font-size:11px;font-weight:700;color:#ff6b00;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">PRICING</div>'+
+    '<h2 style="font-size:24px;font-weight:900;letter-spacing:-.03em;margin-bottom:6px">Simple, transparent pricing</h2>'+
+    '<p style="color:#6e6e73;font-size:13px">Start free. Pay only for what you need.</p>'+
     '</div>'+
-  '</div>'
-  :"")+
 
-  // ── COMPANY SECTION ──
-  (isCo
-  ?'<div style="font-size:11px;font-weight:700;color:#6e6e73;text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px">🏢 FOR COMPANIES — MONTHLY PLANS</div>'+
-  '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(195px,1fr));gap:12px;margin-bottom:16px">'+
-    pCard({name:"Starter",price:"Free",period:"Always free",isCurrent:true,features:["2 job posts/day","Basic applicant view","30-day listing","Company profile page"]})+
-    pCard({name:"Growth",price:"₹999",period:"/month · Cancel anytime",badge:"⭐ Most Popular",highlight:true,anchor:"₹2,999/mo",social:"1,200+ companies this month",scarcity:"🔒 Slot limited — 3 left at this price",features:["Unlimited job posts","Find CVs full access","10 CV unlock credits/mo","AI applicant ranking","Company Partner badge","Applicant CRM + pipeline"],cta:"Start 7-Day Free Trial →",ctaFn:"rzpSubscribe('basic','Growth Monthly',999)"})+
-    pCard({name:"Scale",price:"₹2,499",period:"/month · Cancel anytime",badge:"🚀 Best Value",badgeColor:"#af52de",features:["Everything in Growth","50 CV unlock credits/mo","Bulk CV download","Priority candidate alerts","Dedicated account manager","ATS integration","Venue booking 30% off"],cta:"Start Free Trial →",ctaFn:"rzpSubscribe('scale','Scale Monthly',2499)"})+
-    pCard({name:"Enterprise",price:"Custom",period:"Volume pricing. Billed monthly.",dark:true,social:"Used by 50+ corp teams",features:["500+ CV credits/mo","Multi-user team accounts","White-label career portal","SLA support 6am–11pm","Custom ATS integration","Co-branded events & venues","Dedicated success manager"],cta:"Talk to Our Team →",ctaFn:"window.open('https://wa.me/919820000000?text=Hi+I+want+to+discuss+Enterprise+pricing+for+HireHub360','_blank')"})+
-  '</div>'+
-  // ── CV CREDIT PACKS ──
-  '<div style="margin-bottom:8px">'+
-    '<div style="font-size:11px;font-weight:700;color:#6e6e73;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px">💳 PAY-PER-CV UNLOCK (No subscription needed)</div>'+
-    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px">'+
-      [
-        {n:"Starter Pack",credits:10,price:499,per:"₹49.9/CV",cta:"Buy 10 Credits",highlight:false},
-        {n:"Growth Pack",credits:50,price:1999,per:"₹39.9/CV",cta:"Buy 50 Credits",highlight:true,badge:"Best Value"},
-        {n:"Pro Pack",credits:200,price:5999,per:"₹29.9/CV",cta:"Buy 200 Credits",highlight:false},
-      ].map(function(p){
-        return '<div style="background:#fff;border-radius:12px;padding:16px;border:'+(p.highlight?"2px solid #ff6b00":"1.5px solid #e5e5ea")+';position:relative">'+
-          (p.badge?'<div style="position:absolute;top:-9px;left:50%;transform:translateX(-50%);background:#ff6b00;color:#fff;font-size:10px;font-weight:700;padding:2px 10px;border-radius:999px;white-space:nowrap">'+p.badge+'</div>':'')+
-          '<div style="font-weight:800;font-size:15px;color:#1d1d1f;margin-bottom:2px">'+p.credits+' Credits</div>'+
-          '<div style="font-size:22px;font-weight:900;color:'+(p.highlight?"#ff6b00":"#1d1d1f")+';margin-bottom:2px">₹'+p.price.toLocaleString()+'</div>'+
-          '<div style="font-size:11px;color:#6e6e73;margin-bottom:12px">'+p.per+' · No expiry</div>'+
-          '<button onclick="rzpPay({amount:'+p.price*100+',desc:\''+p.credits+' CV Credits\',onSuccess:function(){S.credits+='+(p.credits)+';saveCredits();mClose(\'m-price\');nt(\'✅ '+p.credits+' credits added!\');}})" style="background:'+(p.highlight?"#ff6b00":"#1d1d1f")+';color:#fff;border:none;border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;width:100%">'+p.cta+' →</button>'+
-        '</div>';
-      }).join('')+
+    // ── JOB SEEKER PLANS ──────────────────────────────────
+    '<div style="font-size:12px;font-weight:700;color:#6e6e73;text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px">👤 For Job Seekers</div>'+
+    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:28px">'+
+
+    // FREE
+    '<div style="background:#fff;border-radius:14px;padding:20px;border:1.5px solid #e5e5ea">'+
+    '<div style="font-weight:900;font-size:17px;margin-bottom:2px">Free</div>'+
+    '<div style="font-size:26px;font-weight:900;color:#1d1d1f;margin-bottom:12px">₹0 <span style="font-size:12px;color:#6e6e73;font-weight:400">forever</span></div>'+
+    '<ul style="list-style:none;padding:0;margin:0 0 16px;font-size:12px;color:#3d3d3f;display:flex;flex-direction:column;gap:7px">'+
+    '<li>✅ Browse all jobs</li><li>✅ Basic profile & CV upload</li><li>✅ 3 applications/day</li><li>✅ 1 free CV download</li></ul>'+
+    '<button class="btn" style="width:100%;background:#f5f5f7;color:#1d1d1f;border:none;font-size:13px">Current Plan</button>'+
     '</div>'+
-  '</div>'
-  :"")+
 
-  '<p style="text-align:center;font-size:11px;color:#aeaeb2;margin-top:20px">🔒 Secured by Razorpay · hirehub360.in · All prices incl. 18% GST · Cancel anytime</p>'+
-  '</div>'+
-  '<button class="btn gh fu" style="margin-top:16px" onclick="mClose(\'m-price\')">Close</button>';
+    // ₹1 REMOTE JOB TRIAL
+    '<div style="background:linear-gradient(135deg,#fff8f3,#fff);border-radius:14px;padding:20px;border:2px solid #ff6b00;position:relative">'+
+    '<div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#ff6b00;color:#fff;font-size:10px;font-weight:700;padding:3px 10px;border-radius:999px;white-space:nowrap">🔥 FIRST CUSTOMER OFFER</div>'+
+    '<div style="font-weight:900;font-size:17px;margin-bottom:2px">Remote Jobs Trial</div>'+
+    '<div style="font-size:26px;font-weight:900;color:#ff6b00;margin-bottom:4px">₹1 <span style="font-size:12px;color:#6e6e73;font-weight:400">first month</span></div>'+
+    '<div style="font-size:11px;color:#6e6e73;margin-bottom:12px">then ₹99/year (~₹8.25/mo)</div>'+
+    '<ul style="list-style:none;padding:0;margin:0 0 16px;font-size:12px;color:#3d3d3f;display:flex;flex-direction:column;gap:7px">'+
+    '<li>✅ Remote-only job alerts</li><li>✅ Unlimited applications</li><li>✅ AI CV builder (unlimited)</li><li>✅ Priority in recruiter search</li><li>✅ "Open to Remote" badge</li></ul>'+
+    '<button class="btn fi" style="width:100%;border:none;font-size:13px" onclick="rzpPay({amount:100,desc:\'Remote Jobs Trial — ₹1\',onSuccess:function(){if(S.cd){S.cd.plan=\'remote_trial\';dbSet(\'cd:profile\',S.cd);}mClose(\'m-price\');nt(\'🎉 Remote Jobs unlocked!\');}})">Start for ₹1 →</button>'+
+    '</div>'+
+
+    // YEARLY PRO
+    '<div style="background:#fff;border-radius:14px;padding:20px;border:1.5px solid #e5e5ea;position:relative">'+
+    '<div style="font-weight:900;font-size:17px;margin-bottom:2px">Pro Yearly</div>'+
+    '<div style="font-size:26px;font-weight:900;color:#1d1d1f;margin-bottom:4px">₹99 <span style="font-size:12px;color:#6e6e73;font-weight:400">/year</span></div>'+
+    '<div style="font-size:11px;color:#34c759;font-weight:700;margin-bottom:12px">Save 66% vs monthly</div>'+
+    '<ul style="list-style:none;padding:0;margin:0 0 16px;font-size:12px;color:#3d3d3f;display:flex;flex-direction:column;gap:7px">'+
+    '<li>✅ Everything in Remote Trial</li><li>✅ Salary negotiation guide</li><li>✅ AI mock interviews (3/mo)</li><li>✅ Direct recruiter connect</li></ul>'+
+    '<button class="btn" style="width:100%;background:#1d1d1f;color:#fff;border:none;font-size:13px" onclick="rzpPay({amount:9900,desc:\'Pro Yearly — ₹99/yr\',onSuccess:function(){if(S.cd){S.cd.plan=\'pro\';dbSet(\'cd:profile\',S.cd);}mClose(\'m-price\');nt(\'🎉 Pro Yearly activated!\');}})">Get Yearly ₹99 →</button>'+
+    '</div>'+
+
+    // MONTHLY PRO
+    '<div style="background:#fff;border-radius:14px;padding:20px;border:1.5px solid #e5e5ea">'+
+    '<div style="font-weight:900;font-size:17px;margin-bottom:2px">Pro Monthly</div>'+
+    '<div style="font-size:26px;font-weight:900;color:#1d1d1f;margin-bottom:4px">₹299 <span style="font-size:12px;color:#6e6e73;font-weight:400">/month</span></div>'+
+    '<div style="font-size:11px;color:#6e6e73;margin-bottom:12px">Auto-renews. Cancel anytime.</div>'+
+    '<ul style="list-style:none;padding:0;margin:0 0 16px;font-size:12px;color:#3d3d3f;display:flex;flex-direction:column;gap:7px">'+
+    '<li>✅ Everything in Pro Yearly</li><li>✅ 1:1 career coaching</li><li>✅ Resume review by expert</li><li>✅ Job referral network</li></ul>'+
+    '<button class="btn fi" style="width:100%;border:none;font-size:13px" onclick="rzpSubscribe(\'basic\',\'Pro Monthly\',299)">Subscribe ₹299/mo →</button>'+
+    '</div>'+
+    '</div>'+
+
+    // ── COMPANY PLANS ──────────────────────────────────────
+    '<div style="font-size:12px;font-weight:700;color:#6e6e73;text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px">🏢 For Companies</div>'+
+    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px">'+
+
+    // FREE STARTER
+    '<div style="background:#fff;border-radius:14px;padding:20px;border:1.5px solid #e5e5ea">'+
+    '<div style="font-weight:900;font-size:17px;margin-bottom:2px">Starter</div>'+
+    '<div style="font-size:26px;font-weight:900;color:#1d1d1f;margin-bottom:12px">Free</div>'+
+    '<ul style="list-style:none;padding:0;margin:0 0 16px;font-size:12px;color:#3d3d3f;display:flex;flex-direction:column;gap:7px">'+
+    '<li>✅ 2 job posts/day</li><li>✅ Basic applicant view</li><li>✅ 30-day listing</li></ul>'+
+    '<button class="btn" style="width:100%;background:#f5f5f7;color:#1d1d1f;border:none;font-size:13px">Current Plan</button>'+
+    '</div>'+
+
+    // PAY-PER-JOB ₹1
+    '<div style="background:linear-gradient(135deg,#fff8f3,#fff);border-radius:14px;padding:20px;border:2px solid #ff6b00;position:relative">'+
+    '<div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#ff6b00;color:#fff;font-size:10px;font-weight:700;padding:3px 10px;border-radius:999px;white-space:nowrap">💡 PAY AS YOU GO</div>'+
+    '<div style="font-weight:900;font-size:17px;margin-bottom:2px">Per Job Post</div>'+
+    '<div style="font-size:26px;font-weight:900;color:#ff6b00;margin-bottom:4px">₹1 <span style="font-size:12px;color:#6e6e73;font-weight:400">per post</span></div>'+
+    '<div style="font-size:11px;color:#6e6e73;margin-bottom:12px">No subscription. Post when you need.</div>'+
+    '<ul style="list-style:none;padding:0;margin:0 0 16px;font-size:12px;color:#3d3d3f;display:flex;flex-direction:column;gap:7px">'+
+    '<li>✅ 1 job post (60-day live)</li><li>✅ AI candidate ranking</li><li>✅ Google-indexed instantly</li><li>✅ Share card generator</li></ul>'+
+    '<button class="btn fi" style="width:100%;border:none;font-size:13px" onclick="rzpPay({amount:100,desc:\'1 Job Post — ₹1\',onSuccess:function(){if(S.co){S.co.extraPosts=(S.co.extraPosts||0)+1;dbSet(\'co:profile\',S.co);}mClose(\'m-price\');nt(\'✅ 1 extra job post unlocked!\');}})">Buy 1 Post ₹1 →</button>'+
+    '</div>'+
+
+    // RECRUITER BASIC MONTHLY
+    '<div style="background:#fff;border-radius:14px;padding:20px;border:1.5px solid #e5e5ea;position:relative">'+
+    '<div style="font-weight:900;font-size:17px;margin-bottom:2px">Recruiter Basic</div>'+
+    '<div style="font-size:26px;font-weight:900;color:#1d1d1f;margin-bottom:4px">₹999 <span style="font-size:12px;color:#6e6e73;font-weight:400">/month</span></div>'+
+    '<div style="font-size:11px;color:#6e6e73;margin-bottom:12px">14-day free trial. Cancel anytime.</div>'+
+    '<ul style="list-style:none;padding:0;margin:0 0 16px;font-size:12px;color:#3d3d3f;display:flex;flex-direction:column;gap:7px">'+
+    '<li>✅ Unlimited job posts</li><li>✅ Find CVs (full access)</li><li>✅ AI applicant ranking</li><li>✅ Company Partner badge</li><li>✅ Applicant CRM</li></ul>'+
+    '<button class="btn fi" style="width:100%;border:none;font-size:13px" onclick="rzpSubscribe(\'basic\',\'Recruiter Basic\',999)">Start Free Trial →</button>'+
+    '</div>'+
+
+    // RECRUITER PRO
+    '<div style="background:linear-gradient(135deg,#1d1d1f,#2d2d2f);border-radius:14px;padding:20px;border:none">'+
+    '<div style="font-weight:900;font-size:17px;margin-bottom:2px;color:#fff">Recruiter Pro</div>'+
+    '<div style="font-size:26px;font-weight:900;color:#ff6b00;margin-bottom:4px">₹2,999 <span style="font-size:12px;color:#aaa;font-weight:400">/month</span></div>'+
+    '<div style="font-size:11px;color:#888;margin-bottom:12px">14-day free trial. Cancel anytime.</div>'+
+    '<ul style="list-style:none;padding:0;margin:0 0 16px;font-size:12px;color:#ccc;display:flex;flex-direction:column;gap:7px">'+
+    '<li>✅ Everything in Basic</li><li>✅ Bulk CV download</li><li>✅ Priority candidate alerts</li><li>✅ Dedicated account manager</li><li>✅ ATS integration</li><li>✅ 40% venue discount</li></ul>'+
+    '<button class="btn" style="width:100%;background:#ff6b00;color:#fff;border:none;font-size:13px" onclick="rzpSubscribe(\'pro\',\'Recruiter Pro\',2999)">Start Free Trial →</button>'+
+    '</div>'+
+    '</div>'+
+
+    '<p style="text-align:center;font-size:11px;color:#aeaeb2;margin-top:20px">Secured by Razorpay · hirehub360.in · All prices incl. GST</p>'+
+    '</div>'+
+    '<button class="btn gh fu" style="margin-top:16px" onclick="mClose(\'m-price\')">Close</button>';
   mOpen("m-price");
 }
 
@@ -940,15 +914,15 @@ function openShare(icon,headline,sub){
     '<div style="font-size:40px;margin-bottom:9px">'+icon+'</div>'+
     '<div style="font-weight:800;font-size:18px;color:#fff;margin-bottom:5px;line-height:1.2">'+headline+'</div>'+
     '<div style="font-size:13px;color:rgba(255,255,255,.8);margin-bottom:14px">'+sub+'</div>'+
-    '<div style="background:rgba(255,255,255,.25);border-radius:8px;padding:4px 13px;display:inline-block;font-size:12px;font-weight:700;color:#fff">Hire Hub · hirehub360.in</div></div>'+
+    '<div style="background:rgba(255,255,255,.25);border-radius:8px;padding:4px 13px;display:inline-block;font-size:12px;font-weight:700;color:#fff">Hire Hub · app.supraman.in</div></div>'+
     '<p style="font-size:13px;color:var(--mu);text-align:center;margin-bottom:12px">Share to your network</p>';
-  var txt=headline+"\n"+sub+"\n\nhirehub360.in";
+  var txt=headline+"\n"+sub+"\n\napp.supraman.in";
   window._shareText=txt;
   document.getElementById("m-share-p").innerHTML=
     [["📱 WhatsApp","#25D366"],["📸 Instagram","#E1306C"],["💼 LinkedIn","#0077B5"]].map(function(x){
-      return '<button class="btn sm" style="background:transparent;border:1.5px solid '+x[1]+';color:'+x[1]+'" onclick="navigator.clipboard&&navigator.clipboard.writeText(window._shareText||\'hirehub360.in\').then(function(){nt(\'🔗 Copied!\')})">'+x[0]+'</button>';
+      return '<button class="btn sm" style="background:transparent;border:1.5px solid '+x[1]+';color:'+x[1]+'" onclick="navigator.clipboard&&navigator.clipboard.writeText(window._shareText||\'app.supraman.in\').then(function(){nt(\'🔗 Copied!\')})">'+x[0]+'</button>';
     }).join('')+
-    '<button class="btn gh sm" onclick="navigator.clipboard&&navigator.clipboard.writeText(window._shareText||\'hirehub360.in\').then(function(){nt(\'🔗 Copied!\')})">🔗 Copy</button>';
+    '<button class="btn gh sm" onclick="navigator.clipboard&&navigator.clipboard.writeText(window._shareText||\'app.supraman.in\').then(function(){nt(\'🔗 Copied!\')})">🔗 Copy</button>';
   mOpen("m-share");
 }
 
@@ -1060,11 +1034,11 @@ function drawIG(ctx,sz,th,co,title,sal,loc){
   hline(ctx,mx,416,sz.w-mx*2,th.line);
   // CTA
   sf(ctx,17,"700"); ctx.fillStyle=th.txt;
-  ctx.fillText("Apply Now → hirehub360.in",mx,452);
+  ctx.fillText("Apply Now → hirehub.in",mx,452);
   // Bottom brand stamp
   ctx.fillStyle=th.badge; rr(ctx,mx,466,sz.w-mx*2,44,10); ctx.fill();
   sf(ctx,12,"600"); ctx.fillStyle=th.sub; ctx.textAlign="center";
-  ctx.fillText("100% Verified · Zero Ghosting · AI Powered · hirehub360.in",sz.w/2,494);
+  ctx.fillText("100% Verified · Zero Ghosting · AI Powered · app.supraman.in",sz.w/2,494);
   ctx.textAlign="left";
 }
 
@@ -1087,7 +1061,7 @@ function drawSTORY(ctx,sz,th,co,title,sal,loc){
   // CTA box
   ctx.fillStyle=th.badge; rr(ctx,mx,sz.h-134,sz.w-mx*2,72,14); ctx.fill();
   sf(ctx,18,"800"); ctx.fillStyle=th.txt; ctx.textAlign="center";
-  ctx.fillText("Apply Now → hirehub360.in",sz.w/2,sz.h-90);
+  ctx.fillText("Apply Now → hirehub.in",sz.w/2,sz.h-90);
   sf(ctx,13,"500"); ctx.fillStyle=th.sub;
   ctx.fillText("Tap link in bio · 100% Verified",sz.w/2,sz.h-64);
   ctx.textAlign="left";
@@ -1115,10 +1089,10 @@ function drawWA(ctx,sz,th,co,title,sal,loc){
   // CTA button
   ctx.fillStyle="rgba(255,255,255,.24)"; rr(ctx,rx,180,sz.w-rx-mx-24,46,10); ctx.fill();
   sf(ctx,14,"800"); ctx.fillStyle=th.txt; ctx.textAlign="center";
-  ctx.fillText("Apply: hirehub360.in",rx+(sz.w-rx-mx-24)/2,209); ctx.textAlign="left";
+  ctx.fillText("Apply: hirehub.in",rx+(sz.w-rx-mx-24)/2,209); ctx.textAlign="left";
   // Footer
   sf(ctx,11,"500"); ctx.fillStyle="rgba(255,255,255,.38)";
-  ctx.fillText("hirehub360.in · Verified Jobs · AI Powered",mx+24,sz.h-32);
+  ctx.fillText("hirehub.in · Verified Jobs · AI Powered · app.supraman.in",mx+24,sz.h-32);
 }
 
 // ─ LinkedIn Banner (700×280) ─
@@ -1144,10 +1118,10 @@ function drawLI(ctx,sz,th,co,title,sal,loc){
   sf(ctx,15,"800"); ctx.fillStyle=th.txt; ctx.textAlign="center";
   ctx.fillText("Apply Now →",rx+rw/2,ry+24);
   sf(ctx,12,"500"); ctx.fillStyle=th.sub;
-  ctx.fillText("hirehub360.in",rx+rw/2,ry+44); ctx.textAlign="left";
+  ctx.fillText("hirehub.in",rx+rw/2,ry+44); ctx.textAlign="left";
   // Footer
   sf(ctx,10,"500"); ctx.fillStyle="rgba(255,255,255,.35)";
-  ctx.fillText("hirehub360.in · 100% Verified · Zero Ghosting · AI Powered",mx,sz.h-14);
+  ctx.fillText("hirehub.in · 100% Verified · Zero Ghosting · AI Powered",mx,sz.h-14);
 }
 
 function downloadCard(){
@@ -1163,7 +1137,7 @@ function copyCardText(){
   var ttl= (document.getElementById("sc-title")||{}).value||"";
   var sal= (document.getElementById("sc-sal")  ||{}).value||"";
   var loc= (document.getElementById("sc-loc")  ||{}).value||"";
-  var txt="We're Hiring! 🚀\n"+ttl+" at "+co+"\n💰 "+sal+"  📍 "+loc+"\nApply: hirehub360.in";
+  var txt="We're Hiring! 🚀\n"+ttl+" at "+co+"\n💰 "+sal+"  📍 "+loc+"\nApply: app.supraman.in";
   if(navigator.clipboard)navigator.clipboard.writeText(txt).then(function(){nt("🔗 Share text copied!");});
   else nt("🔗 Text ready to share!");
 }
@@ -1203,19 +1177,6 @@ function loadCoData(){
   S.allApps=ak.map(function(k){return dbGet(k);}).filter(function(a){return a&&S.myJobs.some(function(j){return j.id===a.jobId;});});
 }
 function coTab(t){
-  // ── HR guardrail: block forbidden tabs ────────────────────────
-  if(S._role==='hr'){
-    var _hrForbidden=["post","venue","brand","seo","cvs","team"];
-    if(_hrForbidden.indexOf(t)>=0){nt("⚠️ This feature is only available to Company Admins.");return;}
-    // For applicants tab, load HR-filtered apps first
-    if(t==="cands"){
-      _loadHRApplications(function(){_coTabRender(t);});
-      return;
-    }
-  }
-  _coTabRender(t);
-}
-function _coTabRender(t){
   S.coTab=t;
   document.querySelectorAll(".tab-btn").forEach(function(b){b.classList.remove("on");});
   var tb=document.getElementById("ct-"+t);if(tb)tb.classList.add("on");
@@ -1227,210 +1188,111 @@ function _coTabRender(t){
   if(t==="venue") renderCoVenue(body);
   if(t==="brand") renderCoBrand(body);
   if(t==="seo")   renderCoSEO(body);
-  if(t==="team")  renderCoTeam(body);
   if(t==="iv")    renderCoInterview(body);
   if(t==="cvs")   renderCoFindCVs(body);
 }
 
 // ── FIND CVs (Premium) ──────────────────────────────────────────
 var DEMO_CANDIDATES=[
-  {name:"Rahul Verma",role:"Senior Software Engineer",company:"Razorpay",location:"Bangalore",exp:"4 yrs",skills:["React","Node.js","AWS","TypeScript"],salary:"₹18–24 LPA",notice:"30 days",fit:92,edu:"B.Tech CS — NIT Trichy",lastActive:1,verified:true,phone:"98XXXXXXXX",email:"r.v***@gmail.com",assessScore:94,assessSector:"IT & Software"},
-  {name:"Priya Sharma",role:"Product Manager",company:"Swiggy",location:"Mumbai",exp:"5 yrs",skills:["Product","Analytics","Figma","SQL"],salary:"₹22–30 LPA",notice:"45 days",fit:88,edu:"MBA — IIM Ahmedabad",lastActive:2,verified:true,phone:"91XXXXXXXX",email:"p.sha***@gmail.com",assessScore:78,assessSector:"General"},
-  {name:"Arjun Mehta",role:"Data Scientist",company:"Flipkart",location:"Bangalore",exp:"3 yrs",skills:["Python","ML","TensorFlow","SQL"],salary:"₹15–22 LPA",notice:"Immediate",fit:96,edu:"M.Tech AI — IIT Bombay",lastActive:0,verified:true,phone:"77XXXXXXXX",email:"a.m***@iitb.ac.in",assessScore:97,assessSector:"IT & Software"},
-  {name:"Sneha Patel",role:"Marketing Manager",company:"Zomato",location:"Delhi",exp:"4 yrs",skills:["SEO","Meta Ads","Content","Analytics"],salary:"₹12–18 LPA",notice:"30 days",fit:84,edu:"BBA — Delhi University",lastActive:3,verified:false,phone:"99XXXXXXXX",email:"sneha.p***@gmail.com",assessScore:63,assessSector:"Sales"},
-  {name:"Vikram Singh",role:"DevOps Engineer",company:"Infosys",location:"Hyderabad",exp:"3 yrs",skills:["Kubernetes","Docker","CI/CD","AWS"],salary:"₹14–20 LPA",notice:"60 days",fit:81,edu:"B.Tech IT — VIT",lastActive:5,verified:false,phone:"88XXXXXXXX",email:"v.singh***@gmail.com",assessScore:82,assessSector:"IT & Software"},
-  {name:"Meera Nair",role:"HR Business Partner",company:"TCS",location:"Pune",exp:"6 yrs",skills:["HR","Recruitment","HRBP","SAP"],salary:"₹10–16 LPA",notice:"30 days",fit:79,edu:"MBA HR — Symbiosis",lastActive:1,verified:true,phone:"90XXXXXXXX",email:"m.nair***@gmail.com",assessScore:76,assessSector:"HR"},
-  {name:"Rohan Gupta",role:"Finance Analyst",company:"HDFC Bank",location:"Mumbai",exp:"2 yrs",skills:["Excel","SQL","Financial Modelling","PPT"],salary:"₹8–12 LPA",notice:"Immediate",fit:77,edu:"CA — ICAI",lastActive:0,verified:true,phone:"85XXXXXXXX",email:"r.gupta***@gmail.com",assessScore:91,assessSector:"Banking & Finance"},
-  {name:"Ananya Iyer",role:"UI/UX Designer",company:"CRED",location:"Bangalore",exp:"3 yrs",skills:["Figma","Design","UX Research","Prototyping"],salary:"₹10–16 LPA",notice:"30 days",fit:91,edu:"B.Des — NID Ahmedabad",lastActive:1,verified:true,phone:"96XXXXXXXX",email:"a.iyer***@gmail.com",assessScore:88,assessSector:"IT & Software"},
-  {name:"Kabir Malhotra",role:"Sales Manager",company:"Bajaj Finance",location:"Mumbai",exp:"5 yrs",skills:["B2B Sales","CRM","Negotiation","Team Lead"],salary:"₹14–20 LPA",notice:"30 days",fit:83,edu:"MBA — SP Jain",lastActive:2,verified:true,phone:"93XXXXXXXX",email:"k.mal***@gmail.com",assessScore:71,assessSector:"Sales"},
-  {name:"Divya Menon",role:"Content Strategist",company:"PhonePe",location:"Bangalore",exp:"4 yrs",skills:["SEO","Content","Copywriting","Analytics"],salary:"₹10–15 LPA",notice:"Immediate",fit:80,edu:"BA Journalism — Christ University",lastActive:4,verified:false,phone:"87XXXXXXXX",email:"d.menon***@gmail.com",assessScore:0,assessSector:""},
-  {name:"Aisha Al-Mansoori",role:"Project Manager",company:"Emaar",location:"Dubai",exp:"6 yrs",skills:["PMP","Agile","MS Project","Stakeholder Mgmt"],salary:"AED 22,000/mo",notice:"30 days",fit:90,edu:"MBA — American University Dubai",lastActive:2,verified:true,phone:"05XXXXXXXX",email:"aisha.a***@emaar.ae",assessScore:93,assessSector:"Operations"},
-  {name:"Raj Krishnan",role:"Business Analyst",company:"Emirates NBD",location:"Dubai",exp:"4 yrs",skills:["SQL","Power BI","Finance","Excel"],salary:"AED 16,000/mo",notice:"Immediate",fit:83,edu:"B.Com — Mumbai University",lastActive:1,verified:true,phone:"05XXXXXXXX",email:"raj.k***@emiratesnbd.com",assessScore:79,assessSector:"Banking & Finance"},
+  {name:"Rahul Verma",role:"Senior Software Engineer",company:"Razorpay",location:"Bangalore",exp:"4 yrs",skills:["React","Node.js","AWS","TypeScript"],salary:"₹18–24 LPA",notice:"30 days",fit:92,edu:"B.Tech CS — NIT Trichy"},
+  {name:"Priya Sharma",role:"Product Manager",company:"Swiggy",location:"Mumbai",exp:"5 yrs",skills:["Product","Analytics","Figma","SQL"],salary:"₹22–30 LPA",notice:"45 days",fit:88,edu:"MBA — IIM Ahmedabad"},
+  {name:"Arjun Mehta",role:"Data Scientist",company:"Flipkart",location:"Bangalore",exp:"3 yrs",skills:["Python","ML","TensorFlow","SQL"],salary:"₹15–22 LPA",notice:"Immediate",fit:85,edu:"M.Tech AI — IIT Bombay"},
+  {name:"Sneha Patel",role:"Marketing Manager",company:"Zomato",location:"Delhi",exp:"4 yrs",skills:["SEO","Meta Ads","Content","Analytics"],salary:"₹12–18 LPA",notice:"30 days",fit:84,edu:"BBA — Delhi University"},
+  {name:"Vikram Singh",role:"DevOps Engineer",company:"Infosys",location:"Hyderabad",exp:"3 yrs",skills:["Kubernetes","Docker","CI/CD","AWS"],salary:"₹14–20 LPA",notice:"60 days",fit:81,edu:"B.Tech IT — VIT"},
+  {name:"Meera Nair",role:"HR Business Partner",company:"TCS",location:"Pune",exp:"6 yrs",skills:["HR","Recruitment","HRBP","SAP"],salary:"₹10–16 LPA",notice:"30 days",fit:79,edu:"MBA HR — Symbiosis"},
+  {name:"Rohan Gupta",role:"Finance Analyst",company:"HDFC Bank",location:"Mumbai",exp:"2 yrs",skills:["Excel","SQL","Financial Modelling","PPT"],salary:"₹8–12 LPA",notice:"Immediate",fit:77,edu:"CA — ICAI"},
+  {name:"Ananya Iyer",role:"UI/UX Designer",company:"CRED",location:"Bangalore",exp:"3 yrs",skills:["Figma","Design","UX Research","Prototyping"],salary:"₹10–16 LPA",notice:"30 days",fit:86,edu:"B.Des — NID Ahmedabad"},
+  // Dubai candidates
+  {name:"Aisha Al-Mansoori",role:"Project Manager",company:"Emaar",location:"Dubai",exp:"6 yrs",skills:["PMP","Agile","MS Project","Stakeholder Mgmt"],salary:"AED 22,000/mo",notice:"30 days",fit:90,edu:"MBA — American University Dubai"},
+  {name:"Raj Krishnan",role:"Business Analyst",company:"Emirates NBD",location:"Dubai",exp:"4 yrs",skills:["SQL","Power BI","Finance","Excel"],salary:"AED 16,000/mo",notice:"Immediate",fit:83,edu:"B.Com — Mumbai University"},
 ];
-
-// ── CREDIT HELPERS ───────────────────────────────────────────────
-function saveCredits(){localStorage.setItem("hh_credits",String(S.credits));}
-function unlockContact(cid){
-  var key='c_'+cid;
-  if(S.unlockedContacts[key]){renderCoFindCVs(document.getElementById("co-body")||document.querySelector("[id=co-body]")||{innerHTML:''});return;}
-  if(S.credits<1){
-    nt("⚠️ No credits left. Buy a credit pack to unlock contacts.");openPricing('co');return;
-  }
-  S.credits--;saveCredits();
-  S.unlockedContacts[key]=true;
-  localStorage.setItem("hh_unlocked",JSON.stringify(S.unlockedContacts));
-  nt("🔓 Contact unlocked! 1 credit used. "+S.credits+" left.");
-  var el=document.getElementById("co-body");if(el)renderCoFindCVs(el);
-}
 
 function renderCoFindCVs(el){
   var plan=(S.co&&S.co.plan)||"free";
   var isPremium=plan!=="free";
-  var totalPool=1247; // scarcity/volume trigger
 
   if(!isPremium){
     el.innerHTML=
-    // ── Scarcity Banner ──
-    '<div style="background:linear-gradient(135deg,#1d1d1f,#2d1a00);border-radius:18px;padding:28px 24px;margin-bottom:20px;position:relative;overflow:hidden">'+
-      '<div style="position:absolute;top:-20px;right:-20px;width:140px;height:140px;background:radial-gradient(circle,rgba(255,107,0,.3) 0%,transparent 70%)"></div>'+
-      '<div style="font-size:11px;font-weight:700;color:#ff6b00;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">🔒 PREMIUM FEATURE</div>'+
-      '<h2 style="font-size:22px;font-weight:900;color:#fff;margin-bottom:6px;letter-spacing:-.03em">Access <span style="color:#ff6b00">'+totalPool.toLocaleString()+' Candidates</span><br>Ready to Join Now</h2>'+
-      '<p style="color:#888;font-size:13px;margin-bottom:20px;line-height:1.6">Blur removed. Full contact revealed. Hire in days.</p>'+
-      '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:20px">'+
-        [['🤖','AI Fit Score','Every profile ranked'],['📱','Direct Contact','Phone + Email unlocked'],['⚡','Fast Response','Avg reply in 4 hours'],['🏆','Top 10% Talent','Pre-screened profiles']].map(function(f){
-          return '<div style="background:rgba(255,255,255,.06);border-radius:10px;padding:12px;text-align:center"><div style="font-size:20px;margin-bottom:4px">'+f[0]+'</div><div style="font-size:12px;font-weight:700;color:#fff">'+f[1]+'</div><div style="font-size:11px;color:#888;margin-top:2px">'+f[2]+'</div></div>';
+    '<div style="text-align:center;padding:40px 20px">'+
+      '<div style="font-size:52px;margin-bottom:16px">🔎</div>'+
+      '<h2 style="font-weight:800;font-size:22px;letter-spacing:-.04em;margin-bottom:8px">Find & Hire Top Candidates</h2>'+
+      '<p style="color:var(--mu);font-size:14px;max-width:360px;margin:0 auto 24px;line-height:1.7">Search '+DEMO_CANDIDATES.length+'+ verified candidate CVs. Filter by skills, location, experience and salary. Bulk contact. Hire in days, not weeks.</p>'+
+      '<div style="background:var(--bg);border-radius:16px;padding:20px;margin-bottom:24px;text-align:left;max-width:400px;margin-left:auto;margin-right:auto">'+
+        ['🔍 Search by skill, role, location','📊 Filter by salary & notice period','📥 Download CV directly','📨 Bulk invite to apply','🤖 AI fit score for every candidate','🏆 Access top 10% verified profiles'].map(function(f){
+          return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--ln);font-size:13px"><span>'+f+'</span></div>';
         }).join('')+
       '</div>'+
-      '<div style="display:flex;gap:10px;flex-wrap:wrap">'+
-        '<button class="btn fi" style="border:none;font-size:13px;font-weight:700;padding:12px 20px" onclick="openPricing(\'co\')">Unlock All CVs — From ₹999/mo →</button>'+
-        '<button class="btn gh sm" onclick="openPricing(\'co\')" style="color:#ff6b00;border-color:#ff6b00;font-size:13px">Buy Credits (Pay-as-you-go)</button>'+
-      '</div>'+
-    '</div>'+
-    // ── Blurred Preview ──
-    '<div style="position:relative">'+
-      '<div style="filter:blur(5px);pointer-events:none">'+
-        DEMO_CANDIDATES.slice(0,4).map(function(c){
-          var col=['#ff6b00','#0071e3','#34c759','#af52de'][DEMO_CANDIDATES.indexOf(c)%4];
-          var ini=(c.name||'?').split(' ').map(function(w){return w[0];}).join('').slice(0,2).toUpperCase();
-          return '<div class="card" style="padding:14px 16px;margin-bottom:8px">'+
-            '<div style="display:flex;gap:10px;align-items:center">'+
-              '<div style="width:40px;height:40px;border-radius:50%;background:'+col+';display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:14px;flex-shrink:0">'+ini+'</div>'+
-              '<div style="flex:1"><div style="font-weight:700;font-size:14px">'+c.name+'</div><div style="font-size:12px;color:var(--mu)">'+c.role+' · '+c.location+'</div><div style="font-size:11px;color:#888;margin-top:4px">📱 '+c.phone+' · ✉️ '+c.email+'</div></div>'+
-              '<div style="background:#34c759;color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:999px">'+c.fit+'% fit</div>'+
-            '</div>'+
+      // Blurred preview
+      '<div style="position:relative;margin-bottom:24px;filter:blur(3px);pointer-events:none;max-width:480px;margin-left:auto;margin-right:auto">'+
+        DEMO_CANDIDATES.slice(0,3).map(function(c){
+          return '<div class="card" style="padding:14px 16px;margin-bottom:8px;text-align:left">'+
+            '<div style="font-weight:700;font-size:14px">'+c.name+'</div>'+
+            '<div style="font-size:12px;color:var(--mu)">'+c.role+' · '+c.location+'</div>'+
           '</div>';
         }).join('')+
       '</div>'+
-      '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">'+
-        '<div style="background:rgba(255,255,255,.97);border-radius:16px;padding:24px;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,.18);max-width:300px">'+
-          '<div style="font-size:32px;margin-bottom:8px">🔒</div>'+
-          '<div style="font-weight:800;font-size:17px;margin-bottom:6px">'+totalPool.toLocaleString()+' candidates waiting</div>'+
-          '<div style="font-size:13px;color:var(--mu);margin-bottom:16px">Upgrade to reveal contacts, download CVs, and hire faster</div>'+
-          '<button class="btn fi fu" style="border:none;margin-bottom:8px" onclick="openPricing(\'co\')">View Plans →</button>'+
-          '<div style="font-size:11px;color:#aaa">No advance. Pay-as-you-go available.</div>'+
+      '<div style="position:relative;margin-top:-120px;margin-bottom:24px">'+
+        '<div style="background:rgba(255,255,255,.95);border-radius:14px;padding:20px;max-width:340px;margin:0 auto;box-shadow:0 8px 32px rgba(0,0,0,.12)">'+
+          '<div style="font-size:24px;margin-bottom:8px">🔒</div>'+
+          '<div style="font-weight:800;font-size:16px;margin-bottom:6px">Premium Feature</div>'+
+          '<div style="font-size:13px;color:var(--mu);margin-bottom:16px">Upgrade to access the full candidate database</div>'+
+          '<button class="btn fi fu" onclick="openPricing(\'co\')">Unlock Find CVs — ₹999/mo</button>'+
         '</div>'+
       '</div>'+
     '</div>';
     return;
   }
 
-  // Premium: full access with conversion tricks
-  var allCandidates=DEMO_CANDIDATES.slice();
+  // Premium: full access
+  var allCandidates=DEMO_CANDIDATES;
+  // also pull from local profiles if any
   dbList("cd:profile").forEach(function(k){var c=dbGet(k);if(c&&c.name)allCandidates.push(c);});
 
   el.innerHTML=
-  // ── Stats bar ──
-  '<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px;padding:14px 18px;background:linear-gradient(135deg,#fff8f3,#fff);border-radius:14px;border:1.5px solid #ffe5cc">'+
-    '<div style="flex:1;min-width:200px"><span style="font-size:22px;font-weight:900;color:#ff6b00;letter-spacing:-.04em">'+totalPool.toLocaleString()+'</span><span style="font-size:13px;color:var(--mu);margin-left:6px">candidates in database</span></div>'+
-    '<div style="display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--mu)">'+
-      '<span>🟢 <b style="color:#34c759">'+Math.floor(totalPool*.18)+'</b> active today</span>'+
-      '<span>⚡ <b style="color:#ff6b00">'+Math.floor(totalPool*.07)+'</b> open to immediate joining</span>'+
-      '<span>💎 <b style="color:#af52de">'+Math.floor(totalPool*.12)+'</b> IIT/IIM/NIT grads</span>'+
-    '</div>'+
-    '<div style="background:#fff;border:1.5px solid #e5e5ea;border-radius:10px;padding:8px 14px;font-size:12px;font-weight:700;white-space:nowrap">'+
-      '💳 <span id="credit-count" style="color:#ff6b00">'+S.credits+'</span> credits · <button style="background:none;border:none;color:#0071e3;font-size:12px;font-weight:700;cursor:pointer;padding:0" onclick="openPricing(\'co\')">Buy More</button>'+
-    '</div>'+
+  '<div style="margin-bottom:16px">'+
+    '<h2 style="font-weight:800;font-size:20px;letter-spacing:-.04em;margin-bottom:6px">🔎 Find Candidates</h2>'+
+    '<p style="color:var(--mu);font-size:13px">'+allCandidates.length+' verified candidates ready to hire</p>'+
   '</div>'+
-  // ── Filters ──
-  '<div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">'+
-    '<input id="cv-search" class="inp" style="flex:1;min-width:180px" placeholder="🔍 Search skill, role, name, company…" oninput="filterCVs()"/>'+
+  '<div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">'+
+    '<input id="cv-search" class="inp" style="flex:1;min-width:180px" placeholder="Search skills, role, name…" oninput="filterCVs()"/>'+
     '<select id="cv-loc" class="inp" style="width:auto;min-width:120px" onchange="filterCVs()"><option value="">All Cities</option>'+
       ["Mumbai","Bangalore","Delhi","Hyderabad","Pune","Chennai","Dubai","Abu Dhabi"].map(function(c){return '<option>'+c+'</option>';}).join('')+
     '</select>'+
     '<select id="cv-exp" class="inp" style="width:auto;min-width:130px" onchange="filterCVs()"><option value="">Any Experience</option>'+
       ['0–2 yrs','2–5 yrs','5–8 yrs','8+ yrs'].map(function(e){return '<option>'+e+'</option>';}).join('')+
     '</select>'+
-    '<select id="cv-fit" class="inp" style="width:auto;min-width:130px" onchange="filterCVs()"><option value="">Any Fit Score</option><option value="90">90%+ (Top 10%)</option><option value="80">80%+ (Strong)</option><option value="70">70%+ (Good)</option></select>'+
-    '<select id="cv-tier" class="inp" style="width:auto;min-width:140px" onchange="filterCVs()"><option value="">All Tiers</option><option value="gold">🥇 Gold Expert (90%+)</option><option value="silver">🥈 Silver Expert (75%+)</option><option value="bronze">🥉 Bronze+ Pre-Screened</option><option value="prescreened">🤖 Pre-Screened Only</option></select>'+
-  '</div>'+
-  // Expert tier quick-filter chips
-  '<div style="display:flex;gap:7px;margin-bottom:14px;flex-wrap:wrap">'+
-    '<span style="font-size:12px;color:var(--mu);align-self:center;font-weight:600">Quick Filter:</span>'+
-    ['🤖 Pre-Screened','🥇 Gold Expert','⚡ Immediate','💎 IIT/IIM/NIT','📍 Bangalore','📍 Mumbai'].map(function(tag,i){
-      return '<button style="padding:4px 11px;border-radius:999px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--ln);background:#fff;color:var(--mu)" onclick="quickFilterCVs(\''+tag+'\')" class="cv-quick-tag">'+tag+'</button>';
-    }).join('')+
   '</div>'+
   '<div id="cv-list">'+renderCvCards(allCandidates)+'</div>';
 }
 
-function _expertTier(score){
-  if(!score||score<60)return null;
-  if(score>=90)return {label:'🥇 Gold Expert',bg:'linear-gradient(135deg,#ffd700,#ffb300)',color:'#5a3e00',border:'#ffb300'};
-  if(score>=75)return {label:'🥈 Silver Expert',bg:'linear-gradient(135deg,#e8e8e8,#bdbdbd)',color:'#2c2c2c',border:'#bdbdbd'};
-  return {label:'🥉 Bronze Expert',bg:'linear-gradient(135deg,#cd7f32,#a0522d)',color:'#fff',border:'#cd7f32'};
-}
 function renderCvCards(list){
   if(!list.length)return '<div style="text-align:center;padding:32px;color:var(--mu)">No candidates match your filters</div>';
-  return list.map(function(c,idx){
+  return list.map(function(c){
     var initials=(c.name||'?').split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);
     var col=['#ff6b00','#0071e3','#34c759','#af52de','#ff375f'][Math.abs((c.name||'').charCodeAt(0)||0)%5];
-    var fit=c.fit||82;
-    var isTop=fit>=90;
-    var isStrong=fit>=80&&fit<90;
-    var cid=encodeURIComponent(c.name||idx);
-    var isUnlocked=!!S.unlockedContacts['c_'+cid];
-    var lastActiveText=c.lastActive===0?"Today":c.lastActive===1?"Yesterday":(c.lastActive||Math.floor(Math.random()*7)+1)+" days ago";
-    var fitColor=isTop?"#34c759":isStrong?"#ff6b00":"#6e6e73";
-    var tier=_expertTier(c.assessScore||0);
-    var isPreScreened=!!(c.assessScore&&c.assessScore>0);
-
-    return '<div class="card" style="padding:18px;margin-bottom:10px;border:1.5px solid '+(isTop?"#34c75940":"#f0f0f5")+';position:relative;overflow:hidden">'+
-      // Top badge
-      (isTop?'<div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#34c759,#00c9a7)"></div>':
-       tier?'<div style="position:absolute;top:0;left:0;right:0;height:3px;background:'+tier.bg+'"></div>':'')+
+    return '<div class="card" style="padding:16px 18px;margin-bottom:10px">'+
       '<div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap">'+
-        // Avatar
-        '<div style="position:relative;flex-shrink:0">'+
-          '<div style="width:48px;height:48px;border-radius:50%;background:'+col+';display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;color:#fff">'+initials+'</div>'+
-          (c.verified?'<div style="position:absolute;bottom:-2px;right:-2px;width:16px;height:16px;background:#0071e3;border-radius:50%;border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:8px;color:#fff">✓</div>':'')+
+        '<div style="width:46px;height:46px;border-radius:50%;background:'+col+';display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;color:#fff;flex-shrink:0">'+
+          (c._photo?'':initials)+
         '</div>'+
-        // Info
         '<div style="flex:1;min-width:160px">'+
-          // Name + badges
-          '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:4px">'+
-            '<span style="font-weight:800;font-size:15px;color:#1d1d1f">'+c.name+'</span>'+
-            (isTop?'<span style="background:#34c75918;color:#34c759;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;border:1px solid #34c75940">🏆 Top Candidate</span>':'')+
-            (tier?'<span style="background:'+tier.bg+';color:'+tier.color+';font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px">'+tier.label+'</span>':'')+
-            (isPreScreened?'<span style="background:#e8f0fe;color:#1a73e8;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;border:1px solid #c5d9f7">🤖 Pre-Screened '+c.assessScore+'%</span>':'')+
-            (c.verified?'<span style="background:#0071e318;color:#0071e3;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px">✓ Verified</span>':'')+
+          '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:3px">'+
+            '<div style="font-weight:700;font-size:15px">'+c.name+'</div>'+
+            '<div style="background:var(--gl);color:var(--gr);font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px">'+(c.fit||82)+' fit</div>'+
           '</div>'+
-          // Role
-          '<div style="font-size:13px;color:#6e6e73;margin-bottom:6px">'+c.role+(c.company?' · <b style="color:#1d1d1f">'+c.company+'</b>':'')+(c.location?' · 📍'+c.location:'')+'</div>'+
-          // Urgency — last active
-          '<div style="font-size:11px;color:'+(c.lastActive<=1?"#34c759":c.lastActive<=3?"#ff9500":"#aaa")+';margin-bottom:8px;font-weight:600">'+
-            '🟢 Last active: '+lastActiveText+
-            (c.notice==="Immediate"?' · ⚡ <span style="color:#ff6b00;font-weight:700">Available Immediately</span>':'')+
-          '</div>'+
-          // Skills
+          '<div style="font-size:13px;color:var(--mu);margin-bottom:8px">'+c.role+(c.company?' · '+c.company:'')+(c.location?' · '+c.location:'')+'</div>'+
           '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px">'+
-            (c.skills||[]).slice(0,4).map(function(s){return '<span style="background:#f5f5f7;color:#3d3d3f;font-size:11px;font-weight:600;padding:3px 8px;border-radius:6px">'+s+'</span>';}).join('')+
+            (c.skills||[]).slice(0,4).map(function(s){return '<span style="background:var(--bl2);color:var(--bl);font-size:11px;font-weight:600;padding:3px 8px;border-radius:6px">'+s+'</span>';}).join('')+
           '</div>'+
-          // Salary / Notice / Exp
-          '<div style="display:flex;gap:14px;font-size:12px;color:#6e6e73;flex-wrap:wrap;margin-bottom:10px">'+
+          '<div style="display:flex;gap:12px;font-size:12px;color:var(--mu);flex-wrap:wrap">'+
             (c.salary?'<span>💰 '+c.salary+'</span>':'')+
-            (c.notice?'<span>⏱ '+c.notice+' notice</span>':'')+
+            (c.notice?'<span>⏱ '+c.notice+'</span>':'')+
             (c.exp?'<span>📅 '+c.exp+'</span>':'')+
           '</div>'+
-          // Contact info — BLURRED until unlocked
-          '<div style="background:#f9f9fb;border-radius:10px;padding:10px 12px;border:1px solid #e5e5ea">'+
-            (isUnlocked
-              ?'<div style="font-size:12px;font-weight:600;color:#1d1d1f">📱 '+c.phone+'  &nbsp; ✉️ '+c.email+'</div>'
-              :'<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">'+
-                '<div>'+
-                  '<div style="filter:blur(5px);font-size:12px;pointer-events:none;user-select:none;color:#1d1d1f;font-weight:600">📱 '+c.phone+'  ✉️ '+c.email+'</div>'+
-                  '<div style="font-size:10px;color:#aaa;margin-top:3px">🔒 Contact blurred — unlock with 1 credit</div>'+
-                '</div>'+
-                '<button onclick="unlockContact(\''+cid+'\')" style="background:#ff6b00;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0">Unlock (1 credit)</button>'+
-              '</div>')+
-          '</div>'+
         '</div>'+
-        // Fit score + CTA
-        '<div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;flex-shrink:0">'+
-          '<div style="text-align:center;background:'+(isTop?"#34c75918":isStrong?"#fff8f3":"#f5f5f7")+';border-radius:10px;padding:10px 14px;border:1.5px solid '+(isTop?"#34c75940":isStrong?"#ff6b00":"#e5e5ea")+'">'+
-            '<div style="font-size:22px;font-weight:900;color:'+fitColor+';letter-spacing:-.04em">'+fit+'%</div>'+
-            '<div style="font-size:10px;font-weight:700;color:'+fitColor+'">Fit Score</div>'+
-          '</div>'+
-          '<button class="btn fi sm" onclick="nt(\'📨 Interview invite sent to '+c.name+'! They will respond within 24 hours.\')">Invite →</button>'+
+        '<div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">'+
+          '<button class="btn fi sm" onclick="nt(\'📨 Invite sent to '+c.name+'!\')">Invite →</button>'+
+          (c._cvData?'<button class="btn gh sm" onclick="downloadCandCV(\''+encodeURIComponent(c.name)+'\')">⬇ CV</button>':'<button class="btn gh sm" style="opacity:.5" title="No CV uploaded">No CV</button>')+
         '</div>'+
       '</div>'+
     '</div>';
@@ -1441,32 +1303,14 @@ function filterCVs(){
   var q=((document.getElementById("cv-search")||{}).value||"").toLowerCase();
   var loc=((document.getElementById("cv-loc")||{}).value||"");
   var exp=((document.getElementById("cv-exp")||{}).value||"");
-  var fitMin=parseInt((document.getElementById("cv-fit")||{}).value||"0")||0;
-  var tierFilter=((document.getElementById("cv-tier")||{}).value||"");
   var filtered=DEMO_CANDIDATES.filter(function(c){
-    var matchQ=!q||(c.name||"").toLowerCase().includes(q)||(c.role||"").toLowerCase().includes(q)||((c.skills||[]).join(" ").toLowerCase().includes(q))||(c.company||"").toLowerCase().includes(q);
+    var matchQ=!q||(c.name||"").toLowerCase().includes(q)||(c.role||"").toLowerCase().includes(q)||((c.skills||[]).join(" ").toLowerCase().includes(q));
     var matchL=!loc||(c.location||"").toLowerCase().includes(loc.toLowerCase());
     var matchE=!exp||(c.exp||"").includes(exp.split(" ")[0]);
-    var matchF=!fitMin||(c.fit||80)>=fitMin;
-    var as=c.assessScore||0;
-    var matchT=!tierFilter||(tierFilter==="gold"&&as>=90)||(tierFilter==="silver"&&as>=75)||(tierFilter==="bronze"&&as>=60)||(tierFilter==="prescreened"&&as>0);
-    return matchQ&&matchL&&matchE&&matchF&&matchT;
+    return matchQ&&matchL&&matchE;
   });
   var list=document.getElementById("cv-list");
   if(list)list.innerHTML=renderCvCards(filtered);
-}
-function quickFilterCVs(tag){
-  var search=document.getElementById("cv-search");
-  var tier=document.getElementById("cv-tier");
-  // Reset all
-  if(search)search.value="";if(tier)tier.value="";
-  if(tag==='🤖 Pre-Screened'&&tier)tier.value="prescreened";
-  else if(tag==='🥇 Gold Expert'&&tier)tier.value="gold";
-  else if(tag==='⚡ Immediate'&&search)search.value="Immediate";
-  else if(tag==='💎 IIT/IIM/NIT'&&search)search.value="IIT";
-  else if(tag==='📍 Bangalore'&&search)search.value="Bangalore";
-  else if(tag==='📍 Mumbai'&&search)search.value="Mumbai";
-  filterCVs();
 }
 
 // ── COMPANY PARTNERS ────────────────────────────────────────────
@@ -1591,7 +1435,7 @@ function renderCoDash(el){
 function renderCoPost(el){
   var jf=S.jf;
   var secs=["IT & Software","Banking & Finance","Healthcare","Manufacturing","Retail & FMCG","Education","Hospitality & Tourism","Logistics","Construction"];
-  var types=["Full-time","Part-time","Remote","Hybrid","Contract","Internship","Gig / Freelance"];
+  var types=["Full-time","Part-time","Remote","Hybrid","Contract","Internship"];
   el.innerHTML=
     '<div style="margin-bottom:20px"><h2 style="font-weight:800;font-size:22px;letter-spacing:-.04em;margin-bottom:4px">Post a Job</h2><p style="color:var(--mu);font-size:14px">Google auto-index in ~3 min. AI writes the description.</p></div>'+
     '<div class="card" style="padding:24px 20px">'+
@@ -1677,7 +1521,7 @@ function doPostJob(){
     workAuth:(document.getElementById("j-wauth")||{}).value||"Any / Open to all",
     skills:((document.getElementById("j-sk")||{}).value||S.jf.skills).split(",").map(function(x){return x.trim();}).filter(Boolean),
     company:S.co.name,companyId:S.co.id,verified:true,status:"active",applicants:0,
-    createdAt:new Date().toISOString(),source:"HireHub360"};
+    createdAt:new Date().toISOString(),source:"Hire Hub"};
   dbSet("job:"+job.id,job);S.postedJob=job;S.seoSteps=[];
   gsLog("job_post",{id:job.id,title:job.title,company:job.company,loc:job.loc,sal:job.sal,shide:job.shide,exp:job.exp,type:job.type,sec:job.sec,skills:job.skills,curr:job.curr,visa:job.visa,remote:job.remote,companyId:job.companyId,status:job.status});
   var prog=document.getElementById("seo-prog");if(prog)prog.style.display="block";
@@ -1686,22 +1530,22 @@ function doPostJob(){
     if(si>=SEO_S.length){
       var jobSlug = mkSlug(job.title)+"-"+mkSlug(job.company)+"-"+mkSlug(job.loc);
       var seo={
-        url:"https://hirehub360.in/jobs/"+jobSlug,
-        metaTitle:job.title+" at "+job.company+" — "+job.loc+" | HireHub360",
-        metaDesc:"Hiring "+job.title+" at "+job.company+". Location: "+job.loc+". "+(job.shide?"Competitive salary":job.sal)+". Experience: "+job.exp+". Apply on HireHub360 — 100% verified jobs.",
+        url:"https://app.supraman.in/jobs/"+jobSlug,
+        metaTitle:job.title+" at "+job.company+" — "+job.loc+" | Hire Hub",
+        metaDesc:"Hiring "+job.title+" at "+job.company+". Location: "+job.loc+". "+(job.shide?"Competitive salary":job.sal)+". Experience: "+job.exp+". Apply on Hire Hub — 100% verified jobs.",
         ogTitle:job.company+" is Hiring — "+job.title,
         keywords:[job.title,job.title+" jobs",job.title+" "+job.loc,job.company+" careers","jobs in "+job.loc,job.sec+" jobs","Hire Hub India"],
-        canonical:"https://hirehub360.in/jobs/"+jobSlug,
+        canonical:"https://app.supraman.in/jobs/"+jobSlug,
         schema:JSON.stringify({
           "@context":"https://schema.org/",
           "@type":"JobPosting",
           "title":job.title,
           "description":job.desc||("We are hiring "+job.title+" at "+job.company+" in "+job.loc),
-          "identifier":{"@type":"PropertyValue","name":"HireHub360","value":job.id},
+          "identifier":{"@type":"PropertyValue","name":"Hire Hub","value":job.id},
           "datePosted":job.createdAt?job.createdAt.split("T")[0]:new Date().toISOString().split("T")[0],
           "validThrough":new Date(Date.now()+30*864e5).toISOString().split("T")[0],
           "employmentType":(job.type||"FULL_TIME").toUpperCase().replace(/-/g,"_").replace(/ /g,"_"),
-          "hiringOrganization":{"@type":"Organization","name":job.company,"sameAs":"https://hirehub360.in"},
+          "hiringOrganization":{"@type":"Organization","name":job.company,"sameAs":"https://app.supraman.in"},
           "jobLocation":{"@type":"Place","address":{"@type":"PostalAddress","addressLocality":job.loc,"addressCountry":"IN"}},
           "baseSalary":job.shide?undefined:{"@type":"MonetaryAmount","currency":job.curr||"INR","value":{"@type":"QuantitativeValue","minValue":job.smin||300000,"maxValue":job.smax||1200000,"unitText":"YEAR"}},
           "skills":(job.skills||[]).join(", "),
@@ -1709,10 +1553,10 @@ function doPostJob(){
           "directApply":true,
           "applicantLocationRequirements":{"@type":"Country","name":"India"},
           "jobBenefits":"Competitive benefits package",
-          "url":"https://hirehub360.in/jobs/"+jobSlug,
-          "applicationContact":{"@type":"ContactPoint","contactType":"HR","url":"https://hirehub360.in/jobs/"+jobSlug+"/apply"}
+          "url":"https://app.supraman.in/jobs/"+jobSlug,
+          "applicationContact":{"@type":"ContactPoint","contactType":"HR","url":"https://app.supraman.in/jobs/"+jobSlug+"/apply"}
         }),
-        sitemapEntry:"<url><loc>https://hirehub360.in/jobs/"+jobSlug+"</loc><lastmod>"+new Date().toISOString().split("T")[0]+"</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>",
+        sitemapEntry:"<url><loc>https://app.supraman.in/jobs/"+jobSlug+"</loc><lastmod>"+new Date().toISOString().split("T")[0]+"</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>",
         crossPostLinks:{
           linkedin:"https://www.linkedin.com/job-posting/api/jobs?title="+encodeURIComponent(job.title)+"&company="+encodeURIComponent(job.company)+"&location="+encodeURIComponent(job.loc),
           indeed:"https://employers.indeed.com/jobPosting/start?title="+encodeURIComponent(job.title)+"&location="+encodeURIComponent(job.loc),
@@ -1768,13 +1612,8 @@ function renderCoCands(el){
         '<div style="flex:1"><div style="font-weight:700;font-size:14px;margin-bottom:2px">'+(app.candidateName||"Candidate")+'</div>'+
         '<div style="font-size:12px;color:var(--mu);margin-bottom:7px">'+(app.role||"")+(app.loc?" · "+app.loc:"")+'</div>'+
         '<div class="fw" style="margin-bottom:9px"><span class="pill" style="background:'+stbg+';color:'+stc+'">'+stlb+'</span></div>'+
-        (app.status!=="hired"&&app.status!=="rejected"?'<div class="fw">'+
-          '<button class="btn gh sm" onclick="updApp(\''+app.id+'\',\'viewed\')">Mark Viewed</button>'+
-          '<button class="btn sm ol-go" onclick="updApp(\''+app.id+'\',\'shortlisted\')">⭐ Shortlist</button>'+
-          (S._role!=='hr'?'<button class="btn gf sm" onclick="updApp(\''+app.id+'\',\'hired\')">Mark Hired 🎉</button>':'<button class="btn fi sm" onclick="scheduleInterview(\''+app.id+'\')">📅 Schedule</button>')+
-          '<button class="btn gh sm" onclick="updApp(\''+app.id+'\',\'rejected\')">Pass</button>'+
-        '</div>':"")+
-        (app.status==="hired"?'<div class="fw"><button class="btn ti sm" onclick="coTab(\'venue\')">🏢 Book Celebration</button><button class="btn ol-gr sm" onclick="openShare(\'🎉\',\'We Made a Great Hire!\',\''+(app.candidateName||"")+(app.jobTitle?" joins as "+app.jobTitle:"")+'\')">📤 Share</button><button class="btn sm pu" onclick="openShareCardModal(\''+S.co.name+'\',\''+(app.jobTitle||"")+'\'  ,\'\',\'\')">🎨 Card</button></div>':"")+
+        (app.status!=="hired"&&app.status!=="rejected"?'<div class="fw"><button class="btn gh sm" onclick="updApp(\''+app.id+'\',\'viewed\')">Mark Viewed</button><button class="btn sm ol-go" onclick="updApp(\''+app.id+'\',\'shortlisted\')">⭐ Shortlist</button><button class="btn gf sm" onclick="updApp(\''+app.id+'\',\'hired\')">Mark Hired 🎉</button><button class="btn gh sm" onclick="updApp(\''+app.id+'\',\'rejected\')">Pass</button></div>':"")+
+        (app.status==="hired"?'<div class="fw"><button class="btn ti sm" onclick="coTab(\'venue\')">🎳 Book Celebration</button><button class="btn ol-gr sm" onclick="openShare(\'🎉\',\'We Made a Great Hire!\',\''+(app.candidateName||"")+(app.jobTitle?" joins as "+app.jobTitle:"")+'\')">📤 Share</button><button class="btn sm pu" onclick="openShareCardModal(\''+S.co.name+'\',\''+(app.jobTitle||"")+'\'  ,\'\',\'\')">🎨 Card</button></div>':"")+
         '</div>'+fitBadge(app.fitScore||80,50)+'</div></div>';
     }).join(""));
 }
@@ -1786,318 +1625,56 @@ function updApp(id,status){
   nt(status==="hired"?"🎉 Marked hired!":status==="shortlisted"?"⭐ Shortlisted!":"Updated!");
   renderCoCands(document.getElementById("co-body"));
 }
-// ── HR TEAM MANAGEMENT (Company Admin only) ────────────────────
-function renderCoTeam(el){
-  if(!el)return;
-  // Load HR users for this company
-  if(!window.SB||!S.co){
-    el.innerHTML='<div class="card" style="padding:40px;text-align:center"><div style="font-size:32px;margin-bottom:10px">🧑‍💼</div><p style="color:var(--mu);font-size:14px">Complete your company profile first.</p></div>';
-    return;
-  }
-  el.innerHTML='<div style="text-align:center;padding:40px 20px"><div style="font-size:28px;margin-bottom:10px">⏳</div><p style="color:var(--mu);font-size:13px">Loading team...</p></div>';
-  SB.from("hr_users").select("id,email,name,permissions,created_at").eq("company_id",S.co.id)
-    .then(function(r){
-      var hrList=r.data||[];
-      var inviteSection=
-        '<div style="background:linear-gradient(135deg,#1d1d1f,#2d1a00);border-radius:18px;padding:24px;margin-bottom:22px;position:relative;overflow:hidden">'+
-        '<div style="position:absolute;top:-30px;right:-30px;width:130px;height:130px;background:radial-gradient(circle,rgba(255,107,0,.2) 0%,transparent 70%);pointer-events:none"></div>'+
-        '<div style="position:relative">'+
-        '<div style="font-weight:800;font-size:18px;color:#fff;margin-bottom:4px">🧑‍💼 HR Team Management</div>'+
-        '<p style="color:#888;font-size:13px;margin-bottom:18px">Invite HR members to manage applications. They cannot post or delete jobs.</p>'+
-        '<button class="btn fi sm" onclick="openHRInviteModal()" style="font-size:13px">+ Invite HR Member</button>'+
-        '</div></div>';
-
-      var teamList=hrList.length===0
-        ? '<div class="card" style="padding:32px;text-align:center"><div style="font-size:36px;margin-bottom:10px">👥</div><p style="color:var(--mu);font-size:14px;margin-bottom:16px">No HR members yet. Invite your first team member.</p><button class="btn fi sm" onclick="openHRInviteModal()">+ Invite HR Member</button></div>'
-        : '<div style="font-weight:700;font-size:15px;margin-bottom:12px;letter-spacing:-.02em">Active HR Members ('+hrList.length+')</div>'+
-          '<div style="display:flex;flex-direction:column;gap:10px">'+
-          hrList.map(function(hr){
-            var p=hr.permissions||{};
-            return '<div class="card" style="padding:16px 18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">'+
-              '<div style="width:40px;height:40px;border-radius:50%;background:var(--al);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;color:var(--ac);flex-shrink:0">'+
-              (hr.email||"H").charAt(0).toUpperCase()+'</div>'+
-              '<div style="flex:1;min-width:140px">'+
-              '<div style="font-weight:700;font-size:14px;color:#1d1d1f">'+(hr.name||hr.email)+'</div>'+
-              '<div style="font-size:11px;color:#aaa;margin-top:1px">'+hr.email+'</div>'+
-              '<div style="display:flex;gap:5px;margin-top:6px;flex-wrap:wrap">'+
-              '<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;background:'+(p.can_view_all_jobs?'#f0fdf4':'#fef2f2')+';color:'+(p.can_view_all_jobs?'#16a34a':'#dc2626')+'">'+( p.can_view_all_jobs?'All Jobs':'Assigned Jobs Only')+'</span>'+
-              '<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;background:'+(p.can_contact_candidates?'#eff6ff':'#f5f5f7')+';color:'+(p.can_contact_candidates?'#2563eb':'#888')+'">'+( p.can_contact_candidates?'Can Contact':'No Contact Access')+'</span>'+
-              '</div></div>'+
-              '<button onclick="revokeHRAccess(\''+hr.id+'\',\''+hr.email+'\')" style="background:#fef2f2;color:#dc2626;border:1.5px solid #fecaca;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer">Revoke</button>'+
-              '</div>';
-          }).join('')+'</div>';
-
-      el.innerHTML=inviteSection+teamList;
-    }).catch(function(){
-      el.innerHTML='<div class="card" style="padding:32px;text-align:center"><p style="color:var(--mu)">Could not load team. Try again.</p></div>';
-    });
-}
-
-function openHRInviteModal(){
-  document.getElementById("m-price-c").innerHTML=
-    '<button onclick="mClose(\'m-price\')" style="position:absolute;top:14px;right:14px;background:none;border:none;font-size:20px;cursor:pointer;color:#aaa;line-height:1">✕</button>'+
-    '<div style="text-align:center;margin-bottom:20px">'+
-    '<div style="font-size:40px;margin-bottom:8px">🧑‍💼</div>'+
-    '<div style="font-weight:800;font-size:20px;letter-spacing:-.04em;margin-bottom:4px">Invite HR Member</div>'+
-    '<p style="font-size:13px;color:var(--mu)">They\'ll receive an email invite link to join your team.</p>'+
-    '</div>'+
-    '<label class="lbl">Email Address *</label>'+
-    '<input id="hri-email" type="email" placeholder="hr@yourcompany.com" style="font-size:15px;margin-bottom:14px"/>'+
-    '<label class="lbl" style="margin-bottom:8px">Permissions</label>'+
-    '<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px">'+
-    '<label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px 14px;background:#f5f5f7;border-radius:10px">'+
-    '<input type="checkbox" id="hri-alljobs" checked style="width:16px;height:16px"/>'+
-    '<div><div style="font-weight:700;font-size:13px">View all jobs</div><div style="font-size:11px;color:#888">Can see all company job listings</div></div></label>'+
-    '<label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px 14px;background:#f5f5f7;border-radius:10px">'+
-    '<input type="checkbox" id="hri-contact" style="width:16px;height:16px"/>'+
-    '<div><div style="font-weight:700;font-size:13px">Contact candidates</div><div style="font-size:11px;color:#888">Can unlock candidate contact details</div></div></label>'+
-    '</div>'+
-    '<button class="btn fi fu" onclick="doInviteHR()" style="font-size:15px;padding:13px">📧 Send Invite →</button>'+
-    '<p style="font-size:11px;color:var(--fa);margin-top:10px;text-align:center">Invite link expires in 7 days · HR cannot post or delete jobs</p>';
-  document.getElementById("m-price").style.position="relative";
-  mOpen("m-price");
-}
-
-function doInviteHR(){
-  var email=(document.getElementById("hri-email")||{}).value||"";
-  if(!email||!email.includes("@")){nt("⚠️ Enter a valid email");return;}
-  var perms={
-    can_view_all_jobs:     (document.getElementById("hri-alljobs")||{}).checked!==false,
-    can_contact_candidates:(document.getElementById("hri-contact")||{}).checked===true,
-    assigned_job_ids:[]
-  };
-  if(!window.SB){nt("⚠️ Not connected");return;}
-  SB.auth.getSession().then(function(sr){
-    if(!sr.data||!sr.data.session){nt("⚠️ Please sign in");return;}
-    var btn=document.querySelector("#m-price-c .btn.fi");
-    if(btn){btn.disabled=true;btn.textContent="Sending...";}
-    fetch('/api/hr/invite',{method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer '+sr.data.session.access_token},
-      body:JSON.stringify({email:email,permissions:perms})})
-    .then(function(r){return r.json();}).then(function(d){
-      if(btn){btn.disabled=false;btn.textContent="📧 Send Invite →";}
-      if(d.ok){mClose("m-price");nt("📧 Invite sent to "+email);}
-      else{nt("⚠️ "+(d.error||"Failed to send invite"));}
-    }).catch(function(){
-      if(btn){btn.disabled=false;btn.textContent="📧 Send Invite →";}
-      nt("⚠️ Network error. Try again.");
-    });
-  });
-}
-
-function revokeHRAccess(hrId,hrEmail){
-  if(!confirm("Revoke access for "+hrEmail+"?"))return;
-  if(!window.SB){nt("⚠️ Not connected");return;}
-  SB.from("hr_users").delete().eq("id",hrId).then(function(r){
-    if(r.error){nt("⚠️ "+r.error.message);return;}
-    nt("✅ Access revoked for "+hrEmail);
-    renderCoTeam(document.getElementById("co-body"));
-  });
-}
-
-// ── VENUE BOOKING — Internal venue catalogue (not shown to user directly) ──
-var _VENUES = [
-  {name:"The Game Palacio",  icon:"🎮", loc:"Mumbai · Pune · Noida · Hyderabad",  why:"Luxury entertainment hub with multi-zone experiences — perfect for larger groups.",  tags:["bonding","premium","energy"]},
-  {name:"Formula Karting",   icon:"🏎️", loc:"Pune · Noida",                        why:"India's premier karting track — unbeatable for adrenaline-driven team moments.",   tags:["energy","unique","premium"]},
-  {name:"Snow World",        icon:"❄️", loc:"Mumbai · Pune · Ahmedabad",           why:"Real indoor snowfall year-round — a jaw-dropping setting no one will forget.",      tags:["unique","bonding","energy"]},
-  {name:"Amazonia",          icon:"🌿", loc:"Mumbai",                              why:"Rainforest-themed luxury dining with live performances — ideal for clients.",        tags:["client","premium","unique"]},
-  {name:"Luna Et Sol",       icon:"🌙", loc:"Mumbai",                              why:"Alpine-inspired luxury lounge — moonlit ambience that sets the perfect tone.",       tags:["client","premium"]},
-  {name:"Kamikaze",          icon:"🍸", loc:"Noida",                               why:"Ultra-premium cocktail bar — sophisticated, memorable, conversation-starting.",      tags:["client","premium","unique"]},
-  {name:"The Game Superpark",icon:"🏄", loc:"Pune",                                why:"4 flagship experiences in one venue — the most versatile all-day outing option.",   tags:["bonding","energy","unique"]},
-  {name:"The Game Garden",   icon:"🎪", loc:"Navi Mumbai",                         why:"Relaxed gaming and bites — great balance of fun and value for team outings.",       tags:["bonding","casual","budget"]},
-  {name:"The Game",          icon:"🎯", loc:"Mumbai",                              why:"Gyro rides, air walks & magic lanes — India's most cutting-edge indoor thrill.",    tags:["energy","unique","bonding"]},
-  {name:"Koa",               icon:"🌺", loc:"Juhu · Thane",                        why:"Bohemian café-bar with lush vibes — feels premium without the formality.",          tags:["casual","client","unique"]},
-  {name:"The Beer Garden",   icon:"🍺", loc:"Navi Mumbai",                         why:"Open-air craft brews and great food — effortless, social and easy on the budget.", tags:["casual","budget","bonding"]},
-  {name:"Verde",             icon:"🇮🇹", loc:"Noida · Hyderabad",                  why:"Refined Italian dining — a classically impressive setting for client meals.",       tags:["client","premium","casual"]},
-  {name:"Pokiddo",           icon:"🤸", loc:"Pune · Noida · Thane",               why:"High-energy trampoline park — great for competitive, active team events.",          tags:["energy","bonding","budget"]},
-  {name:"American Pie",      icon:"🍕", loc:"Mumbai · Pune · Noida (12 locations)",why:"Crowd-pleasing food in a lively setting — budget-friendly and widely available.",   tags:["casual","budget","bonding"]},
-  {name:"The Game Ranch",    icon:"🍖", loc:"Powai · Malad",                       why:"Western-themed gaming and global cuisine — relaxed but with real wow-factor.",      tags:["casual","unique","bonding"]},
-];
-
-// Goal → pref → [venue name, venue name, venue name]
-var _VREC = {
-  bonding: {
-    budget:  ["The Game Garden","Pokiddo","American Pie"],
-    premium: ["The Game Palacio","The Game Superpark","Amazonia"],
-    unique:  ["Snow World","The Game Superpark","The Game"],
-  },
-  client: {
-    budget:  ["Verde","The Game Ranch","Koa"],
-    premium: ["Luna Et Sol","Kamikaze","Amazonia"],
-    unique:  ["Amazonia","Snow World","Koa"],
-  },
-  energy: {
-    budget:  ["Pokiddo","The Game Garden","Formula Karting"],
-    premium: ["Formula Karting","The Game Palacio","The Game"],
-    unique:  ["Snow World","The Game","The Game Superpark"],
-  },
-  casual: {
-    budget:  ["The Beer Garden","American Pie","The Game Garden"],
-    premium: ["Koa","The Game Ranch","Luna Et Sol"],
-    unique:  ["Koa","The Game Ranch","Snow World"],
-  },
-};
-
 function renderCoVenue(el){
-  S.venueGoal = S.venueGoal || null;
-  S.venuePref = S.venuePref || null;
-  _venueStep(el);
-}
-
-function _venueStep(el){
-  if(!el) el = document.getElementById("co-body");
-  if(!el) return;
-  var step = !S.venueGoal ? 1 : !S.venuePref ? 2 : 3;
-
-  // ── HERO (always visible) ──
-  var hero =
-    '<div style="background:linear-gradient(135deg,#0f0f0f 0%,#1a0a00 100%);border-radius:20px;padding:28px 24px;margin-bottom:22px;position:relative;overflow:hidden">'+
-    '<div style="position:absolute;top:-40px;right:-40px;width:180px;height:180px;background:radial-gradient(circle,rgba(255,107,0,.22) 0%,transparent 70%);pointer-events:none"></div>'+
-    '<div style="position:relative">'+
-    '<div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,107,0,.15);border:1px solid rgba(255,107,0,.28);border-radius:999px;padding:4px 12px;font-size:11px;font-weight:700;color:#ff6b00;letter-spacing:.05em;margin-bottom:12px">🏢 CORPORATE VENUE BOOKING</div>'+
-    '<h2 style="font-size:24px;font-weight:900;color:#fff;margin-bottom:6px;letter-spacing:-.03em;line-height:1.25">Find the Perfect Venue<br><span style="color:#ff6b00">for Your Next Event.</span></h2>'+
-    '<p style="color:#888;font-size:12px;margin:0;line-height:1.6">18+ curated venues · Pan India · Confirmed in 2 hours · Free to request</p>'+
-    '</div>'+
-    // progress dots
-    '<div style="display:flex;align-items:center;gap:8px;margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,.06)">'+
-    [1,2,3].map(function(n){
-      var active=n===step,done=n<step;
-      var labels=["Goal","Preference","Venues"];
-      return '<div style="display:flex;align-items:center;gap:6px">'+
-        '<div style="width:24px;height:24px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;'+
-          (done?'background:#ff6b00;color:#fff':active?'background:rgba(255,107,0,.25);border:2px solid #ff6b00;color:#ff6b00':'background:rgba(255,255,255,.1);color:#555;border:2px solid rgba(255,255,255,.1)')+'">'+
-          (done?'✓':n)+
-        '</div>'+
-        '<span style="font-size:11px;font-weight:600;'+(active?'color:#ff6b00':done?'color:#ccc':'color:#555')+'">'+labels[n-1]+'</span>'+
-        (n<3?'<div style="width:24px;height:1px;background:rgba(255,255,255,.1)"></div>':'')+
-      '</div>';
-    }).join('')+
-    '</div>'+
-    '</div>';
-
-  // ── STEP 1: Goal ──
-  if(step===1){
-    var goals=[
-      {id:"bonding",  icon:"🤝", title:"Team Bonding & Fun",      sub:"Build rapport, boost morale, create shared memories"},
-      {id:"client",   icon:"🥂", title:"Impress a Client",         sub:"Make a lasting impression with premium experiences"},
-      {id:"energy",   icon:"⚡", title:"High-Energy Activity",     sub:"Get the team moving — competitive, active, thrilling"},
-      {id:"casual",   icon:"🌿", title:"Casual Social Gathering",  sub:"Relaxed, informal — good vibes, great conversations"},
-    ];
-    el.innerHTML = hero +
-      '<div style="margin-bottom:12px">'+
-      '<div style="font-weight:800;font-size:17px;letter-spacing:-.03em;margin-bottom:4px">What\'s the goal of your event?</div>'+
-      '<div style="font-size:13px;color:var(--mu)">Choose the outcome you\'re aiming for — we\'ll handle the rest.</div>'+
-      '</div>'+
-      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'+
-      goals.map(function(g){
-        return '<div onclick="S.venueGoal=\''+g.id+'\';_venueStep()" '+
-          'style="background:#fff;border:2px solid #f0f0f5;border-radius:18px;padding:22px 20px;cursor:pointer;transition:all .18s" '+
-          'onmouseover="this.style.borderColor=\'#ff6b00\';this.style.transform=\'translateY(-2px)\';this.style.boxShadow=\'0 8px 28px rgba(255,107,0,.1)\'" '+
-          'onmouseout="this.style.borderColor=\'#f0f0f5\';this.style.transform=\'\';this.style.boxShadow=\'\'">'+
-          '<div style="font-size:32px;margin-bottom:12px">'+g.icon+'</div>'+
-          '<div style="font-weight:800;font-size:15px;color:#1d1d1f;margin-bottom:5px;letter-spacing:-.02em">'+g.title+'</div>'+
-          '<div style="font-size:12px;color:#6e6e73;line-height:1.5">'+g.sub+'</div>'+
-          '</div>';
-      }).join('')+
-      '</div>';
-    return;
-  }
-
-  // ── STEP 2: Preference ──
-  var goalLabels={bonding:"Team Bonding & Fun",client:"Impress a Client",energy:"High-Energy Activity",casual:"Casual Social Gathering"};
-  var goalIcons ={bonding:"🤝",client:"🥂",energy:"⚡",casual:"🌿"};
-  if(step===2){
-    var prefs=[
-      {id:"budget",  icon:"💡", title:"Budget-Friendly",   sub:"Great experience, smart spend — value without compromise"},
-      {id:"premium", icon:"💎", title:"Premium Quality",   sub:"Top-tier venues, wow factor — worth every rupee"},
-      {id:"unique",  icon:"🎲", title:"Something Unique",  sub:"Unexpected, memorable — the kind of event people talk about"},
-    ];
-    el.innerHTML = hero +
-      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">'+
-      '<button onclick="S.venueGoal=null;_venueStep()" style="background:#f5f5f7;border:none;border-radius:999px;padding:6px 14px;font-size:12px;font-weight:700;color:#444;cursor:pointer">← Back</button>'+
-      '<div style="font-size:13px;color:var(--mu)">Goal: <strong>'+goalIcons[S.venueGoal]+' '+goalLabels[S.venueGoal]+'</strong></div>'+
-      '</div>'+
-      '<div style="margin-bottom:16px">'+
-      '<div style="font-weight:800;font-size:17px;letter-spacing:-.03em;margin-bottom:4px">What\'s your preference?</div>'+
-      '<div style="font-size:13px;color:var(--mu)">Pick the experience style that fits your team best.</div>'+
-      '</div>'+
-      '<div style="display:flex;flex-direction:column;gap:10px">'+
-      prefs.map(function(p){
-        return '<div onclick="S.venuePref=\''+p.id+'\';_venueStep()" '+
-          'style="background:#fff;border:2px solid #f0f0f5;border-radius:16px;padding:18px 20px;cursor:pointer;display:flex;align-items:center;gap:16px;transition:all .18s" '+
-          'onmouseover="this.style.borderColor=\'#ff6b00\';this.style.transform=\'translateX(4px)\';this.style.boxShadow=\'0 6px 20px rgba(255,107,0,.1)\'" '+
-          'onmouseout="this.style.borderColor=\'#f0f0f5\';this.style.transform=\'\';this.style.boxShadow=\'\'">'+
-          '<div style="font-size:28px;flex-shrink:0">'+p.icon+'</div>'+
-          '<div>'+
-          '<div style="font-weight:800;font-size:15px;color:#1d1d1f;margin-bottom:3px">'+p.title+'</div>'+
-          '<div style="font-size:12px;color:#6e6e73">'+p.sub+'</div>'+
-          '</div>'+
-          '<div style="margin-left:auto;font-size:16px;color:#ccc">→</div>'+
-          '</div>';
-      }).join('')+
-      '</div>';
-    return;
-  }
-
-  // ── STEP 3: Curated Results ──
-  var recNames = (_VREC[S.venueGoal]||{})[S.venuePref] || [];
-  var recs = recNames.map(function(n){
-    return _VENUES.filter(function(v){return v.name===n;})[0];
-  }).filter(Boolean);
-
-  var prefLabels={budget:"Budget-Friendly",premium:"Premium",unique:"Something Unique"};
-  var prefIcons ={budget:"💡",premium:"💎",unique:"🎲"};
-  var rankLabels=["🥇 Top Pick","🥈 Runner Up","🥉 Also Great"];
-  var rankColors=["#ff6b00","#6d28d9","#0891b2"];
-
-  el.innerHTML = hero +
-    '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap">'+
-    '<button onclick="S.venuePref=null;_venueStep()" style="background:#f5f5f7;border:none;border-radius:999px;padding:6px 14px;font-size:12px;font-weight:700;color:#444;cursor:pointer">← Back</button>'+
-    '<div style="font-size:12px;color:var(--mu)">'+goalIcons[S.venueGoal]+' '+goalLabels[S.venueGoal]+' &nbsp;·&nbsp; '+prefIcons[S.venuePref]+' '+prefLabels[S.venuePref]+'</div>'+
-    '</div>'+
-    '<div style="margin-bottom:16px">'+
-    '<div style="font-weight:800;font-size:17px;letter-spacing:-.03em;margin-bottom:4px">Your Curated Picks</div>'+
-    '<div style="font-size:13px;color:var(--mu)">Handpicked for your goal. Get a proposal in under 2 hours — free, no commitment.</div>'+
-    '</div>'+
-    '<div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px">'+
-    recs.map(function(v,i){
-      return '<div style="background:#fff;border:2px solid '+(i===0?'#ff6b00':'#f0f0f5')+';border-radius:18px;padding:20px;position:relative;overflow:hidden">'+
-        // rank badge
-        '<div style="position:absolute;top:16px;right:16px;background:'+rankColors[i]+'15;color:'+rankColors[i]+';border-radius:999px;padding:3px 10px;font-size:11px;font-weight:700">'+rankLabels[i]+'</div>'+
-        // icon + name
-        '<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">'+
-        '<div style="width:48px;height:48px;border-radius:14px;background:#f5f5f7;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">'+v.icon+'</div>'+
-        '<div>'+
-        '<div style="font-weight:800;font-size:16px;color:#1d1d1f;letter-spacing:-.02em">'+v.name+'</div>'+
-        '<div style="font-size:11px;color:#aaa;margin-top:2px">📍 '+v.loc+'</div>'+
-        '</div>'+
-        '</div>'+
-        // why recommended
-        '<div style="background:#f9f9fb;border-radius:10px;padding:10px 14px;margin-bottom:14px">'+
-        '<div style="font-size:10px;font-weight:700;color:#aaa;letter-spacing:.05em;margin-bottom:3px">WHY WE RECOMMEND</div>'+
-        '<div style="font-size:13px;color:#444;line-height:1.5">'+v.why+'</div>'+
-        '</div>'+
-        // CTA
-        '<button onclick="openVenueForm(\'corporate\',\''+v.name+'\')" '+
-        'style="width:100%;background:'+(i===0?'#ff6b00':'#1d1d1f')+';color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;transition:opacity .15s;letter-spacing:-.01em" '+
-        'onmouseover="this.style.opacity=\'.88\'" onmouseout="this.style.opacity=\'1\'">'+
-        '📅 Get Proposal in 2 Hours →'+
-        '</button>'+
+  var cats=[
+    {id:"offsite",icon:"🏕️",name:"Corporate Offsite & Retreat",desc:"Full-day team offsites, leadership retreats, company-wide summits. End-to-end planning support included."},
+    {id:"annual-day",icon:"🏆",name:"Annual Day & Awards Night",desc:"Celebrate milestones with a memorable awards night. Custom trophies, stage setup, AV team — fully managed."},
+    {id:"conference",icon:"🎤",name:"Conference & Product Launch",desc:"Industry conferences, keynotes, panel discussions, and high-energy product reveals. Full AV and staging."},
+    {id:"client-dinner",icon:"🍽️",name:"Client & Stakeholder Events",desc:"Curated premium business dinners, investor meets, and corporate hospitality experiences."},
+    {id:"team-sports",icon:"🎳",name:"Team Bonding & Sports Day",desc:"Bowling, go-karting, cricket, paintball, laser tag & more. The ultimate team bonding experience."},
+  ];
+  el.innerHTML=
+    '<div style="background:linear-gradient(135deg,#0f0f0f 0%,#1a0a00 100%);color:#fff;border-radius:20px;padding:40px 24px;margin-bottom:24px">'+
+    '<h2 style="font-size:28px;font-weight:900;color:#fff;margin-bottom:12px">Every company moment,<br><span style="color:#ff6b00">made unforgettable.</span></h2>'+
+    '<p style="color:#aaa;font-size:14px;margin-bottom:16px">From hiring drives to board retreats — we book the perfect venue for every company occasion. Confirm in minutes, our team handles the rest.</p>'+
+    '<div style="background:#ff6b00;color:#fff;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;display:inline-block;margin-bottom:24px">⚡ Instant Booking · Any Group Size · Venues Across India</div>'+
+    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px">'+
+    cats.map(function(c){
+      return '<div style="background:#1e1e1e;border:1px solid #333;border-radius:16px;padding:20px;cursor:pointer;transition:all .2s" onclick="openVenueForm(\''+c.id+'\',\''+c.name+'\')" onmouseover="this.style.background=\'#2a2a2a\';this.style.borderColor=\'#ff6b00\'" onmouseout="this.style.background=\'#1e1e1e\';this.style.borderColor=\'#333\'">'+
+        '<div style="font-size:38px;margin-bottom:10px">'+c.icon+'</div>'+
+        '<div style="font-weight:800;font-size:15px;color:#fff;margin-bottom:6px">'+c.name+'</div>'+
+        '<p style="font-size:12px;color:#aaa;line-height:1.6;margin-bottom:14px">'+c.desc+'</p>'+
+        '<button style="background:#ff6b00;color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;width:100%">Request Booking →</button>'+
         '</div>';
     }).join('')+
-    '</div>'+
-    // restart
-    '<div style="text-align:center;padding-top:8px;border-top:1px solid #f0f0f5">'+
-    '<button onclick="S.venueGoal=null;S.venuePref=null;_venueStep()" style="background:none;border:none;font-size:13px;color:#aaa;cursor:pointer;font-weight:600">↺ Start over with different preferences</button>'+
-    '</div>';
+    '</div></div>'+
+    // Reference brands
+    '<div class="card" style="padding:18px 20px;background:var(--bg)">'+
+    '<div style="font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--mu);text-transform:uppercase;margin-bottom:12px">🌟 OUR PARTNER VENUES</div>'+
+    '<div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center">'+
+    [
+      {name:"Formula Karting",loc:"Noida · Pune",icon:"🏎️"},
+      {name:"The Game Palacio",loc:"Noida · Mumbai · Pune",icon:"🎮"},
+      {name:"Game Ranch",loc:"Mumbai",icon:"🍖"},
+      {name:"Smaaash",loc:"Multiple cities",icon:"🎳"},
+      {name:"E-Zone",loc:"Mall venues",icon:"🕹️"},
+    ].map(function(v){
+      return '<div style="display:flex;align-items:center;gap:8px;padding:8px 14px;background:#fff;border-radius:999px;border:1px solid var(--ln)">'+
+        '<span style="font-size:16px">'+v.icon+'</span>'+
+        '<div><div style="font-size:12px;font-weight:700">'+v.name+'</div><div style="font-size:10px;color:var(--mu)">'+v.loc+'</div></div>'+
+        '</div>';
+    }).join('')+
+    '</div></div>';
 }
 
 function openVenueForm(categoryId, categoryName){
   document.getElementById("m-price-c").innerHTML=
     '<div style="text-align:center;margin-bottom:20px">'+
-    '<div style="font-size:40px;margin-bottom:8px">🏢</div>'+
-    '<div style="font-weight:800;font-size:20px;letter-spacing:-.04em;margin-bottom:4px">'+categoryName+'</div>'+
-    '<p style="font-size:13px;color:var(--mu)">Share your details — our team will send a tailored proposal within 2 hours.</p>'+
+    '<div style="font-size:40px;margin-bottom:8px">'+
+      ({offsite:"🏕️","annual-day":"🏆","product-launch":"🚀","hiring-fair":"🎯",training:"📚",conference:"🎤","client-dinner":"🍽️",networking:"🤝","team-sports":"🎳","board-meet":"🏛️"}[categoryId]||"🎯")+
+    '</div>'+
+    '<div style="font-weight:800;font-size:20px;letter-spacing:-.04em;margin-bottom:4px">Book '+categoryName+'</div>'+
+    '<p style="font-size:13px;color:var(--mu)">Fill in your details. Our team will confirm within 2 hours.</p>'+
     '</div>'+
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">'+
     '<div><label class="lbl">Your Name *</label><input id="vf-name" placeholder="Rahul Verma" style="font-size:16px"/></div>'+
@@ -2117,7 +1694,7 @@ function openVenueForm(categoryId, categoryName){
     '<div style="margin-bottom:18px"><label class="lbl">Any Special Requests</label>'+
     '<textarea id="vf-notes" rows="2" placeholder="Dietary requirements, special setup, private room…" style="font-size:15px"></textarea></div>'+
     '<button class="btn fi fu" onclick="submitVenueForm(\''+categoryName+'\')" style="font-size:16px;padding:14px">'+
-    '📅 Get Proposal in 2 Hours →'+
+    '📅 Send Booking Request →'+
     '</button>'+
     '<p style="font-size:11px;color:var(--fa);margin-top:10px;text-align:center">Free to request · No advance payment · Cancel anytime</p>';
   mOpen("m-price");
@@ -2161,9 +1738,9 @@ function submitVenueForm(categoryName){
     document.getElementById("m-price-c").innerHTML=
       '<div style="text-align:center;padding:28px 16px">'+
       '<div style="font-size:56px;margin-bottom:14px">🎉</div>'+
-      '<div style="font-weight:800;font-size:22px;letter-spacing:-.04em;margin-bottom:8px">Proposal Request Sent! 🎯</div>'+
-      '<p style="font-size:14px;color:var(--mu);line-height:1.8;margin-bottom:6px">Hi <strong>'+name+'</strong>! We\'ve received your request for <strong>'+categoryName+'</strong>.</p>'+
-      '<p style="font-size:13px;color:var(--mu);margin-bottom:20px">Our venue team will call <strong>'+phone+'</strong> within <strong>2 hours</strong> with a tailored proposal.</p>'+
+      '<div style="font-weight:800;font-size:22px;letter-spacing:-.04em;margin-bottom:8px">Booking Request Sent!</div>'+
+      '<p style="font-size:14px;color:var(--mu);line-height:1.8;margin-bottom:6px">Hi <strong>'+name+'</strong>! Your request for <strong>'+categoryName+'</strong> on <strong>'+date+'</strong> has been sent.</p>'+
+      '<p style="font-size:13px;color:var(--mu);margin-bottom:20px">Our team will call you at <strong>'+phone+'</strong> to confirm within 2 hours.</p>'+
       '<div style="background:var(--gl);border-radius:12px;padding:14px 16px;text-align:left;margin-bottom:20px;font-size:13px;line-height:2">'+
       '📋 <strong>'+categoryName+'</strong><br/>'+
       '📅 '+date+' · 👥 '+guests+' guests<br/>'+
@@ -2187,18 +1764,11 @@ var DEFAULT_JOBS=[
 function loadCdJobs(){
   var lk=dbList("job:").filter(function(k){return k.indexOf("seo")<0;});
   var live=lk.map(function(k){return dbGet(k);}).filter(function(j){return j&&j.status==="active";});
-  // Start with local + default jobs immediately (no waiting)
+  // Start with local + default jobs
   S.jobs = live.length>0 ? live.concat(DEFAULT_JOBS) : DEFAULT_JOBS.slice();
-  // Load cached external jobs instantly if available (< 30 min old)
-  try {
-    var ncsCache = localStorage.getItem("_ncs_cache");
-    if(ncsCache){ var nc=JSON.parse(ncsCache); if(nc.ts&&Date.now()-nc.ts<1800000&&nc.jobs){ S.jobs=S.jobs.concat(nc.jobs); } }
-    var jblCache = localStorage.getItem("_jbl_cache");
-    if(jblCache){ var jc=JSON.parse(jblCache); if(jc.ts&&Date.now()-jc.ts<1800000&&jc.jobs){ S.jobs=S.jobs.concat(jc.jobs); } }
-  } catch(e){}
-  // Fetch fresh external data in background after 3s delay — never block UI
-  setTimeout(function(){ fetchNCSJobs(); }, 3000);
-  setTimeout(function(){ fetchJoobleJobs(); }, 5000);
+  // Fetch from NCS India (free govt API) + Jooble in background
+  fetchNCSJobs();
+  fetchJoobleJobs();
 }
 
 // ── NCS India Free API ─────────────────────────────────────────
@@ -2229,15 +1799,14 @@ function fetchNCSJobs() {
         };
       }).filter(function(j){ return j.title && j.title !== "Job Opening" || j.company !== "Government / PSU"; });
       if(ncsJobs.length > 0) {
-        // Cache for 30 min
-        try{ localStorage.setItem("_ncs_cache", JSON.stringify({ts:Date.now(),jobs:ncsJobs})); }catch(e){}
         // Remove old NCS jobs, add new
         S.jobs = S.jobs.filter(function(j){ return j.source !== "NCS India"; }).concat(ncsJobs);
+        nt("📡 "+ncsJobs.length+" live NCS India jobs loaded");
         // Re-render if on jobs tab
         if(S.cdStep===3) renderJList();
       }
     })
-    .catch(function(){ /* NCS unavailable — use cache */ });
+    .catch(function(){ /* NCS unavailable — use defaults */ });
 }
 
 // ── Jooble API (Global Jobs) ───────────────────────────────────
@@ -2284,8 +1853,6 @@ function fetchJoobleJobs() {
       };
     });
     if(jJobs.length>0){
-      // Cache for 30 min
-      try{ localStorage.setItem("_jbl_cache", JSON.stringify({ts:Date.now(),jobs:jJobs})); }catch(e){}
       S.jobs = S.jobs.filter(function(j){ return j.source!=="Jooble"; }).concat(jJobs);
       if(S.cdStep===3) renderJList();
     }
@@ -2307,74 +1874,6 @@ function goCandidate(){
   if(window.SB&&S._uid){SB.auth.updateUser({data:{role:'candidate'}}).catch(function(){});}
   S.cp=dbGet("cd:profile");S.ca=dbGet("cd:apps")||[];S.cdStep=S.cp?3:0;loadCdJobs();renderCd();showPg("pg-cd");
 }
-
-// ── HR PANEL ────────────────────────────────────────────────────
-function goHR(){
-  if(!S._hrUser){showPg("pg-role");return;}
-  var companyId=S._hrUser.company_id;
-  // Fetch company info for display
-  if(window.SB&&companyId){
-    SB.from("companies").select("id,company_name,plan,sector,city").eq("id",companyId).maybeSingle()
-      .then(function(r){
-        if(r.data){
-          S.co={id:r.data.id,name:r.data.company_name,plan:r.data.plan,sector:r.data.sector,city:r.data.city,_hrReadOnly:true};
-        }
-        _applyHRTabRestrictions();
-        coTab("dash");
-        showBotNav("company");
-        showPg("pg-co");
-      }).catch(function(){
-        _applyHRTabRestrictions();
-        coTab("dash");
-        showPg("pg-co");
-      });
-  } else {
-    _applyHRTabRestrictions();
-    coTab("dash");
-    showPg("pg-co");
-  }
-}
-
-function _applyHRTabRestrictions(){
-  // Hide tabs HR cannot use
-  var hiddenTabs=["post","venue","brand","seo","cvs"];
-  hiddenTabs.forEach(function(t){
-    var btn=document.getElementById("ct-"+t);
-    if(btn)btn.style.display="none";
-  });
-  // Hide the "Team" tab too (only Company Admin manages HR)
-  var teamBtn=document.getElementById("ct-team");
-  if(teamBtn)teamBtn.style.display="none";
-  // Add HR badge to nav
-  var coLogo=document.querySelector("#pg-co .nav-logo span");
-  var badge=document.createElement("span");
-  badge.style.cssText="background:#e0f2fe;color:#0284c7;font-size:10px;font-weight:800;padding:2px 8px;border-radius:999px;margin-left:8px;vertical-align:middle";
-  badge.textContent="HR Panel";
-  if(coLogo&&!document.getElementById("hr-badge")){badge.id="hr-badge";coLogo.parentNode.appendChild(badge);}
-}
-
-function _loadHRApplications(cb){
-  if(!S._hrUser){if(cb)cb();return;}
-  var perms=S._hrUser.permissions||{};
-  var companyId=S._hrUser.company_id;
-  if(!window.SB){if(cb)cb();return;}
-  var q=SB.from("applications").select("id,job_id,job_title,company,candidate_name,fit_score,status,applied_at,skills");
-  if(!perms.can_view_all_jobs&&perms.assigned_job_ids&&perms.assigned_job_ids.length){
-    q=q.in("job_id",perms.assigned_job_ids);
-  }
-  // Always scope to this company's jobs
-  q.order("applied_at",{ascending:false}).limit(100)
-    .then(function(r){
-      if(r.data){
-        S.allApps=(r.data).map(function(a){
-          return {id:a.id,jobId:a.job_id,jobTitle:a.job_title,company:a.company,
-                  candidateName:a.candidate_name,fitScore:a.fit_score,
-                  status:a.status,appliedAt:a.applied_at,skills:a.skills||[]};
-        });
-      }
-      if(cb)cb();
-    }).catch(function(){if(cb)cb();});
-}
 function cdGo(n){S.cdStep=n;renderCd();}
 function renderCd(){
   renderStepBar();
@@ -2387,12 +1886,10 @@ function renderCd(){
   else if(S.cdStep===5&&typeof renderCdInterview==="function")renderCdInterview(el);
   else if(S.cdStep===6)renderProfilePage(el);
   else if(S.cdStep===7)renderCvBuilder(el);
-  else if(S.cdStep===8)renderATSScanner(el);
-  var jb=document.getElementById("cd-btn-j"),tb=document.getElementById("cd-btn-t"),ib=document.getElementById("cd-btn-iv"),ab=document.getElementById("cd-btn-ats");
+  var jb=document.getElementById("cd-btn-j"),tb=document.getElementById("cd-btn-t"),ib=document.getElementById("cd-btn-iv");
   if(jb)jb.style.display=S.cdStep>=2?"inline-flex":"none";
   if(tb)tb.style.display=S.cdStep>=2?"inline-flex":"none";
   if(ib)ib.style.display=S.cdStep>=2?"inline-flex":"none";
-  if(ab)ab.style.display=S.cdStep>=2?"inline-flex":"none";
 }
 function renderStepBar(){
   var el=document.getElementById("cd-bar");if(!el)return;
@@ -2789,129 +2286,6 @@ function renderCvBuilder(el){
   '</div>';
 }
 
-// ── ATS SCANNER ──────────────────────────────────────────────────
-function renderATSScanner(el){
-  var scansLeft=S.atsScans||0;
-  var lastResult=JSON.parse(localStorage.getItem("hh_ats_last")||"null");
-  el.innerHTML=
-  '<div style="margin-bottom:20px">'+
-    '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:6px">'+
-      '<h2 style="font-weight:900;font-size:22px;letter-spacing:-.04em">🤖 ATS Resume Scanner</h2>'+
-      '<div style="background:'+(scansLeft>0?"#34c75918":"#ff375f18")+';border:1px solid '+(scansLeft>0?"#34c75940":"#ff375f40")+';border-radius:999px;padding:5px 14px;font-size:12px;font-weight:700;color:'+(scansLeft>0?"#34c759":"#ff375f")+'">'+(scansLeft>0?scansLeft+' scan'+(scansLeft>1?"s":"")+" left":"No scans left — Buy pack")+'</div>'+
-    '</div>'+
-    '<p style="color:var(--mu);font-size:13px;line-height:1.6">Beat the bots. 75% of resumes are rejected by ATS before a human sees them. Get your keyword score + SEO tips to rank #1 in recruiter search.</p>'+
-  '</div>'+
-
-  // How it works
-  '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:20px">'+
-    [['📋','Paste Resume','Your resume text'],['🎯','Paste Job Description','Target role JD'],['🤖','Get Score','0–100 ATS score'],['📈','SEO Keywords','Rank in Google']].map(function(s){
-      return '<div style="background:#fff;border-radius:12px;padding:14px;text-align:center;border:1.5px solid #f0f0f5"><div style="font-size:22px;margin-bottom:6px">'+s[0]+'</div><div style="font-size:12px;font-weight:700;color:#1d1d1f">'+s[1]+'</div><div style="font-size:11px;color:var(--mu);margin-top:2px">'+s[2]+'</div></div>';
-    }).join('')+
-  '</div>'+
-
-  // Input form
-  '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">'+
-    '<div><label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--mu);display:block;margin-bottom:6px">Your Resume</label>'+
-    '<textarea id="ats-resume" placeholder="Paste your full resume text here…\n\nTip: Include all skills, projects, certifications." style="width:100%;height:160px;border-radius:12px;border:1.5px solid #e5e5ea;padding:12px;font-size:12px;resize:vertical;font-family:inherit;outline:none"></textarea></div>'+
-    '<div><label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--mu);display:block;margin-bottom:6px">Job Description</label>'+
-    '<textarea id="ats-jd" placeholder="Paste the job description you\'re targeting…\n\nTip: Copy the full JD from the job posting." style="width:100%;height:160px;border-radius:12px;border:1.5px solid #e5e5ea;padding:12px;font-size:12px;resize:vertical;font-family:inherit;outline:none"></textarea></div>'+
-  '</div>'+
-
-  (scansLeft>0
-    ?'<button class="btn fi fu" style="border:none;font-size:14px;font-weight:700;padding:14px" onclick="runATSScan()">🔍 Scan My Resume ('+scansLeft+' scans left)</button>'
-    :'<div style="display:flex;gap:10px;flex-wrap:wrap">'+
-      '<button class="btn gh fu" style="flex:1;font-size:13px" disabled>No scans left</button>'+
-      '<button class="btn fi" style="border:none;font-size:13px;flex:1" onclick="openPricing(\'cd\')">Buy 20 Scans — ₹9 →</button>'+
-    '</div>')+
-
-  // Last result
-  (lastResult
-    ?'<div id="ats-result" style="margin-top:20px">'+renderATSResult(lastResult)+'</div>'
-    :'<div id="ats-result"></div>');
-}
-
-function runATSScan(){
-  var resume=((document.getElementById("ats-resume")||{}).value||"").trim();
-  var jd=((document.getElementById("ats-jd")||{}).value||"").trim();
-  if(!resume||resume.length<50){nt("⚠️ Please paste your resume text (min 50 chars)");return;}
-  if(!jd||jd.length<30){nt("⚠️ Please paste the job description");return;}
-  if(S.atsScans<1){openPricing("cd");return;}
-
-  // Deduct scan
-  S.atsScans--;localStorage.setItem("hh_ats_scans",String(S.atsScans));
-  nt("🔍 Scanning resume…");
-
-  // Keyword extraction (client-side NLP)
-  var jdWords=jd.toLowerCase().replace(/[^a-z0-9\s\+\#\.]/g," ").split(/\s+/).filter(function(w){return w.length>3;});
-  var freq={};jdWords.forEach(function(w){freq[w]=(freq[w]||0)+1;});
-  // top keywords from JD
-  var topKw=Object.keys(freq).sort(function(a,b){return freq[b]-freq[a];}).slice(0,30);
-  // stop words to filter
-  var stop=["that","this","with","from","have","will","your","they","their","about","which","into","been","more","also","such","than","when","what","then","some","only","other","would","there","these","those","should","could","would","must","very","well","need","make","each","both","after","before","while","under","even","same","many","most","over","where","just","like","used","can","are","for","the","and","not","you","all","any","its","our","has","was","but","had","may","him","his","her","who","use","way","may","get","set","new","how","job","role","work","team","help","good","best","able","data"];
-  var kwList=topKw.filter(function(w){return stop.indexOf(w)<0&&!/^\d+$/.test(w)&&w.length>3;}).slice(0,20);
-
-  var resumeLow=resume.toLowerCase();
-  var matched=[],missing=[];
-  kwList.forEach(function(kw){
-    if(resumeLow.includes(kw))matched.push(kw);
-    else missing.push(kw);
-  });
-
-  var score=Math.round((matched.length/Math.max(kwList.length,1))*100);
-  // bonus for length/structure
-  if(resume.length>800) score=Math.min(score+5,100);
-  if(resume.includes("experience")||resume.includes("skills")) score=Math.min(score+5,100);
-  score=Math.max(score,12); // min floor
-
-  var result={score:score,matched:matched,missing:missing,kwList:kwList,ts:new Date().toISOString()};
-  localStorage.setItem("hh_ats_last",JSON.stringify(result));
-  var resEl=document.getElementById("ats-result");
-  if(resEl)resEl.innerHTML=renderATSResult(result);
-  // Re-render scan button with new count
-  renderATSScanner(document.getElementById("cd-body"));
-}
-
-function renderATSResult(r){
-  var scoreColor=r.score>=80?"#34c759":r.score>=60?"#ff9500":"#ff375f";
-  var scoreLabel=r.score>=80?"Strong Match 💪":r.score>=60?"Good — Improve Keywords":"Weak Match — Needs Work";
-  var seoTips=r.missing.slice(0,8);
-
-  return '<div style="background:#fff;border-radius:16px;padding:20px;border:1.5px solid #f0f0f5">'+
-    '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--mu);margin-bottom:12px">📊 ATS SCAN RESULT</div>'+
-    // Score circle
-    '<div style="display:flex;align-items:center;gap:20px;margin-bottom:20px;flex-wrap:wrap">'+
-      '<div style="width:80px;height:80px;border-radius:50%;border:6px solid '+scoreColor+';display:flex;align-items:center;justify-content:center;flex-direction:column;flex-shrink:0">'+
-        '<div style="font-size:22px;font-weight:900;color:'+scoreColor+';line-height:1">'+r.score+'</div>'+
-        '<div style="font-size:9px;color:var(--mu);font-weight:700">/ 100</div>'+
-      '</div>'+
-      '<div>'+
-        '<div style="font-size:18px;font-weight:900;color:#1d1d1f;margin-bottom:4px">'+scoreLabel+'</div>'+
-        '<div style="font-size:13px;color:var(--mu);line-height:1.5">'+(r.score>=80?"Your resume is well-optimized for this role. Apply with confidence!":r.score>=60?"Add the missing keywords below to significantly improve your chances.":"Rewrite your resume using the missing keywords to pass ATS filters.")+'</div>'+
-      '</div>'+
-    '</div>'+
-    // Keywords matched
-    (r.matched.length?'<div style="margin-bottom:14px"><div style="font-size:11px;font-weight:700;color:#34c759;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">✅ Keywords Found ('+r.matched.length+')</div>'+
-      '<div style="display:flex;flex-wrap:wrap;gap:6px">'+
-        r.matched.map(function(k){return '<span style="background:#34c75918;color:#34c759;border:1px solid #34c75940;font-size:12px;font-weight:600;padding:4px 10px;border-radius:6px">'+k+'</span>';}).join('')+
-      '</div></div>':'')+
-    // Missing keywords → SEO Add
-    (r.missing.length?'<div style="margin-bottom:14px"><div style="font-size:11px;font-weight:700;color:#ff375f;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">❌ Missing Keywords — Add These to Your Resume ('+r.missing.length+')</div>'+
-      '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">'+
-        r.missing.slice(0,10).map(function(k){return '<span style="background:#ff375f18;color:#ff375f;border:1px solid #ff375f40;font-size:12px;font-weight:600;padding:4px 10px;border-radius:6px">'+k+'</span>';}).join('')+
-      '</div>'+
-      '<div style="background:linear-gradient(135deg,#fff8f3,#fff);border-radius:10px;padding:12px 14px;border:1.5px solid #ffe5cc">'+
-        '<div style="font-size:12px;font-weight:700;color:#ff6b00;margin-bottom:6px">💡 SEO Tip — How to Add These</div>'+
-        '<div style="font-size:12px;color:#6e6e73;line-height:1.7">Add a "<b>Core Skills</b>" section and include: <b>'+seoTips.join(', ')+'</b>. Use the exact words from the JD — ATS matches exact strings.</div>'+
-      '</div>'+
-    '</div>':'')+
-    // CTA
-    '<div style="display:flex;gap:8px;flex-wrap:wrap">'+
-      '<button class="btn fi" style="border:none;font-size:13px" onclick="cdGo(7)">✏️ Rebuild CV with These Keywords →</button>'+
-      (S.atsScans>0?'<button class="btn gh sm" onclick="runATSScan()">Rescan after edits</button>':'<button class="btn gh sm" onclick="openPricing(\'cd\')">Buy More Scans ₹9</button>')+
-    '</div>'+
-  '</div>';
-}
-
 function downloadCv(){
   var freeUsed=localStorage.getItem("cv_free_used")==="1";
   var plan=(S.cp&&S.cp._plan)||"free";
@@ -2931,70 +2305,14 @@ function downloadCv(){
   nt("✅ CV opened — use browser Print → Save as PDF");
 }
 
-function downloadCandCV(encodedName){
-  var name = decodeURIComponent(encodedName||"candidate");
-  // Candidate CV download for company — opens print dialog
-  var cands = dbList("cd:profile").map(function(k){return dbGet(k);}).filter(Boolean);
-  var cand = cands.find(function(c){return (c.name||"")=== name;});
-  if(!cand){nt("⚠️ CV not available for this candidate");return;}
-  var w = window.open('','_blank');
-  w.document.write('<html><head><title>CV — '+name+'</title><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,sans-serif;padding:32px;color:#1d1d1f}</style></head><body>'+
-    '<h1 style="font-size:24px;font-weight:800;margin-bottom:4px">'+name+'</h1>'+
-    '<p style="color:#666;margin-bottom:16px">'+(cand.current_role||'')+(cand.current_company?' · '+cand.current_company:'')+'</p>'+
-    '<p>📍 '+(cand.location||'')+'  |  💰 '+(cand.salary_expectation||'')+'  |  ⏱ '+(cand.notice_period||'')+'</p>'+
-    '<hr style="margin:16px 0"/>'+
-    '<p><strong>Experience:</strong> '+(cand.experience_years||'')+'</p>'+
-    '<p><strong>Skills:</strong> '+((cand.skills||[]).join(', '))+'</p>'+
-    (cand.bio?'<p style="margin-top:12px">'+cand.bio+'</p>':'')+
-    '</body></html>');
-  w.document.close(); w.focus();
-  setTimeout(function(){w.print();w.close();},400);
-  nt("📄 CV opened — Save as PDF");
-}
-
 function renderCdJobs(el){
-  // Profile completeness banner
-  var _profileBanner="";
-  if(!S.cp||!S.cp.name||!(S.cp.skills&&S.cp.skills.length)||!S.cp.experience_years){
-    _profileBanner='<div style="background:#fff7ed;border:1.5px solid #fed7aa;border-radius:14px;padding:14px 18px;margin-bottom:14px;display:flex;align-items:center;gap:12px">'+
-      '<span style="font-size:24px;flex-shrink:0">👤</span>'+
-      '<div style="flex:1"><div style="font-weight:700;font-size:14px;color:#92400e;margin-bottom:2px">Complete your profile to apply</div>'+
-      '<div style="font-size:12px;color:#b45309">Add your name, skills and experience — takes 2 minutes.</div></div>'+
-      '<button class="btn fi sm" onclick="cdGo(1)" style="flex-shrink:0;font-size:12px">Build Profile →</button></div>';
-  } else if(!S.cp.bio){
-    _profileBanner='<div style="background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:14px;padding:14px 18px;margin-bottom:14px;display:flex;align-items:center;gap:12px">'+
-      '<span style="font-size:24px;flex-shrink:0">📄</span>'+
-      '<div style="flex:1"><div style="font-weight:700;font-size:14px;color:#1d4ed8;margin-bottom:2px">Add a profile summary to unlock applying</div>'+
-      '<div style="font-size:12px;color:#2563eb">A short bio helps recruiters find you and is required before applying.</div></div>'+
-      '<button class="btn fi sm" onclick="cdGo(1)" style="flex-shrink:0;font-size:12px">Add Summary →</button></div>';
-  }
-  el.innerHTML=_profileBanner+'<div style="display:flex;gap:9px;margin-bottom:10px;flex-wrap:wrap;align-items:center">'+
+  el.innerHTML='<div style="display:flex;gap:9px;margin-bottom:13px;flex-wrap:wrap;align-items:center">'+
     '<div style="flex:1;min-width:165px;position:relative"><span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none;font-size:15px">🔍</span><input id="js" placeholder="Search jobs, companies, skills…" style="padding-left:40px" oninput="rJL()"/></div>'+
     '<select id="jcy" style="width:auto;min-width:115px" onchange="rJL()"><option value="">All Cities</option>'+["Mumbai","Delhi","Bangalore","Hyderabad","Chennai","Pune","Kolkata","New York","London","Toronto","Sydney","Berlin","Singapore","Dubai"].map(function(c){return '<option>'+c+'</option>';}).join("")+'</select>'+
-    '<select id="jsc" style="width:auto;min-width:135px" onchange="rJL()"><option value="">All Sectors</option>'+["IT & Software","Banking & Finance","Healthcare","Manufacturing","Retail & FMCG","Hospitality & Tourism","Education"].map(function(s){return '<option>'+s+'</option>';}).join("")+'</select>'+
-    '</div>'+
-    // Job type filter chips
-    '<div style="display:flex;gap:7px;margin-bottom:13px;flex-wrap:wrap" id="jtype-chips">'+
-    ['All','Full-time','Remote','Hybrid','Contract','Internship','Gig / Freelance'].map(function(t,i){
-      return '<button onclick="setJTypeFilter(\''+t+'\')" id="jtc-'+i+'" style="padding:5px 13px;border-radius:999px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid '+(t==='All'?'var(--ac)':'var(--ln)')+';background:'+(t==='All'?'var(--ac)':'#fff')+';color:'+(t==='All'?'#fff':'var(--mu)')+';transition:all .15s">'+(t==='Gig / Freelance'?'💼 Gig':'')+(t==='Remote'?'🏠 ':t==='Internship'?'🎓 ':'')+t+'</button>';
-    }).join('')+
-    '</div>'+
+    '<select id="jsc" style="width:auto;min-width:135px" onchange="rJL()"><option value="">All Sectors</option>'+["IT & Software","Banking & Finance","Healthcare","Manufacturing","Retail & FMCG","Hospitality & Tourism","Education"].map(function(s){return '<option>'+s+'</option>';}).join("")+'</select></div>'+
     '<div id="jlist"></div>';
-  window._jTypeFilter='All';
   rJL();
 }
-function setJTypeFilter(type){
-  window._jTypeFilter=type;
-  document.querySelectorAll("[id^=jtc-]").forEach(function(b,i){
-    var types=['All','Full-time','Remote','Hybrid','Contract','Internship','Gig / Freelance'];
-    var isActive=types[i]===type;
-    b.style.background=isActive?'var(--ac)':'#fff';
-    b.style.color=isActive?'#fff':'var(--mu)';
-    b.style.borderColor=isActive?'var(--ac)':'var(--ln)';
-  });
-  rJL();
-}
-function renderJList(){ var el=document.getElementById("cd-body"); if(el) renderCdJobs(el); }
 function rJL(){
   var q=((document.getElementById("js")||{}).value||"").toLowerCase();
   var cy=((document.getElementById("jcy")||{}).value||"");
@@ -3002,20 +2320,18 @@ function rJL(){
   var jcurr=((document.getElementById("jcurr")||{}).value||"");
   var jvisa=((document.getElementById("jvisa")||{}).value||"");
   var viewCurr = jcurr || "INR";
-  var jtf=window._jTypeFilter||'All';
   var list=S.jobs.filter(function(j){
     return(!q||j.title.toLowerCase().indexOf(q)>=0||j.company.toLowerCase().indexOf(q)>=0||(j.skills&&j.skills.some(function(s){return s.toLowerCase().indexOf(q)>=0;})))&&
     (!cy||j.loc.indexOf(cy)>=0)&&
     (!sc||j.sec===sc)&&
     (!jcurr||!j.curr||j.curr===jcurr)&&
-    (!jvisa||j.visa===true)&&
-    (jtf==='All'||(j.type||'Full-time')===jtf);
+    (!jvisa||j.visa===true);
   }).sort(function(a,b){return b.fit-a.fit;});
   var el=document.getElementById("jlist");if(!el)return;
   el.innerHTML=
     '<div style="display:flex;gap:10px;margin-bottom:13px;flex-wrap:wrap;align-items:center"><span style="font-weight:700;font-size:14px">'+list.length+' Jobs Found</span>'+
     '<span class="pill" style="background:var(--bg);color:var(--mu)">Sorted by AI Fit</span>'+
-    (S.jobs.some(function(j){return j.source==="Hire Hub";})?'<span class="pill" style="background:var(--gl);color:var(--gr)">✅ Live HireHub360 jobs included</span>':"")+
+    (S.jobs.some(function(j){return j.source==="Hire Hub";})?'<span class="pill" style="background:var(--gl);color:var(--gr)">✅ Live Hire Hub jobs included</span>':"")+
     '</div>'+
     list.map(function(job){
       var ap=null;for(var i=0;i<S.ca.length;i++){if(S.ca[i].jobId===job.id){ap=S.ca[i];break;}}
@@ -3031,7 +2347,7 @@ function rJL(){
             var dispSal = job.sal;
             return '<span class="pill" style="background:var(--gl2);color:var(--go)">'+c.flag+' 💰 '+dispSal+'</span>';
           }()))+
-        (job.type==='Gig / Freelance'?'<span class="pill" style="background:#f3e8ff;color:#7c3aed;font-weight:700">💼 Gig</span>':'<span class="pill" style="background:var(--bl2);color:var(--bl)">'+job.type+'</span>')+
+        '<span class="pill" style="background:var(--bl2);color:var(--bl)">'+job.type+'</span>'+
         '<span class="pill" style="background:var(--bg);color:var(--mu)">⏱ '+job.exp+'</span>'+
         (job.remote&&job.remote!=="Any"?'<span class="pill" style="background:var(--pl);color:var(--pu)">🏠 '+job.remote+'</span>':"")+
         (job.visa?'<span class="pill" style="background:#e8f4fd;color:#0071e3">🛂 Visa Sponsorship</span>':"")+
@@ -3051,62 +2367,12 @@ function rJL(){
 }
 function doApply(jobId){
   var job=null;for(var i=0;i<S.jobs.length;i++){if(S.jobs[i].id===jobId){job=S.jobs[i];break;}}
-  if(!job)return;
-  if(!S.cp){nt("⚠️ Complete your profile before applying.");cdGo(1);return;}
-  // Profile completeness gate
-  if(!S.cp.name||!(S.cp.skills&&S.cp.skills.length)||!S.cp.experience_years){
-    nt("⚠️ Please complete your profile (name, skills, experience) first.");cdGo(1);return;
-  }
-  if(!S.cp.bio){nt("⚠️ Add a profile summary or CV before applying.");cdGo(1);return;}
-
-  if(!window.SB){
-    // Offline fallback (no Supabase)
-    var app0={id:"APP"+Date.now(),jobId:job.id,jobTitle:job.title,company:job.company,loc:job.loc,sal:job.shide?"Salary on joining":job.sal,candidateName:S.cp.name||"Candidate",role:S.cp.current_role,skills:S.cp.skills||[],fitScore:job.fit,status:"applied",appliedAt:new Date().toISOString()};
-    dbSet("app:"+app0.id,app0);S.ca.push(app0);dbSet("cd:apps",S.ca);
-    nt("🎉 Applied!");cdGo(4);return;
-  }
-
-  SB.auth.getSession().then(function(sr){
-    if(!sr.data||!sr.data.session){nt("⚠️ Please sign in first.");showPg("pg-login");return;}
-    var token=sr.data.session.access_token;
-    var app={id:"APP"+Date.now(),jobId:job.id,jobTitle:job.title,company:job.company,loc:job.loc,
-             sal:job.shide?"Salary on joining":job.sal,candidateName:S.cp.name||"Candidate",
-             role:S.cp.current_role,skills:S.cp.skills||[],fitScore:job.fit,status:"applied",appliedAt:new Date().toISOString()};
-
-    // Step 1: pre-check (guardrails)
-    fetch('/api/apply/check',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
-      body:JSON.stringify({job_id:job.id,company_id:job.companyId||null})})
-    .then(function(r){return r.json();}).then(function(chk){
-      if(!chk.allowed){
-        var msgs={
-          account_banned:    "⛔ Your account has been suspended. Contact support.",
-          profile_incomplete:"⚠️ Please complete your profile (name, skills, experience) first.",
-          no_cv:             "⚠️ Please add a profile summary or CV before applying.",
-          daily_limit:       "⏰ Daily apply limit reached ("+(chk.daily_used||10)+"/"+( chk.daily_limit||10)+" today). Upgrade for unlimited.",
-          applied_recently:  "⚠️ You already applied to this company in the last 30 days."
-        };
-        nt(msgs[chk.reason]||"⚠️ Cannot apply: "+chk.reason);
-        if(chk.reason==="daily_limit")setTimeout(function(){openPricing("cd");},800);
-        if(chk.reason==="profile_incomplete"||chk.reason==="no_cv")cdGo(1);
-        return;
-      }
-      // Step 2: submit
-      fetch('/api/apply/submit',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
-        body:JSON.stringify({job_id:job.id,app:app})})
-      .then(function(r){return r.json();}).then(function(sub){
-        if(!sub.ok){nt("⚠️ "+(sub.error||"Apply failed. Try again."));return;}
-        dbSet("app:"+app.id,app);S.ca.push(app);dbSet("cd:apps",S.ca);
-        gsLog("application",{id:app.id,jobId:app.jobId,jobTitle:app.jobTitle,company:app.company,candidateName:app.candidateName,fitScore:app.fitScore,status:"applied",appliedAt:app.appliedAt});
-        var left=Math.max(0,(chk.daily_limit||10)-(chk.daily_used||0)-1);
-        nt("🎉 Applied! "+(left>0?left+" applies left today.":"Daily limit reached — upgrade for more."));
-        cdGo(4);
-      }).catch(function(){nt("⚠️ Network error. Try again.");});
-    }).catch(function(){
-      // Fallback to local-only apply if API unreachable
-      dbSet("app:"+app.id,app);S.ca.push(app);dbSet("cd:apps",S.ca);
-      nt("🎉 Applied!");cdGo(4);
-    });
-  });
+  if(!job)return;if(!S.cp){cdGo(1);return;}
+  var app={id:"APP"+Date.now(),jobId:job.id,jobTitle:job.title,company:job.company,loc:job.loc,sal:job.shide?"Salary on joining":job.sal,candidateName:S.cp.name||"Candidate",role:S.cp.current_role,skills:S.cp.skills||[],fitScore:job.fit,status:"applied",appliedAt:new Date().toISOString()};
+  dbSet("app:"+app.id,app);S.ca.push(app);dbSet("cd:apps",S.ca);
+  gsLog("application",{id:app.id,jobId:app.jobId,jobTitle:app.jobTitle,company:app.company,loc:app.loc,sal:app.sal,candidateName:app.candidateName,role:app.role,skills:app.skills,fitScore:app.fitScore,status:app.status,appliedAt:app.appliedAt});
+  var uj={};for(var k in job)uj[k]=job[k];uj.applicants=(job.applicants||0)+1;dbSet("job:"+job.id,uj);
+  nt("🎉 Applied! Tracking your application.");cdGo(4);
 }
 function renderCdTrack(el){
   var FLOW=["applied","viewed","shortlisted","hired"],LBLS={applied:"Applied",viewed:"Viewed",shortlisted:"Shortlisted",hired:"Hired"};
@@ -3125,7 +2391,7 @@ function renderCdTrack(el){
         '</div>';}).join("")+
         '</div>'+
         (app.status==="rejected"?'<span class="pill" style="background:var(--rl);color:var(--rd)">Not selected — keep going!</span>':"")+
-        (app.status==="hired"?'<div class="fw"><button class="btn gf sm" onclick="openShare(\'🎉\',\'I Got The Job! 🥳\',\''+app.jobTitle+' at '+app.company+' · via Hire Hub\')">🎊 Share Win</button><button class="btn sm pu" onclick="openShareCardModal(\''+app.company+'\',\''+app.jobTitle+'\',\'\',\'\')">🎨 Make Card</button><button class="btn ti sm" onclick="nt(\'🏢 Opening venue booking!\')">🎉 Celebrate</button></div>':"")+
+        (app.status==="hired"?'<div class="fw"><button class="btn gf sm" onclick="openShare(\'🎉\',\'I Got The Job! 🥳\',\''+app.jobTitle+' at '+app.company+' · via Hire Hub\')">🎊 Share Win</button><button class="btn sm pu" onclick="openShareCardModal(\''+app.company+'\',\''+app.jobTitle+'\',\'\',\'\')">🎨 Make Card</button><button class="btn ti sm" onclick="nt(\'🎳 Opening venue booking!\')">🎳 Celebrate</button></div>':"")+
         (app.status==="shortlisted"?'<div class="fw"><button class="btn sm ol-go" onclick="openShare(\'⭐\',\'I Got Shortlisted!\',\''+app.jobTitle+' at '+app.company+' · '+app.fitScore+'% AI fit\')">📤 Share</button><button class="btn sm pu" onclick="openShareCardModal(\''+app.company+'\',\''+app.jobTitle+'\',\'\',\'\')">🎨 Make Card</button></div>':"")+
         '</div>'+
         '<div class="fb" style="background:'+fb2+';width:46px;height:46px"><span style="font-weight:800;font-size:16px;color:'+fc2+';line-height:1">'+(app.fitScore||80)+'</span><span style="font-size:8px;font-weight:700;color:'+fc2+';letter-spacing:.05em;text-transform:uppercase">fit</span></div>'+
@@ -3402,7 +2668,7 @@ function escapeHtml(str) {
 }
 
 function generateSitemap(jobs) {
-  var base = "https://hirehub360.in";
+  var base = "https://app.supraman.in";
   var xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
   xml += '<url><loc>'+base+'</loc><changefreq>daily</changefreq><priority>1.0</priority></url>\n';
   SEO_LANDING_PAGES.forEach(function(pg){
@@ -3431,7 +2697,7 @@ function generateSchemaBlock(jobs) {
     "hiringOrganization":{"@type":"Organization","name":job.company},
     "jobLocation":{"@type":"Place","address":{"@type":"PostalAddress","addressLocality":job.loc,"addressCountry":"IN"}},
     "directApply":true,
-    "url":"https://hirehub360.in/jobs/"+slug
+    "url":"https://app.supraman.in/jobs/"+slug
   }, null, 2);
 }
 
@@ -3457,13 +2723,13 @@ function generateAllLandingPages() {
 
 function copyLandingPageHTML(slug, role, city, country) {
   var c = CURRENCIES[detectCurrency(city+" "+country)]||CURRENCIES.INR;
-  var html = '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8"/>\n<title>'+role+' in '+city+' | HireHub360</title>\n'+
-    '<meta name="description" content="Find the best '+role+' in '+city+', '+country+'. AI-matched. Verified employers. Apply in 1 tap on HireHub360."/>\n'+
-    '<link rel="canonical" href="https://hirehub360.in/jobs/'+slug+'"/>\n'+
-    '<script type="application/ld+json">{"@context":"https://schema.org","@type":"ItemList","name":"'+role+' in '+city+'","url":"https://hirehub360.in/jobs/'+slug+'"}</scr'+'ipt>\n'+
+  var html = '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8"/>\n<title>'+role+' in '+city+' | Hire Hub</title>\n'+
+    '<meta name="description" content="Find the best '+role+' in '+city+', '+country+'. AI-matched. Verified employers. Apply in 1 tap on Hire Hub."/>\n'+
+    '<link rel="canonical" href="https://app.supraman.in/jobs/'+slug+'"/>\n'+
+    '<script type="application/ld+json">{"@context":"https://schema.org","@type":"ItemList","name":"'+role+' in '+city+'","url":"https://app.supraman.in/jobs/'+slug+'"}</scr'+'ipt>\n'+
     '</head>\n<body>\n<h1>'+role+' in '+city+', '+country+'</h1>\n'+
     '<p>Browse verified '+role+' in '+city+'. AI matches you to the best fit. Apply in 1 tap.</p>\n'+
-    '<a href="https://hirehub360.in">View All Jobs on Hire Hub</a>\n</body>\n</html>';
+    '<a href="https://app.supraman.in">View All Jobs on Hire Hub</a>\n</body>\n</html>';
   if(navigator.clipboard) navigator.clipboard.writeText(html).then(function(){ nt("📋 Landing page HTML copied for /jobs/"+slug); });
 }
 
@@ -3674,13 +2940,13 @@ function renderCoBrand(el) {
     '<div>'+
     '<label class="lbl">Your Branded Career Page Link</label>'+
     '<div style="display:flex;gap:8px">'+
-    '<input id="career-link-input" value="hirehub360.in/careers/'+mkSlug(br.name||"your-company")+'" readonly style="background:var(--bg);font-size:13px;color:var(--mu)"/>'+
+    '<input value="app.supraman.in/careers/'+mkSlug(br.name||"your-company")+'" readonly style="background:var(--bg);font-size:13px;color:var(--mu)"/>'+
     '<button class="btn fi sm" onclick="copyCareerLink()">Copy</button>'+
     '</div></div>'+
     '<div>'+
     '<label class="lbl">WhatsApp Share Text</label>'+
     '<div style="display:flex;gap:8px">'+
-    '<input id="wa-share-txt" value="We are hiring at '+(br.name||"our company")+'! View open positions — save this link and apply: hirehub360.in/careers/'+mkSlug(br.name||"your-company")+'" readonly style="background:var(--bg);font-size:12px;color:var(--mu)"/>'+
+    '<input id="wa-share-txt" value="We are hiring at '+(br.name||"our company")+'! View all open positions: app.supraman.in/careers/'+mkSlug(br.name||"your-company")+'" readonly style="background:var(--bg);font-size:12px;color:var(--mu)"/>'+
     '<button class="btn gf sm" onclick="copyWAText()">📱 Copy</button>'+
     '</div></div></div>'+
     '<button class="btn sm" style="background:transparent;border:1.5px solid var(--bl);color:var(--bl)" onclick="copyEmbedCode()">🔗 Copy Website Embed Code</button>'+
@@ -3717,7 +2983,7 @@ function renderBrandHeaderHTML(br) {
     (S.myJobs&&S.myJobs.length>0?
       S.myJobs.slice(0,2).map(function(j){return '<div style="background:#fff;border-radius:12px;padding:14px 16px;margin-bottom:10px;border:1px solid var(--ln);display:flex;justify-content:space-between;align-items:center;gap:10px"><div><div style="font-weight:700;font-size:14px;margin-bottom:2px">'+j.title+'</div><div style="font-size:12px;color:var(--mu)">'+j.loc+' · '+(j.shide?"Competitive":j.sal)+'</div></div><div style="background:'+c+';color:#fff;padding:6px 16px;border-radius:999px;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0">'+(br.cta||"Apply")+'</div></div>';}).join(""):
       '<div style="text-align:center;padding:18px;color:var(--mu);font-size:13px">Post jobs to see them here</div>')+
-    '<div style="text-align:center;padding-top:10px;font-size:11px;color:var(--fa)">Powered by HireHub360</div>'+
+    '<div style="text-align:center;padding-top:10px;font-size:11px;color:var(--fa)">Powered by Hire Hub</div>'+
     '</div>';
 }
 
@@ -3795,20 +3061,9 @@ function saveBrand() {
   var br = getBrandFromForm();
   if(!br.name) { nt("⚠️ Enter brand / company name"); return; }
   dbSet("co:brand", br);
-  var slug = mkSlug(br.name);
-  var link = _careerLink(br);
-  nt("✅ Brand saved! Career page: hirehub360.in/careers/"+slug);
+  nt("✅ Brand settings saved!");
+  // Refresh the page to reflect saved state
   coTab("brand");
-}
-function _careerLink(br){
-  var br2 = br || getBrand();
-  var slug = mkSlug(br2.name || "your-company");
-  var params = "?n="+encodeURIComponent(br2.name||"")
-    +"&c="+encodeURIComponent(br2.color||"#ff6b00")
-    +"&t="+encodeURIComponent(br2.tagline||"")
-    +"&cta="+encodeURIComponent(br2.cta||"Apply Now")
-    +(br2.logo?"&logo="+encodeURIComponent(br2.logo):"");
-  return "https://hirehub360.in/careers/"+slug+params;
 }
 
 function previewCareerPage() {
@@ -3831,22 +3086,15 @@ function previewCareerPage() {
           '</div></div>';
       }).join(""):
       '<div style="text-align:center;padding:40px;color:var(--mu);font-size:14px">No active jobs. Post a job to see it on your career page.</div>')+
-    '<div style="text-align:center;padding:14px 0 0;font-size:11px;color:var(--fa)">Powered by HireHub360</div>'+
+    '<div style="text-align:center;padding:14px 0 0;font-size:11px;color:var(--fa)">Powered by Hire Hub</div>'+
     '</div>';
   mOpen("m-brand-preview");
 }
 
-function copyCareerLink() {
-  var link = _careerLink(getBrand());
-  if(navigator.clipboard) {
-    navigator.clipboard.writeText(link).then(function(){ nt("✅ Career page link copied!"); });
-  } else { nt("Career link: "+link); }
-}
-
 function copyEmbedCode() {
   var br = getBrandFromForm();
-  var link = _careerLink(br);
-  var code = '<iframe src="'+link+'" width="100%" height="600" frameborder="0" style="border-radius:16px;border:none" title="'+br.name+' Careers"></iframe>';
+  var slug = mkSlug(br.name||"your-company");
+  var code = '<iframe src="https://app.supraman.in/embed/'+slug+'" width="100%" height="600" frameborder="0" style="border-radius:16px;border:none" title="'+br.name+' Careers"></iframe>';
   if(navigator.clipboard) {
     navigator.clipboard.writeText(code).then(function(){ nt("🔗 Embed code copied! Paste it on your website."); });
   } else { nt("🔗 Embed code ready!"); }
@@ -3878,14 +3126,9 @@ function pickRole(r){
 }
 function doGoogleLogin(){
   if(!window.SB){nt('⚠️ Supabase not configured yet');return;}
-  // redirectTo always points to hirehub360.in so after OAuth user lands on production
-  // implicit flow: token comes in #hash, top-page redirect preserves it cross-domain
   SB.auth.signInWithOAuth({
     provider:'google',
-    options:{
-      redirectTo:'https://hirehub360.in/hirehub.html',
-      queryParams:{access_type:'offline',prompt:'consent'}
-    }
+    options:{redirectTo: window.location.origin+'/hirehub.html'}
   }).then(function(r){if(r.error)nt('⚠️ '+r.error.message);});
 }
 function showSignup(){
@@ -4136,35 +3379,8 @@ function giveFeedback(appId,name){
 
 // ─── CANDIDATE INTERVIEW ──────────────────────────────────────
 function renderCdInterview(el){
-  var tier=_expertTier(S.assessmentScore);
-  var hasTier=!!tier;
   el.innerHTML='<div style="margin-bottom:18px"><h2 style="font-weight:800;font-size:22px">🎯 Your Interview Centre</h2></div>'+
-    // Expert Tier Status Card
-    (hasTier
-      ?'<div class="card" style="padding:20px;margin-bottom:14px;background:linear-gradient(135deg,#1d1d1f,#2c1a00);border:none;position:relative;overflow:hidden">'+
-        '<div style="position:absolute;top:-20px;right:-20px;width:100px;height:100px;background:radial-gradient(circle,rgba(255,107,0,.3),transparent 70%)"></div>'+
-        '<div style="font-size:11px;font-weight:700;letter-spacing:.1em;color:#ff6b00;text-transform:uppercase;margin-bottom:6px">YOUR EXPERT TIER</div>'+
-        '<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">'+
-          '<div style="background:'+tier.bg+';color:'+tier.color+';font-size:18px;font-weight:900;padding:10px 20px;border-radius:12px">'+tier.label+'</div>'+
-          '<div>'+
-            '<div style="color:#fff;font-weight:700;font-size:15px">'+S.assessmentScore+'% Score · '+S.assessmentSector+'</div>'+
-            '<div style="color:#888;font-size:12px;margin-top:3px">🤖 Pre-Screened badge visible to all recruiters</div>'+
-          '</div>'+
-        '</div>'+
-        '<div style="margin-top:12px;font-size:12px;color:#aaa">Retake to improve your tier. Gold (90%+) · Silver (75%+) · Bronze (60%+)</div>'+
-      '</div>'
-      :'<div class="card" style="padding:20px;margin-bottom:14px;background:linear-gradient(135deg,#f5f5f7,#e8f4fd);border:1.5px solid #c5d9f7">'+
-        '<div style="font-size:11px;font-weight:700;letter-spacing:.1em;color:#1a73e8;text-transform:uppercase;margin-bottom:6px">🤖 AI ASSESSMENT</div>'+
-        '<div style="font-weight:800;font-size:16px;color:#1d1d1f;margin-bottom:4px">Get Pre-Screened — Stand Out to Recruiters</div>'+
-        '<p style="font-size:13px;color:#6e6e73;margin-bottom:12px">Take a 8-question domain test. Earn Gold / Silver / Bronze badge. Recruiters see "Pre-Screened ✓" on your profile — boosting your interview calls by 3×.</p>'+
-        '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:4px">'+
-          '<div style="text-align:center;background:#fff;border-radius:10px;padding:10px 16px;border:1px solid #e5e5ea"><div style="font-size:20px">🥇</div><div style="font-size:11px;font-weight:700;color:#5a3e00">Gold</div><div style="font-size:10px;color:#aaa">90%+</div></div>'+
-          '<div style="text-align:center;background:#fff;border-radius:10px;padding:10px 16px;border:1px solid #e5e5ea"><div style="font-size:20px">🥈</div><div style="font-size:11px;font-weight:700;color:#2c2c2c">Silver</div><div style="font-size:10px;color:#aaa">75%+</div></div>'+
-          '<div style="text-align:center;background:#fff;border-radius:10px;padding:10px 16px;border:1px solid #e5e5ea"><div style="font-size:20px">🥉</div><div style="font-size:11px;font-weight:700;color:#a0522d">Bronze</div><div style="font-size:10px;color:#aaa">60%+</div></div>'+
-        '</div>'+
-      '</div>')+
-    // Practice Tests
-    '<div class="card" style="padding:18px;margin-bottom:12px"><div style="font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--mu);text-transform:uppercase;margin-bottom:10px">📝 '+(hasTier?'RETAKE — IMPROVE YOUR TIER':'TAKE ASSESSMENT — EARN YOUR BADGE')+'</div><p style="font-size:13px;color:var(--mu);margin-bottom:12px">Pick your domain. 8 questions. Instant result.</p><div id="test-sector-btns" class="fw"></div></div>';
+    '<div class="card" style="padding:18px;margin-bottom:12px"><div style="font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--mu);text-transform:uppercase;margin-bottom:10px">📝 PRACTICE TEST</div><p style="font-size:13px;color:var(--mu);margin-bottom:12px">Build your Hire Hub Score™. Pick a sector to begin.</p><div id="test-sector-btns" class="fw"></div></div>';
   // Sector test buttons via DOM
   var sbEl=document.getElementById("test-sector-btns");
   if(sbEl){Object.keys(Q_BANK).forEach(function(sec){var btn=document.createElement("button");btn.className="btn sm gh";btn.textContent=sec;btn.onclick=function(){startSelfTest(sec);};sbEl.appendChild(btn);});}
@@ -4187,22 +3403,8 @@ function renderTestQuestion(){
 function finishTest(){
   var correct=0;currentTest.questions.forEach(function(q,i){if(currentTest.answers[i]===q.ans)correct++;});
   var score=Math.round((correct/currentTest.questions.length)*100),elapsed=Math.round((Date.now()-currentTest.startTime)/1000);
-  // Save best score
-  if(score>S.assessmentScore){
-    S.assessmentScore=score;S.assessmentSector=currentTest.sector;
-    localStorage.setItem("hh_assess_score",String(score));
-    localStorage.setItem("hh_assess_sector",currentTest.sector);
-    if(S.cp){S.cp.assessmentScore=score;S.cp.assessmentSector=currentTest.sector;dbSet("cd:profile",S.cp);}
-  }
-  var tier=_expertTier(score);
   var el=document.getElementById("cd-body"),col=score>=70?"var(--gr)":score>=50?"var(--go)":"var(--rd)";
-  el.innerHTML='<div class="card" style="padding:28px;text-align:center;margin-bottom:12px">'+
-    (tier?'<div style="display:inline-block;background:'+tier.bg+';color:'+tier.color+';font-size:13px;font-weight:800;padding:6px 18px;border-radius:999px;margin-bottom:12px">'+tier.label+' Achieved!</div><br>':'') +
-    '<div style="font-size:52px;font-weight:800;color:'+col+';line-height:1;margin-bottom:8px">'+score+'%</div>'+
-    '<div style="font-size:16px;font-weight:700;margin-bottom:6px">'+(score>=90?"🏆 Expert Level!":score>=75?"🎉 Excellent!":score>=60?"👍 Good — keep practising.":score>=50?"📈 Getting there!":"📚 Keep practicing!")+'</div>'+
-    (tier?'<div style="font-size:13px;color:#34c759;font-weight:600;margin-bottom:8px">🤖 Pre-Screened badge added to your profile — recruiters can see this!</div>':'')+
-    '<div style="font-size:13px;color:var(--mu);margin-bottom:14px">'+correct+'/'+currentTest.questions.length+' correct · '+elapsed+'s · '+currentTest.sector+'</div>'+
-    '<div id="test-result-btns" class="fw" style="justify-content:center"></div></div>'+
+  el.innerHTML='<div class="card" style="padding:28px;text-align:center;margin-bottom:12px"><div style="font-size:52px;font-weight:800;color:'+col+';line-height:1;margin-bottom:8px">'+score+'%</div><div style="font-size:16px;font-weight:700;margin-bottom:6px">'+(score>=70?"🎉 Excellent!":score>=50?"👍 Good. Try again to improve.":"📚 Keep practicing!")+'</div><div style="font-size:13px;color:var(--mu);margin-bottom:14px">'+correct+'/'+currentTest.questions.length+' correct · '+elapsed+'s</div><div id="test-result-btns" class="fw" style="justify-content:center"></div></div>'+
     '<div class="card" style="padding:16px">'+currentTest.questions.map(function(q,i){var ua=currentTest.answers[i],ok=ua===q.ans;return '<div style="padding:10px 0;border-bottom:1px solid var(--ln)"><div style="font-size:13px;font-weight:600;margin-bottom:4px">'+(i+1)+'. '+q.q+'</div><div style="font-size:12px;color:'+(ok?"var(--gr)":"var(--rd)")+'">'+(ok?"✅":"❌")+' '+q.opts[ua]+'</div>'+(!ok?'<div style="font-size:12px;color:var(--gr)">✅ '+q.opts[q.ans]+'</div>':'')+'</div>';}).join("")+'</div>';
   var rb=document.getElementById("test-result-btns");
   if(rb){[["← Back",function(){renderCdInterview(document.getElementById("cd-body"));}],["Retry",function(){startSelfTest(currentTest.sector);}]].forEach(function(b){var btn=document.createElement("button");btn.className="btn sm";btn.textContent=b[0];btn.style.cssText=b[0]==="← Back"?"background:var(--fi);color:#fff;border:none":"background:transparent;border:1.5px solid var(--ln);color:var(--mu)";btn.onclick=b[1];rb.appendChild(btn);});}
@@ -4211,47 +3413,11 @@ function finishTest(){
 
 
 (function(){
-  // ── HR invite token detection ─────────────────────────────────
-  (function(){
-    var params=new URLSearchParams(window.location.search);
-    var tok=params.get('hr_token');
-    if(tok){
-      window._pendingHRToken=tok;
-      // Clean URL without reload
-      history.replaceState({},document.title,window.location.pathname);
-    }
-  })();
-
   loadIVData();
 
   function _afterHydrate(){
     S.co=dbGet("co:profile");S.cp=dbGet("cd:profile");S.ca=dbGet("cd:apps")||[];
-
-    // ── Handle pending HR invite token (from ?hr_token= in URL) ──
-    if(window._pendingHRToken && S._uid){
-      var tok=window._pendingHRToken;
-      window._pendingHRToken=null;
-      SB.auth.getSession().then(function(sr){
-        var jwt=(sr.data&&sr.data.session)?sr.data.session.access_token:'';
-        fetch('/api/hr/invite',{method:'PATCH',headers:{'Content-Type':'application/json','Authorization':'Bearer '+jwt},body:JSON.stringify({token:tok,user_id:S._uid})})
-          .then(function(r){return r.json();}).then(function(d){
-            if(d.ok){
-              nt('🎉 Welcome to the HR team!');
-              S._hrUser={company_id:d.company_id,permissions:d.permissions||{}};
-              S._role='hr';
-              goHR();
-            } else {
-              nt('⚠️ '+( d.error||'Invite link invalid'));
-              showPg("pg-role");
-            }
-          }).catch(function(){nt('⚠️ Could not accept invite');showPg("pg-role");});
-      });
-      return;
-    }
-
-    // ── Normal routing ────────────────────────────────────────────
     if(S.co){S._role='company';goCompany();showBotNav("company");}
-    else if(S._hrUser){S._role='hr';goHR();}             // HR panel
     else if(S.cp){S._role='candidate';goCandidate();showBotNav("candidate");}
     else if(S._role==='company'){goCompany();showBotNav("company");}
     else if(S._role==='candidate'){goCandidate();showBotNav("candidate");}
@@ -4261,15 +3427,12 @@ function finishTest(){
   if(window.SB){
     // Show login immediately — never leave user on a blank screen
     showPg("pg-login");
-    var _hydrated=false; // prevent re-hydration on TOKEN_REFRESHED / duplicate events
+    // Listen for login, logout, and OAuth redirect
     SB.auth.onAuthStateChange(function(event,session){
-      // Only act on real sign-in / sign-out events — ignore TOKEN_REFRESHED, USER_UPDATED etc.
-      if(event==='TOKEN_REFRESHED'||event==='USER_UPDATED'||event==='MFA_CHALLENGE_VERIFIED')return;
       if(session&&session.user){
-        if(_hydrated)return; // already inside app — don't re-render
-        _hydrated=true;
         _role=session.user.user_metadata&&session.user.user_metadata.role||_role;
         S._role=_role;
+        // Show loading overlay while hydrating
         var ov=document.getElementById('hydrate-overlay');
         if(ov)ov.style.display='flex';
         _hydrate(session.user,function(){
@@ -4280,7 +3443,6 @@ function finishTest(){
           _afterHydrate();
         });
       } else {
-        _hydrated=false;
         showPg("pg-login");
       }
     });
@@ -4441,7 +3603,7 @@ function finishTest(){
   <div class="bn-item" id="bn-me" onclick="bnTab('me')"><span class="bn-icon">👤</span><span class="bn-label">Profile</span></div>
 </div>
 <div id="pg-chat" class="pg" style="flex-direction:column;height:100vh;max-height:100vh">
-  <nav class="nav"><div class="logo" style="font-size:20px">Hire<span>Hub</span><span style="color:#ff6b00;font-size:.65em;font-weight:900;vertical-align:super;margin-left:1px">360</span></div><div style="font-size:13px;color:var(--mu);font-weight:600">💬 AI Career Chat</div></nav>
+  <nav class="nav"><div class="logo" style="font-size:20px">Hire <span>Hub</span></div><div style="font-size:13px;color:var(--mu);font-weight:600">💬 AI Career Chat</div></nav>
   <div id="chat-body" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;padding-bottom:80px"></div>
   <div style="position:fixed;bottom:64px;left:0;right:0;background:#fff;border-top:1px solid var(--ln);padding:10px 14px;display:flex;gap:8px;align-items:center">
     <input id="chat-inp" placeholder="Ask anything — salary, interview tips, jobs…" style="flex:1;border-radius:999px;padding:11px 18px;font-size:15px" onkeydown="if(event.key==='Enter')sendChatMsg()"/>
@@ -4474,7 +3636,7 @@ function sendChatMsg(prefill){
   addChatMsg("user",text);var ty=showTyping();
   var ctx="";if(S.cp)ctx="User: "+S.cp.name+", "+S.cp.current_role+", "+S.cp.experience_years+"yrs, skills: "+(S.cp.skills||[]).join(",");if(S.co)ctx="HR at "+S.co.name+", "+S.co.sector;
   var hist=CHAT_HISTORY.slice(-6).map(function(m){return m.role+": "+m.text;}).join("\n");
-  var prompt="You are an AI career assistant on HireHub360. "+ctx+"\nConversation:\n"+hist+"\nUser: "+text+"\nReply in 2-4 sentences. Use **bold** for key points.";
+  var prompt="You are an AI career assistant on Hire Hub. "+ctx+"\nConversation:\n"+hist+"\nUser: "+text+"\nReply in 2-4 sentences. Use **bold** for key points.";
   callAI(prompt,250,function(reply,err){
     if(ty)ty.remove();
     var r=(reply&&!err)?reply:text.toLowerCase().indexOf("salary")>=0?"For your role in India, typical range is **₹8-25 LPA** depending on experience. Always negotiate — most offers have 10-15% room.":"Check the Jobs tab to see what roles match your profile right now!";
@@ -4486,4 +3648,4 @@ var _oGCd=goCandidate;goCandidate=function(){_oGCd();showBotNav("candidate");};
 </script>
 
 </body>
-</html><!-- force redeploy Sun Apr 12 19:44:05 IST 2026 -->
+</html>
