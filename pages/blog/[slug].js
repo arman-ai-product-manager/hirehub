@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { marked } from 'marked'
 const { supabaseService } = require('../../lib/supabase')
 
-export default function BlogPost({ post }) {
+export default function BlogPost({ post, related }) {
   if (!post) return (
     <div style={{padding:'80px 24px',textAlign:'center',fontFamily:'sans-serif'}}>
       <div style={{fontSize:48,marginBottom:16}}>📄</div>
@@ -67,15 +67,40 @@ export default function BlogPost({ post }) {
             style={{width:'100%',maxHeight:400,objectFit:'cover',borderRadius:12,marginBottom:36}} />
         )}
 
-        <div style={{fontSize:17,lineHeight:1.8,color:'#333'}}
+        <div className="blog-content" style={{fontSize:17,lineHeight:1.8,color:'#333'}}
           dangerouslySetInnerHTML={{ __html: html }} />
 
+        {/* Related Posts */}
+        {related && related.length > 0 && (
+          <div style={{marginTop:56,paddingTop:40,borderTop:'1px solid #eee'}}>
+            <h3 style={{fontSize:20,fontWeight:700,color:'#111',marginBottom:24}}>Related Hiring Guides</h3>
+            <div style={{display:'grid',gap:16}}>
+              {related.map(r => (
+                <Link key={r.slug} href={`/blog/${r.slug}`}
+                  style={{display:'flex',alignItems:'flex-start',gap:16,padding:'16px',background:'#fafafa',borderRadius:10,textDecoration:'none',border:'1px solid #eee'}}>
+                  <span style={{fontSize:24,flexShrink:0}}>📰</span>
+                  <div>
+                    <div style={{color:'#111',fontWeight:600,fontSize:15,lineHeight:1.4}}>{r.title}</div>
+                    {r.excerpt && <div style={{color:'#888',fontSize:13,marginTop:4,lineHeight:1.5,
+                      overflow:'hidden',display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical'}}>{r.excerpt}</div>}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div style={{marginTop:60,padding:'32px',background:'#fff8f4',borderRadius:16,textAlign:'center',border:'1px solid #ffe0c8'}}>
-          <h3 style={{margin:'0 0 8px',color:'#111'}}>Looking for a job?</h3>
-          <p style={{color:'#555',margin:'0 0 20px'}}>Browse 12,000+ jobs across India. Apply in 30 seconds.</p>
-          <Link href="/" style={{background:'#ff6b00',color:'#fff',padding:'12px 28px',borderRadius:8,textDecoration:'none',fontWeight:700,fontSize:16}}>
-            Browse Jobs →
-          </Link>
+          <h3 style={{margin:'0 0 8px',color:'#111'}}>Post a job or find your next role</h3>
+          <p style={{color:'#555',margin:'0 0 20px'}}>12,000+ active listings across India. Free to post. Free to apply.</p>
+          <div style={{display:'flex',gap:12,justifyContent:'center',flexWrap:'wrap'}}>
+            <Link href="/" style={{background:'#ff6b00',color:'#fff',padding:'12px 28px',borderRadius:8,textDecoration:'none',fontWeight:700,fontSize:16}}>
+              Browse Jobs →
+            </Link>
+            <Link href="/" style={{background:'#111',color:'#fff',padding:'12px 28px',borderRadius:8,textDecoration:'none',fontWeight:700,fontSize:16}}>
+              Post a Job Free
+            </Link>
+          </div>
         </div>
       </main>
 
@@ -115,5 +140,38 @@ export async function getStaticProps({ params }) {
     .single()
 
   if (!post) return { notFound: true }
-  return { props: { post }, revalidate: 3600 }
+
+  // Fetch 4 related posts (same tags first, then recents — exclude current)
+  const tags = (post.tags || []).slice(0, 2)
+  let related = []
+
+  if (tags.length > 0) {
+    const { data: tagMatches } = await supabaseService
+      .from('blogs')
+      .select('slug,title,excerpt')
+      .eq('published', true)
+      .neq('slug', params.slug)
+      .overlaps('tags', tags)
+      .order('created_at', { ascending: false })
+      .limit(4)
+    related = tagMatches || []
+  }
+
+  // Pad with recent posts if we have fewer than 4
+  if (related.length < 4) {
+    const { data: recents } = await supabaseService
+      .from('blogs')
+      .select('slug,title,excerpt')
+      .eq('published', true)
+      .neq('slug', params.slug)
+      .order('created_at', { ascending: false })
+      .limit(4)
+    const existing = new Set(related.map(r => r.slug))
+    for (const r of (recents || [])) {
+      if (!existing.has(r.slug)) { related.push(r); existing.add(r.slug) }
+      if (related.length >= 4) break
+    }
+  }
+
+  return { props: { post, related }, revalidate: 3600 }
 }
