@@ -22,8 +22,8 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Look back 90 minutes to catch anything since last run
-    const since = new Date(Date.now() - 90 * 60 * 1000).toISOString()
+    // Look back 25 hours to catch everything since yesterday's run
+    const since = new Date(Date.now() - 25 * 60 * 60 * 1000).toISOString()
 
     const [{ data: newJobs }, { data: newBlogs }] = await Promise.all([
       supabaseService
