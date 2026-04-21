@@ -14,30 +14,106 @@ export default function BlogPost({ post, related }) {
 
   const html = marked(post.content || '')
 
+  const canonicalUrl = `https://hirehub360.in/blog/${post.slug}`
+  const ogImage      = post.cover_image || 'https://hirehub360.in/og-default.png'
+  const keywords     = (post.tags || []).join(', ')
+
+  // Detect city + sector from tags for local SEO schema
+  const cityTag   = (post.tags || []).find(t => /mumbai|delhi|bangalore|pune|hyderabad|chennai|kolkata|ahmedabad|noida|gurgaon|jaipur|surat|lucknow|nagpur|kochi|indore|bhopal|vadodara|chandigarh|visakhapatnam/i.test(t)) || ''
+  const sectorTag = (post.tags || []).find(t => /it|finance|hr|bpo|pharma|retail|logistics|manufacturing|hospitality|real.estate|e.commerce|digital/i.test(t)) || ''
+
+  const articleSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.title,
+    description: post.excerpt || post.title,
+    image: ogImage,
+    url: canonicalUrl,
+    author: { '@type': 'Organization', name: post.author || 'HireHub360 Team', url: 'https://hirehub360.in' },
+    publisher: {
+      '@type': 'Organization',
+      name: 'HireHub360',
+      url: 'https://hirehub360.in',
+      logo: { '@type': 'ImageObject', url: 'https://hirehub360.in/logo.png' }
+    },
+    datePublished: post.created_at,
+    dateModified: post.updated_at || post.created_at,
+    mainEntityOfPage: canonicalUrl,
+    keywords: keywords,
+    inLanguage: 'en-IN',
+    ...(cityTag ? { locationCreated: { '@type': 'Place', name: cityTag, addressCountry: 'IN' } } : {}),
+  }
+
+  // Local business schema — ties every blog to hirehub360.in's local presence
+  const localSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'LocalBusiness',
+    name: 'HireHub360',
+    url: 'https://hirehub360.in',
+    description: 'India\'s AI-powered job posting platform. Post jobs, find candidates, book corporate venues.',
+    address: { '@type': 'PostalAddress', addressCountry: 'IN', addressRegion: cityTag || 'Maharashtra' },
+    telephone: '+91-98200-00000',
+    sameAs: ['https://dev.to/hirehub360', 'https://hirehub360.hashnode.dev'],
+    priceRange: '₹₹',
+    openingHours: 'Mo-Su 00:00-23:59',
+    hasMap: 'https://hirehub360.in',
+  }
+
+  // BreadcrumbList schema
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home',  item: 'https://hirehub360.in' },
+      { '@type': 'ListItem', position: 2, name: 'Blog',  item: 'https://hirehub360.in/blog' },
+      { '@type': 'ListItem', position: 3, name: post.title, item: canonicalUrl },
+    ]
+  }
+
   return (
     <>
       <Head>
         <title>{post.title} | HireHub360 Blog</title>
         <meta name="description" content={post.excerpt || post.title} />
-        <meta name="robots" content="index,follow" />
-        <link rel="canonical" href={`https://hirehub360.in/blog/${post.slug}`} />
+        <meta name="keywords" content={`${keywords}${cityTag ? ', jobs in '+cityTag : ''}, job posting India, hire candidates, HireHub360`} />
+        <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1" />
+        <meta name="author" content={post.author || 'HireHub360 Team'} />
+        <meta name="publisher" content="HireHub360" />
+        <meta name="language" content="en-IN" />
+        <meta name="geo.region" content={cityTag ? `IN` : 'IN'} />
+        <meta name="geo.country" content="IN" />
+        {cityTag && <meta name="geo.placename" content={cityTag} />}
+        <link rel="canonical" href={canonicalUrl} />
+
+        {/* Open Graph */}
+        <meta property="og:type" content="article" />
         <meta property="og:title" content={post.title} />
         <meta property="og:description" content={post.excerpt || post.title} />
-        <meta property="og:type" content="article" />
-        {post.cover_image && <meta property="og:image" content={post.cover_image} />}
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:image" content={ogImage} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:site_name" content="HireHub360" />
+        <meta property="og:locale" content="en_IN" />
+        <meta property="article:published_time" content={post.created_at} />
+        <meta property="article:modified_time" content={post.updated_at || post.created_at} />
+        <meta property="article:author" content="HireHub360 Team" />
+        {(post.tags || []).map(tag => <meta key={tag} property="article:tag" content={tag} />)}
+
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={post.title} />
+        <meta name="twitter:description" content={post.excerpt || post.title} />
+        <meta name="twitter:image" content={ogImage} />
+        <meta name="twitter:site" content="@HireHub360" />
+
         <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
-          '@context':'https://schema.org','@type':'BlogPosting',
-          headline: post.title,
-          description: post.excerpt,
-          image: post.cover_image,
-          author: {'@type':'Organization', name: post.author || 'HireHub360 Team'},
-          publisher: {'@type':'Organization', name:'HireHub360', url:'https://hirehub360.in'},
-          datePublished: post.created_at,
-          dateModified: post.updated_at,
-          mainEntityOfPage: `https://hirehub360.in/blog/${post.slug}`
-        })}} />
+
+        {/* Structured Data */}
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(localSchema) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
       </Head>
 
       <nav style={{background:'#fff',borderBottom:'1px solid #eee',padding:'0 24px',display:'flex',alignItems:'center',gap:32,height:56,position:'sticky',top:0,zIndex:100}}>
