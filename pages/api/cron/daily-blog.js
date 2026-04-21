@@ -122,9 +122,8 @@ export default async function handler(req, res) {
     const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000)
     const topic = TOPICS[dayOfYear % TOPICS.length]
 
-    // Generate slug
-    const dateStr = new Date().toISOString().slice(0, 10)
-    const slug = `post-jobs-${mkSlug(topic.city)}-${mkSlug(topic.sector)}-${dateStr}`
+    // Generate slug (no date — evergreen URLs)
+    const slug = `post-jobs-${mkSlug(topic.city)}-${mkSlug(topic.sector)}`
 
     // Check if slug already exists
     const { data: existing } = await supabaseService.from('blogs').select('id').eq('slug', slug).maybeSingle()

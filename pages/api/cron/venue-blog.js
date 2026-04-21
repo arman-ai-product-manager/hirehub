@@ -291,8 +291,8 @@ export default async function handler(req, res) {
       : ((dayOfYear * 2) % VENUE_TOPICS.length)
     const topic = VENUE_TOPICS[idx]
 
-    const dateStr = new Date().toISOString().slice(0, 10)
-    const slug = `corporate-venue-${mkSlug(topic.kw)}-${dateStr}-${slot}`
+    // No date in slug — evergreen URLs rank better over time
+    const slug = `corporate-venue-${mkSlug(topic.kw)}-${slot}`
 
     const { data: existing } = await supabaseService.from('blogs').select('id').eq('slug', slug).maybeSingle()
     if (existing) {
