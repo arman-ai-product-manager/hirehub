@@ -519,19 +519,32 @@ function _hydrate(user, cb){
   var called=false;
   var timer=setTimeout(function(){ if(!called){called=true;if(cb)cb();} },4000);
 
-  // All 4 queries in parallel via Promise.all (4th is HR user lookup)
+  // All 5 queries in parallel (5th is CV unlocks for company accounts)
   Promise.all([
     SB.from("companies").select("*").eq("id",user.id).maybeSingle(),
     SB.from("candidates").select("*").eq("id",user.id).maybeSingle(),
     SB.from("jobs").select("id,title,company_name,location,salary_label,salary_hidden,experience,job_type,sector,skills,currency,remote_policy,visa_sponsor,company_id,status,slug,created_at").eq("status","active").order("created_at",{ascending:false}).limit(30),
-    SB.from("hr_users").select("*").eq("id",user.id).maybeSingle()
+    SB.from("hr_users").select("*").eq("id",user.id).maybeSingle(),
+    SB.from("cv_unlocks").select("candidate_id").eq("company_id",user.id)
   ]).then(function(results){
-    var coR=results[0], cdR=results[1], jobsR=results[2], hrR=results[3];
+    var coR=results[0], cdR=results[1], jobsR=results[2], hrR=results[3], unlocksR=results[4];
     if(coR.data){
       var co=coR.data;
-      var coObj={id:co.id,name:co.company_name,gst:co.gst,city:co.city,sector:co.sector,verified:co.verified,plan:co.plan,website:co.website,phone:user.email};
+      var coObj={id:co.id,name:co.company_name,gst:co.gst,city:co.city,sector:co.sector,verified:co.verified,plan:co.plan,website:co.website,phone:user.email,cv_credits:co.cv_credits||0};
       try{localStorage.setItem(user.email+"_co:profile",JSON.stringify(coObj));}catch(e){}
       S.co=coObj;
+      // Sync credits from DB (source of truth)
+      S.credits=co.cv_credits||0;
+      try{localStorage.setItem("hh_credits",String(S.credits));}catch(e){}
+    }
+    // Restore unlocked contacts from DB
+    if(unlocksR&&unlocksR.data){
+      unlocksR.data.forEach(function(u){
+        if(!S.unlockedContacts['c_'+u.candidate_id]){
+          S.unlockedContacts['c_'+u.candidate_id]=true; // will be enriched on demand
+        }
+      });
+      try{localStorage.setItem("hh_unlocked",JSON.stringify(S.unlockedContacts));}catch(e){}
     }
     if(cdR.data){
       var cd=cdR.data;
@@ -827,7 +840,7 @@ function cfPay(opts){
       }).then(function(r){return r.json();}).then(function(v){
         if(v.ok){
           nt('✅ Payment successful! '+(opts.desc||''));
-          if(opts.onSuccess) opts.onSuccess(v);
+          if(opts.onSuccess) opts.onSuccess(opts.credits||0, v);
         } else {
           nt('⚠️ Payment verification failed. Contact support.');
         }
@@ -938,14 +951,14 @@ function openPricing(role){
           '<div style="font-weight:800;font-size:15px;color:#1d1d1f;margin-bottom:2px">'+p.credits+' Credits</div>'+
           '<div style="font-size:22px;font-weight:900;color:'+(p.highlight?"#ff6b00":"#1d1d1f")+';margin-bottom:2px">₹'+p.price.toLocaleString()+'</div>'+
           '<div style="font-size:11px;color:#6e6e73;margin-bottom:12px">'+p.per+' · No expiry</div>'+
-          '<button onclick="rzpPay({amount:'+p.price*100+',desc:\''+p.credits+' CV Credits\',onSuccess:function(){S.credits+='+(p.credits)+';saveCredits();mClose(\'m-price\');nt(\'✅ '+p.credits+' credits added!\');}})" style="background:'+(p.highlight?"#ff6b00":"#1d1d1f")+';color:#fff;border:none;border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;width:100%">'+p.cta+' →</button>'+
+          '<button onclick="rzpPay({amount:'+p.price*100+',desc:\''+p.credits+' CV Credits\',credits:'+p.credits+',onSuccess:function(credits){SB.auth.getSession().then(function(r){var jwt=r&&r.data&&r.data.session&&r.data.session.access_token;if(!jwt)return;fetch(\'/api/cv/credits/add\',{method:\'POST\',headers:{\'Content-Type\':\'application/json\',\'Authorization\':\'Bearer \'+jwt},body:JSON.stringify({amount:credits})}).then(function(res){return res.json();}).then(function(d){if(d.ok){S.credits=d.creditsTotal;saveCredits();var cc=document.getElementById(\'credit-count\');if(cc)cc.textContent=S.credits;}});});mClose(\'m-price\');nt(\'✅ '+p.credits+' credits added!\');}})" style="background:'+(p.highlight?"#ff6b00":"#1d1d1f")+';color:#fff;border:none;border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;width:100%">'+p.cta+' →</button>'+
         '</div>';
       }).join('')+
     '</div>'+
   '</div>'
   :"")+
 
-  '<p style="text-align:center;font-size:11px;color:#aeaeb2;margin-top:20px">🔒 Secured by Razorpay · hirehub360.in · All prices incl. 18% GST · Cancel anytime</p>'+
+  '<p style="text-align:center;font-size:11px;color:#aeaeb2;margin-top:20px">🔒 Secured by Cashfree · hirehub360.in · All prices incl. 18% GST · Cancel anytime</p>'+
   '</div>'+
   '<button class="btn gh fu" style="margin-top:16px" onclick="mClose(\'m-price\')">Close</button>';
   mOpen("m-price");
@@ -1268,18 +1281,50 @@ var DEMO_CANDIDATES=[
 ];
 
 // ── CREDIT HELPERS ───────────────────────────────────────────────
-function saveCredits(){localStorage.setItem("hh_credits",String(S.credits));}
+function saveCredits(){
+  localStorage.setItem("hh_credits",String(S.credits));
+  var cc=document.getElementById("credit-count");if(cc)cc.textContent=S.credits;
+}
 function unlockContact(cid){
   var key='c_'+cid;
-  if(S.unlockedContacts[key]){renderCoFindCVs(document.getElementById("co-body")||document.querySelector("[id=co-body]")||{innerHTML:''});return;}
+  // Already unlocked — just re-render
+  if(S.unlockedContacts[key]&&typeof S.unlockedContacts[key]==='object'){
+    var el=document.getElementById("co-body");if(el)renderCoFindCVs(el);return;
+  }
   if(S.credits<1){
     nt("⚠️ No credits left. Buy a credit pack to unlock contacts.");openPricing('co');return;
   }
-  S.credits--;saveCredits();
-  S.unlockedContacts[key]=true;
-  localStorage.setItem("hh_unlocked",JSON.stringify(S.unlockedContacts));
-  nt("🔓 Contact unlocked! 1 credit used. "+S.credits+" left.");
-  var el=document.getElementById("co-body");if(el)renderCoFindCVs(el);
+
+  // UUID-based cid → real candidate in Supabase DB
+  var isUUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cid);
+  if(isUUID){
+    SB.auth.getSession().then(function(r){
+      var jwt=r&&r.data&&r.data.session&&r.data.session.access_token;
+      if(!jwt){nt("⚠️ Session expired. Please sign in again.");return;}
+      fetch("/api/cv/unlock",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+jwt},body:JSON.stringify({candidateId:cid})})
+      .then(function(res){return res.json();})
+      .then(function(d){
+        if(!d.ok){
+          if(d.code==="NO_CREDITS"){nt("⚠️ No credits left.");openPricing('co');}
+          else nt("⚠️ "+(d.error||"Could not unlock contact"));
+          return;
+        }
+        S.credits=d.creditsLeft;
+        saveCredits();
+        S.unlockedContacts[key]={phone:d.phone,email:d.email};
+        try{localStorage.setItem("hh_unlocked",JSON.stringify(S.unlockedContacts));}catch(e){}
+        nt("🔓 Contact unlocked! "+S.credits+" credits left.");
+        var el=document.getElementById("co-body");if(el)renderCoFindCVs(el);
+      }).catch(function(){nt("⚠️ Network error. Please retry.");});
+    });
+  } else {
+    // Demo/local candidate — deduct locally, show masked contact
+    S.credits--;saveCredits();
+    S.unlockedContacts[key]=true;
+    try{localStorage.setItem("hh_unlocked",JSON.stringify(S.unlockedContacts));}catch(e){}
+    nt("🔓 Contact unlocked! 1 credit used. "+S.credits+" left.");
+    var el=document.getElementById("co-body");if(el)renderCoFindCVs(el);
+  }
 }
 
 function renderCoFindCVs(el){
@@ -1386,8 +1431,12 @@ function renderCvCards(list){
     var fit=c.fit||82;
     var isTop=fit>=90;
     var isStrong=fit>=80&&fit<90;
-    var cid=encodeURIComponent(c.name||idx);
-    var isUnlocked=!!S.unlockedContacts['c_'+cid];
+    var cid=c.id||encodeURIComponent(c.name||idx);
+    var unlockData=S.unlockedContacts['c_'+cid];
+    var isUnlocked=!!unlockData;
+    // For DB-backed candidates unlockData is {phone,email}; for demo it's true
+    var unlockedPhone=unlockData&&typeof unlockData==='object'?unlockData.phone:(c.phone||'');
+    var unlockedEmail=unlockData&&typeof unlockData==='object'?unlockData.email:(c.email||'');
     var lastActiveText=c.lastActive===0?"Today":c.lastActive===1?"Yesterday":(c.lastActive||Math.floor(Math.random()*7)+1)+" days ago";
     var fitColor=isTop?"#34c759":isStrong?"#ff6b00":"#6e6e73";
     var tier=_expertTier(c.assessScore||0);
@@ -1433,7 +1482,7 @@ function renderCvCards(list){
           // Contact info — BLURRED until unlocked
           '<div style="background:#f9f9fb;border-radius:10px;padding:10px 12px;border:1px solid #e5e5ea">'+
             (isUnlocked
-              ?'<div style="font-size:12px;font-weight:600;color:#1d1d1f">📱 '+c.phone+'  &nbsp; ✉️ '+c.email+'</div>'
+              ?'<div style="font-size:12px;font-weight:600;color:#1d1d1f">📱 '+unlockedPhone+'  &nbsp; ✉️ '+unlockedEmail+'</div>'
               :'<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">'+
                 '<div>'+
                   '<div style="filter:blur(5px);font-size:12px;pointer-events:none;user-select:none;color:#1d1d1f;font-weight:600">📱 '+c.phone+'  ✉️ '+c.email+'</div>'+
