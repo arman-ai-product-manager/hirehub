@@ -1,3 +1,9 @@
+/**
+ * Cashfree webhook handler
+ * Receives payment events and updates user plan in Supabase
+ * Configure in Cashfree Dashboard → Developers → Webhooks
+ * URL: https://hirehub360.in/api/payment/webhook
+ */
 import crypto from 'crypto'
 const { supabaseService } = require('../../../lib/supabase')
 
@@ -15,53 +21,60 @@ async function getRawBody(req) {
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end()
 
-  const rawBody = await getRawBody(req)
-  const signature = req.headers['x-razorpay-signature']
+  const rawBody  = await getRawBody(req)
+  const bodyStr  = rawBody.toString()
 
-  // Verify webhook signature
-  const secret = process.env.RAZORPAY_WEBHOOK_SECRET || ''
-  const expected = crypto.createHmac('sha256', secret).update(rawBody).digest('hex')
-  if (signature !== expected) {
-    console.error('Webhook signature mismatch')
-    return res.status(400).json({ error: 'Invalid signature' })
+  // Verify Cashfree webhook signature
+  const timestamp = req.headers['x-webhook-timestamp'] || ''
+  const signature = req.headers['x-webhook-signature'] || ''
+  const secret    = process.env.CASHFREE_SECRET_KEY || ''
+
+  if (signature && timestamp) {
+    const signedPayload = timestamp + bodyStr
+    const expected = crypto.createHmac('sha256', secret).update(signedPayload).digest('base64')
+    if (signature !== expected) {
+      console.error('Cashfree webhook signature mismatch')
+      return res.status(400).json({ error: 'Invalid signature' })
+    }
   }
 
   let event
+  try { event = JSON.parse(bodyStr) } catch { return res.status(400).json({ error: 'Invalid JSON' }) }
+
+  const eventType = event?.type        // PAYMENT_SUCCESS_WEBHOOK etc.
+  const order     = event?.data?.order
+  const payment   = event?.data?.payment
+
+  // Extract metadata stored in order note or customer id
+  const customerId = order?.customer_details?.customer_id || ''
+  const userId     = customerId.startsWith('user_') ? null : customerId
+  const orderNote  = order?.order_note || ''
+
+  // Determine plan from order amount
+  let plan = 'basic'
+  const amount = order?.order_amount || 0
+  if (amount >= 2499) plan = 'scale'
+  else if (amount >= 999) plan = 'growth'
+  else if (amount >= 249) plan = 'career_plus'
+  else if (amount >= 99)  plan = 'pro'
+
   try {
-    event = JSON.parse(rawBody.toString())
-  } catch {
-    return res.status(400).json({ error: 'Invalid JSON' })
-  }
-
-  const sub = event?.payload?.subscription?.entity
-  const payment = event?.payload?.payment?.entity
-
-  const email = sub?.notes?.email || payment?.email
-  const plan  = sub?.notes?.plan  || 'basic'
-
-  if (!email) return res.status(200).json({ ok: true })
-
-  try {
-    switch (event.event) {
-      case 'subscription.activated':
-      case 'subscription.charged':
-        await supabaseService.from('profiles').upsert({
-          email,
+    if (eventType === 'PAYMENT_SUCCESS_WEBHOOK' && userId) {
+      // Try companies first, then candidates
+      const { data: co } = await supabaseService.from('companies').select('id').eq('id', userId).maybeSingle()
+      if (co) {
+        await supabaseService.from('companies').update({
           plan,
-          plan_status: 'active',
-          subscription_id: sub?.id,
           plan_updated_at: new Date().toISOString(),
-        }, { onConflict: 'email' })
-        break
-
-      case 'subscription.cancelled':
-      case 'subscription.completed':
-        await supabaseService.from('profiles').update({
-          plan: 'free',
-          plan_status: 'cancelled',
+          last_payment_id: payment?.cf_payment_id,
+        }).eq('id', userId)
+      } else {
+        await supabaseService.from('candidates').update({
+          plan,
           plan_updated_at: new Date().toISOString(),
-        }).eq('email', email)
-        break
+          last_payment_id: payment?.cf_payment_id,
+        }).eq('id', userId)
+      }
     }
   } catch (err) {
     console.error('Webhook DB error:', err)

@@ -155,8 +155,8 @@ body{-webkit-text-size-adjust:100%}
 </style>
 <!-- Supabase Auth + DB client — blocking load so SB is ready before any code runs -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<!-- Razorpay Checkout (defer = only needed at payment time) -->
-<script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
+<!-- Cashfree Payment SDK -->
+<script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
 <script>
   var _SB_URL  = 'https://wtczsvzhyitpvdevpqkw.supabase.co';
   var GSHEET_URL = 'https://script.google.com/macros/s/AKfycbydrY-w7Uqh_fgcEKjc1e5a_ZxWszVGqJps4iIq_dfW0N_vfCbSybSJphohmIkGXywv/exec';
@@ -781,61 +781,79 @@ function pill(txt,c,bg){return '<span class="pill" style="background:'+bg+';colo
 
 // ── PRICING (ROLE-AWARE) ───────────────────────────────────────
 // ── RAZORPAY CHECKOUT ─────────────────────────────────────────
-function rzpPay(opts){
-  // opts: {amount (paise), desc, name, email, onSuccess}
-  var email = (S.co&&S.co.email)||(S.cd&&S.cd.email)||'';
-  var uname = (S.co&&S.co.name)||(S.cd&&S.cd.name)||'User';
+// ── CASHFREE CHECKOUT ──────────────────────────────────────────
+var _cf = null;
+function _getCF(){
+  if(_cf) return _cf;
+  if(window.Cashfree){ _cf = Cashfree({mode:'production'}); }
+  return _cf;
+}
+
+function cfPay(opts){
+  // opts: {amount (paise), desc, plan, onSuccess}
+  var email  = (S.co&&S.co.email)||(S.cd&&S.cd.email)||'user@hirehub360.in';
+  var uname  = (S.co&&S.co.name)||(S.cd&&S.cd.name)||'User';
+  var phone  = S.phone||'9999999999';
+  var userId = (S.co&&S.co.id)||(S.cd&&S.cd.id)||'';
+  var role   = S._role||'candidate';
+  var orderId= 'hh_'+Date.now();
+
   fetch('/api/payment/order',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({amount:opts.amount, receipt:'rcpt_'+Date.now(), notes:{desc:opts.desc,email:email}})
+    body:JSON.stringify({
+      amount: opts.amount,
+      receipt: orderId,
+      customerEmail: email,
+      customerPhone: phone,
+      customerName: uname,
+      notes:{desc:opts.desc||'HireHub360 Payment', userId:userId, email:email, name:uname}
+    })
   }).then(function(r){return r.json();}).then(function(d){
     if(d.error){nt('⚠️ '+d.error);return;}
-    var rzp = new Razorpay({
-      key: 'rzp_test_SaBKq7P51Zw8XM', // swap to live key when go-live
-      amount: d.amount,
-      currency: d.currency||'INR',
-      name: 'HireHub360',
-      description: opts.desc||'Payment',
-      order_id: d.orderId,
-      prefill: {email: email, name: uname},
-      theme: {color:'#ff6b00'},
-      handler: function(response){
-        nt('✅ Payment successful! '+(opts.desc||''));
-        if(opts.onSuccess) opts.onSuccess(response);
-      }
+    var cf = _getCF();
+    if(!cf){nt('⚠️ Payment SDK not loaded. Refresh and try again.');return;}
+    cf.checkout({
+      paymentSessionId: d.paymentSessionId,
+      redirectTarget: '_modal'
+    }).then(function(result){
+      if(result.error){nt('⚠️ '+result.error.message);return;}
+      // Verify with server
+      fetch('/api/payment/verify',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({orderId:d.orderId, plan:opts.plan||'pro', userId:userId, role:role})
+      }).then(function(r){return r.json();}).then(function(v){
+        if(v.ok){
+          nt('✅ Payment successful! '+(opts.desc||''));
+          if(opts.onSuccess) opts.onSuccess(v);
+        } else {
+          nt('⚠️ Payment verification failed. Contact support.');
+        }
+      });
     });
-    rzp.open();
   }).catch(function(){nt('⚠️ Could not initiate payment. Try again.');});
 }
 
+// Alias for backward compatibility with existing onSuccess callbacks
+function rzpPay(opts){ cfPay(opts); }
+
 function rzpSubscribe(planType, label, monthlyAmount){
-  var email=(S.co&&S.co.email)||(S.cd&&S.cd.email)||'';
-  var uname=(S.co&&S.co.name)||(S.cd&&S.cd.name)||'User';
-  fetch('/api/payment/subscribe',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({plan:planType, email:email, name:uname})
-  }).then(function(r){return r.json();}).then(function(d){
-    if(d.error){nt('⚠️ '+d.error);return;}
-    var rzp = new Razorpay({
-      key: 'rzp_live_placeholder',
-      subscription_id: d.subscriptionId,
-      name: 'HireHub360',
-      description: label+' — Monthly',
-      prefill: {email:email, name:uname},
-      theme: {color:'#ff6b00'},
-      handler: function(response){
-        nt('✅ Subscribed to '+label+'!');
-        // Update local plan
-        if(S.co){S.co.plan='premium';dbSet('co:profile',S.co);}
-        if(S.cd){S.cd.plan='premium';dbSet('cd:profile',S.cd);}
-        mClose('m-price');
-        nt('🎉 Welcome to '+label+'! Your features are now active.');
-      }
-    });
-    rzp.open();
-  }).catch(function(){nt('⚠️ Could not start subscription. Try again.');});
+  // Map plan type to amount in paise
+  var amounts = {basic:99900, growth:99900, scale:249900, pro:9900, career_plus:24900};
+  var amount  = amounts[planType] || (monthlyAmount*100);
+  cfPay({
+    amount: amount,
+    desc: label+' — Monthly',
+    plan: planType,
+    onSuccess: function(){
+      var planName = planType==='basic'||planType==='growth' ? 'growth' : planType;
+      if(S.co){S.co.plan=planName;dbSet('co:profile',S.co);}
+      if(S.cd){S.cd.plan=planName;dbSet('cd:profile',S.cd);}
+      mClose('m-price');
+      nt('🎉 Welcome to '+label+'! Your features are now active.');
+    }
+  });
 }
 
 function openPricing(role){
