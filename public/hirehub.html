@@ -793,7 +793,8 @@ function cfPay(opts){
   // opts: {amount (paise), desc, plan, onSuccess}
   var email  = (S.co&&S.co.email)||(S.cd&&S.cd.email)||'user@hirehub360.in';
   var uname  = (S.co&&S.co.name)||(S.cd&&S.cd.name)||'User';
-  var phone  = S.phone||'9999999999';
+  var rawPhone = (S.cd&&S.cd.phone)||(S.co&&S.co.phone)||S.phone||'';
+  var phone  = /^\+?[0-9]{7,15}$/.test((rawPhone||'').replace(/\s/g,'')) ? rawPhone : '9999999999';
   var userId = (S.co&&S.co.id)||(S.cd&&S.cd.id)||'';
   var role   = S._role||'candidate';
   var orderId= 'hh_'+Date.now();
