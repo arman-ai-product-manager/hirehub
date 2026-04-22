@@ -35,11 +35,11 @@ export default async function handler(req, res) {
     // Update plan in Supabase if userId + role + plan provided
     if (userId && plan && role) {
       const table = role === 'company' ? 'companies' : 'candidates'
-      await supabaseService.from(table).update({
-        plan,
-        plan_updated_at: new Date().toISOString(),
-        last_payment_id: data.cf_order_id || orderId,
-      }).eq('id', userId)
+      const { error: dbErr } = await supabaseService
+        .from(table)
+        .update({ plan })
+        .eq('id', userId)
+      if (dbErr) console.error('Plan update error:', dbErr.message)
     }
 
     return res.json({
