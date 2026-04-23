@@ -43,6 +43,23 @@
   --pu:#af52de;--pl:#f8f0ff;
   --dim:#1c1c1e;
 }
+body.dark{
+  --bg:#0a0a0a;--w:#1c1c1e;--ink:#f5f5f7;--ink2:#d1d1d6;
+  --mu:#98989d;--fa:#636366;--ln:#2c2c2e;
+  --ac:#ff6b00;--al:#2a1500;--am:#3d1f00;
+  --gr:#30d158;--gl:#0a1f0f;--gm:#112d17;
+  --bl:#0a84ff;--bl2:#001829;
+  --go:#ffd60a;--gl2:#1a1500;
+  --rd:#ff453a;--rl:#1a0500;
+  --pu:#bf5af2;--pl:#1a0a2e;
+  --dim:#f5f5f7;
+}
+body.dark .card{background:var(--w);border-color:var(--ln)}
+body.dark .nav{background:rgba(10,10,10,.96)}
+body.dark input,body.dark textarea,body.dark select{background:#2c2c2e;color:var(--ink);border-color:var(--ln)}
+body.dark .mbox{background:#1c1c1e}
+body.dark .login-card{background:#1c1c1e}
+body.dark .mbg{background:rgba(0,0,0,.7)}
 html{-webkit-font-smoothing:antialiased}
 body{font-family:'Mona Sans',-apple-system,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
 input,textarea,select{font-family:inherit;font-size:15px;background:#fff;border:1.5px solid var(--ln);border-radius:10px;padding:12px 15px;color:var(--ink);outline:none;width:100%;transition:border-color .2s,box-shadow .2s;line-height:1.5}
@@ -256,6 +273,8 @@ body{-webkit-text-size-adjust:100%}
     <div class="logo">Hire<span>Hub</span><span style="color:#ff6b00;font-size:.65em;font-weight:900;vertical-align:super;margin-left:1px">360</span></div>
     <div class="fl">
       <span id="ph-nav" style="font-size:12px;color:var(--mu)"></span>
+      <button id="dark-toggle" onclick="toggleDark()" title="Toggle dark/light mode"
+        style="background:none;border:1.5px solid var(--ln);border-radius:999px;padding:6px 10px;cursor:pointer;font-size:16px;line-height:1;color:var(--ink2);transition:all .2s">🌙</button>
       <button class="btn gh sm" onclick="doLogout()">Logout</button>
     </div>
   </nav>
@@ -777,6 +796,25 @@ function doLogout(){
   nt("✅ Logged out");
   if(window.SB) SB.auth.signOut().catch(function(){});
 }
+
+// ── DARK MODE ─────────────────────────────────────────────────
+function toggleDark(){
+  var isDark=document.body.classList.toggle("dark");
+  var btn=document.getElementById("dark-toggle");
+  if(btn)btn.textContent=isDark?"☀️":"🌙";
+  try{localStorage.setItem("hh_dark",isDark?"1":"0");}catch(e){}
+}
+(function(){
+  var saved=localStorage.getItem("hh_dark");
+  var prefersDark=window.matchMedia&&window.matchMedia("(prefers-color-scheme:dark)").matches;
+  if(saved==="1"||(saved===null&&prefersDark)){
+    document.body.classList.add("dark");
+    // btn icon set after DOM ready
+    document.addEventListener("DOMContentLoaded",function(){
+      var btn=document.getElementById("dark-toggle");if(btn)btn.textContent="☀️";
+    });
+  }
+})();
 
 // ── HELPERS ───────────────────────────────────────────────────
 function mkSlug(s){return s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");}
