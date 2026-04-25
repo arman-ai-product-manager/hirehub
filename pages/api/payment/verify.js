@@ -37,9 +37,15 @@ export default async function handler(req, res) {
       const table = role === 'company' ? 'companies' : 'candidates'
       const { error: dbErr } = await supabaseService
         .from(table)
-        .update({ plan })
+        .update({ plan, plan_updated_at: new Date().toISOString() })
         .eq('id', userId)
-      if (dbErr) console.error('Plan update error:', dbErr.message)
+      if (dbErr) {
+        console.error('Plan update error:', dbErr.message)
+      } else {
+        console.log(`✅ Plan '${plan}' activated for ${role} ${userId}`)
+      }
+    } else {
+      console.warn(`⚠️ Plan NOT activated — missing fields: userId=${userId}, plan=${plan}, role=${role}`)
     }
 
     return res.json({
