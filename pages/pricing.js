@@ -181,42 +181,50 @@ export default function Pricing() {
 
   async function handlePay(planId, amount, label) {
     if (!amount) {
-      // Enterprise contact
       window.open('https://wa.me/919820000000?text=Hi+I+want+Enterprise+pricing+for+HireHub360', '_blank')
       return
     }
-    if (amount === 0) return // free plan
+    if (amount === 0) return
     setLoading(planId)
     setError('')
     try {
+      // 1. Create order
       const res = await fetch('/api/payment/order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount, currency: 'INR', receipt: `hire_${planId}_${Date.now()}` }),
+        body: JSON.stringify({
+          amount,
+          currency: 'INR',
+          receipt: `hire_${planId}_${Date.now()}`,
+          notes: { desc: label }
+        }),
       })
       const data = await res.json()
-      if (!res.ok || !data.orderId) throw new Error(data.error || 'Could not create order')
-      if (typeof window === 'undefined' || !window.Razorpay) throw new Error('Razorpay not loaded')
-      const rzp = new window.Razorpay({
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-        amount: data.amount,
-        currency: data.currency,
-        name: 'HireHub360',
-        description: label,
-        order_id: data.orderId,
-        image: 'https://hirehub360.in/favicon.ico',
-        theme: { color: '#ff6b00' },
-        handler: () => {
-          setSuccess(`🎉 Payment successful! ${label} is now active.`)
-          setLoading('')
-        },
-        modal: { ondismiss: () => setLoading('') },
+      if (!res.ok || !data.paymentSessionId) throw new Error(data.error || 'Could not create order')
+
+      // 2. Open Cashfree checkout
+      if (typeof window === 'undefined' || !window.Cashfree) throw new Error('Payment SDK not loaded. Please refresh.')
+      const cf = window.Cashfree({ mode: 'production' })
+      const result = await cf.checkout({
+        paymentSessionId: data.paymentSessionId,
+        redirectTarget: '_modal',
       })
-      rzp.on('payment.failed', (r) => {
-        setError('Payment failed: ' + (r.error?.description || 'Unknown error'))
-        setLoading('')
+
+      if (result.error) throw new Error(result.error.message || 'Payment failed')
+
+      // 3. Verify with server
+      const vRes = await fetch('/api/payment/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId: data.orderId, plan: planId }),
       })
-      rzp.open()
+      const vData = await vRes.json()
+      if (vData.ok) {
+        setSuccess(`🎉 Payment successful! ${label} is now active.`)
+      } else {
+        setError('Payment done but verification pending. Contact support if not activated.')
+      }
+      setLoading('')
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again.')
       setLoading('')
@@ -230,7 +238,7 @@ export default function Pricing() {
         <meta name="description" content="Monthly plans from ₹999/mo. Pay-per-CV unlock. ATS Scanner. No hidden fees. 3,400+ companies trust HireHub360." />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>" />
-        <script src="https://checkout.razorpay.com/v1/checkout.js" />
+        <script src="https://sdk.cashfree.com/js/v3/cashfree.js" />
       </Head>
 
       <style>{`
@@ -327,7 +335,7 @@ export default function Pricing() {
           <span>🏢 3,400+ companies</span>
           <span>👤 1.2L+ job seekers</span>
           <span>⚡ Avg hire in 8 days</span>
-          <span>🔒 Razorpay secured</span>
+          <span>🔒 Cashfree secured</span>
         </div>
       </div>
 
@@ -461,7 +469,7 @@ export default function Pricing() {
       </>}
 
       {/* TRUST STRIP */}
-      <div className="trust">🔒 Secured by Razorpay · All prices incl. 18% GST · Cancel anytime · No hidden fees</div>
+      <div className="trust">🔒 Secured by Cashfree · All prices incl. 18% GST · Cancel anytime · No hidden fees</div>
       <div className="guarantee">
         <strong>30-day money-back guarantee</strong> on all paid plans. If you don't hire in 30 days, we refund — no questions asked.
       </div>
