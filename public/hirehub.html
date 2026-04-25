@@ -275,9 +275,13 @@ body{-webkit-text-size-adjust:100%}
       <span id="ph-nav" style="font-size:12px;color:var(--mu)"></span>
       <button id="dark-toggle" onclick="toggleDark()" title="Toggle dark/light mode"
         style="background:none;border:1.5px solid var(--ln);border-radius:999px;padding:6px 10px;cursor:pointer;font-size:16px;line-height:1;color:var(--ink2);transition:all .2s">🌙</button>
+      <button onclick="toggleTranslate()" title="Translate page" id="translate-btn"
+        style="background:none;border:1.5px solid var(--ln);border-radius:999px;padding:6px 10px;cursor:pointer;font-size:14px;line-height:1;color:var(--ink2);transition:all .2s;font-weight:600">🌐 EN</button>
       <button class="btn gh sm" onclick="doLogout()">Logout</button>
     </div>
   </nav>
+  <!-- Google Translate (hidden until toggled) -->
+  <div id="google_translate_element" style="display:none;position:fixed;top:60px;right:16px;z-index:9999;background:#fff;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.15);padding:12px;border:1px solid #e5e5ea"></div>
   <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:36px 20px;flex-direction:column;min-height:calc(100vh - 88px)">
     <div style="max-width:680px;width:100%;text-align:center">
       <p style="font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--ac);text-transform:uppercase;margin-bottom:14px">WELCOME TO HIRE HUB</p>
@@ -796,6 +800,35 @@ function doLogout(){
   nt("✅ Logged out");
   if(window.SB) SB.auth.signOut().catch(function(){});
 }
+
+// ── LANGUAGE TRANSLATE ────────────────────────────────────────
+var _translateLoaded = false;
+function toggleTranslate(){
+  var el = document.getElementById("google_translate_element");
+  if(!el) return;
+  var isVisible = el.style.display !== "none";
+  el.style.display = isVisible ? "none" : "block";
+  if(!_translateLoaded && !isVisible){
+    _translateLoaded = true;
+    window.googleTranslateElementInit = function(){
+      new google.translate.TranslateElement({
+        pageLanguage:'en',
+        includedLanguages:'hi,mr,te,ta,kn,gu,pa,bn,ur,en',
+        layout:google.translate.TranslateElement.InlineLayout.SIMPLE,
+        autoDisplay:false
+      },'google_translate_element');
+    };
+    var s = document.createElement('script');
+    s.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+    document.head.appendChild(s);
+  }
+}
+// Close translate on outside click
+document.addEventListener("click",function(e){
+  var el=document.getElementById("google_translate_element");
+  var btn=document.getElementById("translate-btn");
+  if(el&&btn&&!el.contains(e.target)&&!btn.contains(e.target)) el.style.display="none";
+});
 
 // ── DARK MODE ─────────────────────────────────────────────────
 function toggleDark(){
@@ -2033,7 +2066,32 @@ function revokeHRAccess(hrId,hrEmail){
   });
 }
 
-// ── VENUE BOOKING — Internal venue catalogue (not shown to user directly) ──
+// ── VENUE CITY DETECTION ──────────────────────────────────────────
+var _VENUE_CITIES = ["Mumbai","Pune","Delhi NCR","Hyderabad","Ahmedabad","Bangalore","Chennai","Kolkata"];
+
+function _detectVenueCity(city){
+  if(!city) return null;
+  var c = city.toLowerCase();
+  if(c.includes('mumbai')||c.includes('navi mumbai')||c.includes('thane')||c.includes('juhu')||c.includes('powai')||c.includes('malad')) return 'Mumbai';
+  if(c.includes('pune')) return 'Pune';
+  if(c.includes('noida')||c.includes('delhi')||c.includes('gurugram')||c.includes('gurgaon')||c.includes('ncr')||c.includes('faridabad')) return 'Delhi NCR';
+  if(c.includes('hyderabad')||c.includes('secunderabad')) return 'Hyderabad';
+  if(c.includes('ahmedabad')) return 'Ahmedabad';
+  if(c.includes('bangalore')||c.includes('bengaluru')) return 'Bangalore';
+  if(c.includes('chennai')) return 'Chennai';
+  if(c.includes('kolkata')) return 'Kolkata';
+  return null;
+}
+
+function _venueInCity(locStr, city){
+  if(!locStr||!city) return false;
+  var l = locStr.toLowerCase(), c = city.toLowerCase();
+  if(city==='Mumbai') return l.includes('mumbai')||l.includes('juhu')||l.includes('thane')||l.includes('powai')||l.includes('malad')||l.includes('navi mumbai');
+  if(city==='Delhi NCR') return l.includes('noida')||l.includes('delhi')||l.includes('gurgaon')||l.includes('gurugram');
+  return l.includes(c);
+}
+
+// ── VENUE BOOKING — Internal venue catalogue ──────────────────────
 var _VENUES = [
   {name:"The Game Palacio",  icon:"🎮", loc:"Mumbai · Pune · Noida · Hyderabad",  why:"Luxury entertainment hub with multi-zone experiences — perfect for larger groups.",  tags:["bonding","premium","energy"]},
   {name:"Formula Karting",   icon:"🏎️", loc:"Pune · Noida",                        why:"India's premier karting track — unbeatable for adrenaline-driven team moments.",   tags:["energy","unique","premium"]},
@@ -2077,17 +2135,20 @@ var _VREC = {
 };
 
 function renderCoVenue(el){
-  S.venueGoal = S.venueGoal || null;
-  S.venuePref = S.venuePref || null;
+  S.venueGoal  = S.venueGoal  || null;
+  S.venuePref  = S.venuePref  || null;
+  // Auto-detect city from company profile
+  if(!S.venueCity && S.co && S.co.city) S.venueCity = _detectVenueCity(S.co.city);
   _venueStep(el);
 }
 
 function _venueStep(el){
   if(!el) el = document.getElementById("co-body");
   if(!el) return;
-  var step = !S.venueGoal ? 1 : !S.venuePref ? 2 : 3;
+  var step = !S.venueCity ? 0 : !S.venueGoal ? 1 : !S.venuePref ? 2 : 3;
 
   // ── HERO (always visible) ──
+  var stepLabels = ["City","Goal","Preference","Venues"];
   var hero =
     '<div style="background:linear-gradient(135deg,#0f0f0f 0%,#1a0a00 100%);border-radius:20px;padding:28px 24px;margin-bottom:22px;position:relative;overflow:hidden">'+
     '<div style="position:absolute;top:-40px;right:-40px;width:180px;height:180px;background:radial-gradient(circle,rgba(255,107,0,.22) 0%,transparent 70%);pointer-events:none"></div>'+
@@ -2095,23 +2156,52 @@ function _venueStep(el){
     '<div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,107,0,.15);border:1px solid rgba(255,107,0,.28);border-radius:999px;padding:4px 12px;font-size:11px;font-weight:700;color:#ff6b00;letter-spacing:.05em;margin-bottom:12px">🏢 CORPORATE VENUE BOOKING</div>'+
     '<h2 style="font-size:24px;font-weight:900;color:#fff;margin-bottom:6px;letter-spacing:-.03em;line-height:1.25">Find the Perfect Venue<br><span style="color:#ff6b00">for Your Next Event.</span></h2>'+
     '<p style="color:#888;font-size:12px;margin:0;line-height:1.6">18+ curated venues · Pan India · Confirmed in 2 hours · Free to request</p>'+
+    (S.venueCity?'<div style="display:inline-flex;align-items:center;gap:6px;margin-top:10px;background:rgba(255,255,255,.08);border-radius:999px;padding:4px 12px;font-size:12px;color:#ccc">📍 '+S.venueCity+' <button onclick="S.venueCity=null;S.venueGoal=null;S.venuePref=null;_venueStep()" style="background:none;border:none;color:#888;font-size:11px;cursor:pointer;padding:0 0 0 4px">✕ Change</button></div>':'')+
     '</div>'+
-    // progress dots
-    '<div style="display:flex;align-items:center;gap:8px;margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,.06)">'+
-    [1,2,3].map(function(n){
-      var active=n===step,done=n<step;
-      var labels=["Goal","Preference","Venues"];
-      return '<div style="display:flex;align-items:center;gap:6px">'+
-        '<div style="width:24px;height:24px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;'+
-          (done?'background:#ff6b00;color:#fff':active?'background:rgba(255,107,0,.25);border:2px solid #ff6b00;color:#ff6b00':'background:rgba(255,255,255,.1);color:#555;border:2px solid rgba(255,255,255,.1)')+'">'+
-          (done?'✓':n)+
+    // progress steps
+    '<div style="display:flex;align-items:center;gap:6px;margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,.06)">'+
+    [0,1,2,3].map(function(n){
+      var active=n===step, done=n<step;
+      return '<div style="display:flex;align-items:center;gap:5px">'+
+        '<div style="width:22px;height:22px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0;'+
+          (done?'background:#ff6b00;color:#fff':active?'background:rgba(255,107,0,.25);border:2px solid #ff6b00;color:#ff6b00':'background:rgba(255,255,255,.08);color:#555;border:1px solid rgba(255,255,255,.1)')+'">'+
+          (done?'✓':(n+1))+
         '</div>'+
-        '<span style="font-size:11px;font-weight:600;'+(active?'color:#ff6b00':done?'color:#ccc':'color:#555')+'">'+labels[n-1]+'</span>'+
-        (n<3?'<div style="width:24px;height:1px;background:rgba(255,255,255,.1)"></div>':'')+
+        '<span style="font-size:10px;font-weight:600;'+(active?'color:#ff6b00':done?'color:#ccc':'color:#444')+'">'+stepLabels[n]+'</span>'+
+        (n<3?'<div style="width:16px;height:1px;background:rgba(255,255,255,.08)"></div>':'')+
       '</div>';
     }).join('')+
     '</div>'+
     '</div>';
+
+  // ── STEP 0: City ──
+  if(step===0){
+    var cityIcons={Mumbai:"🏙️","Delhi NCR":"🏛️",Pune:"🌆",Hyderabad:"🕌",Ahmedabad:"🏰",Bangalore:"🌳",Chennai:"⛱️",Kolkata:"🎭"};
+    var citySub={Mumbai:"Navi Mumbai · Thane · Juhu · Powai","Delhi NCR":"Noida · Gurgaon · Faridabad",Pune:"Wakad · Hinjewadi · Kothrud",Hyderabad:"Banjara Hills · HITEC City",Ahmedabad:"SG Highway · Prahlad Nagar",Bangalore:"Koramangala · Indiranagar",Chennai:"Anna Nagar · Velachery",Kolkata:"Park Street · Salt Lake"};
+    el.innerHTML = hero +
+      '<div style="margin-bottom:16px">'+
+      '<div style="font-weight:800;font-size:17px;letter-spacing:-.03em;margin-bottom:4px">📍 Which city are you in?</div>'+
+      '<div style="font-size:13px;color:var(--mu)">We\'ll show you venues available in your city.</div>'+
+      '</div>'+
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">'+
+      _VENUE_CITIES.map(function(city){
+        return '<div onclick="S.venueCity=\''+city+'\';_venueStep()" '+
+          'style="background:#fff;border:2px solid #f0f0f5;border-radius:16px;padding:16px;cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:12px" '+
+          'onmouseover="this.style.borderColor=\'#ff6b00\';this.style.boxShadow=\'0 6px 20px rgba(255,107,0,.1)\'" '+
+          'onmouseout="this.style.borderColor=\'#f0f0f5\';this.style.boxShadow=\'\'">'+
+          '<div style="font-size:26px;flex-shrink:0">'+cityIcons[city]+'</div>'+
+          '<div>'+
+          '<div style="font-weight:800;font-size:14px;color:#1d1d1f">'+city+'</div>'+
+          '<div style="font-size:11px;color:#aaa;margin-top:2px;line-height:1.4">'+citySub[city]+'</div>'+
+          '</div>'+
+          '</div>';
+      }).join('')+
+      '</div>'+
+      '<div style="text-align:center">'+
+      '<button onclick="S.venueCity=\'Other\';_venueStep()" style="background:#f5f5f7;border:none;border-radius:999px;padding:10px 20px;font-size:13px;font-weight:600;color:#444;cursor:pointer">📌 My city is not listed</button>'+
+      '</div>';
+    return;
+  }
 
   // ── STEP 1: Goal ──
   if(step===1){
@@ -2181,7 +2271,9 @@ function _venueStep(el){
   var recNames = (_VREC[S.venueGoal]||{})[S.venuePref] || [];
   var recs = recNames.map(function(n){
     return _VENUES.filter(function(v){return v.name===n;})[0];
-  }).filter(Boolean);
+  }).filter(Boolean).filter(function(v){
+    return !S.venueCity || S.venueCity==='Other' || _venueInCity(v.loc, S.venueCity);
+  });
 
   var prefLabels={budget:"Budget-Friendly",premium:"Premium",unique:"Something Unique"};
   var prefIcons ={budget:"💡",premium:"💎",unique:"🎲"};
@@ -2194,9 +2286,25 @@ function _venueStep(el){
     '<div style="font-size:12px;color:var(--mu)">'+goalIcons[S.venueGoal]+' '+goalLabels[S.venueGoal]+' &nbsp;·&nbsp; '+prefIcons[S.venuePref]+' '+prefLabels[S.venuePref]+'</div>'+
     '</div>'+
     '<div style="margin-bottom:16px">'+
-    '<div style="font-weight:800;font-size:17px;letter-spacing:-.03em;margin-bottom:4px">Your Curated Picks</div>'+
+    '<div style="font-weight:800;font-size:17px;letter-spacing:-.03em;margin-bottom:4px">Your Curated Picks in '+S.venueCity+'</div>'+
     '<div style="font-size:13px;color:var(--mu)">Handpicked for your goal. Get a proposal in under 2 hours — free, no commitment.</div>'+
     '</div>'+
+    // ── EMPTY STATE ──
+    (!recs.length ?
+      '<div style="background:#fff;border-radius:20px;border:2px dashed #e5e5ea;padding:32px 24px;text-align:center;margin-bottom:20px">'+
+        '<div style="font-size:48px;margin-bottom:12px">🏗️</div>'+
+        '<div style="font-size:18px;font-weight:900;color:#1d1d1f;margin-bottom:8px">Coming Soon to '+S.venueCity+'!</div>'+
+        '<div style="font-size:13px;color:var(--mu);line-height:1.7;margin-bottom:20px;max-width:320px;margin-left:auto;margin-right:auto">We\'re onboarding venues in '+S.venueCity+' right now. Be the first to know — or list your venue with us.</div>'+
+        '<div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:20px">'+
+          '<button onclick="openVenueForm(\'enquiry\',\'Venue enquiry — '+S.venueCity+'\')" style="background:#ff6b00;color:#fff;border:none;border-radius:12px;padding:12px 20px;font-size:13px;font-weight:700;cursor:pointer">📩 Notify Me When Live</button>'+
+          '<button onclick="_showListVenueForm()" style="background:#1d1d1f;color:#fff;border:none;border-radius:12px;padding:12px 20px;font-size:13px;font-weight:700;cursor:pointer">🏢 List My Venue</button>'+
+        '</div>'+
+        '<div style="background:#f9f9fb;border-radius:12px;padding:12px 16px;font-size:12px;color:#888">'+
+          '📍 We currently cover: <strong>Mumbai · Pune · Noida · Hyderabad · Ahmedabad</strong>'+
+        '</div>'+
+      '</div>'+
+      '<div id="list-venue-form"></div>'
+    :
     '<div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px">'+
     recs.map(function(v,i){
       return '<div style="background:#fff;border:2px solid '+(i===0?'#ff6b00':'#f0f0f5')+';border-radius:18px;padding:20px;position:relative;overflow:hidden">'+
@@ -2226,8 +2334,42 @@ function _venueStep(el){
     '</div>'+
     // restart
     '<div style="text-align:center;padding-top:8px;border-top:1px solid #f0f0f5">'+
-    '<button onclick="S.venueGoal=null;S.venuePref=null;_venueStep()" style="background:none;border:none;font-size:13px;color:#aaa;cursor:pointer;font-weight:600">↺ Start over with different preferences</button>'+
+    '<button onclick="S.venueGoal=null;S.venuePref=null;_venueStep()" style="background:none;border:none;font-size:13px;color:#aaa;cursor:pointer;font-weight:600">↺ Try different preferences</button>'+
+    ' · '+
+    '<button onclick="S.venueCity=null;S.venueGoal=null;S.venuePref=null;_venueStep()" style="background:none;border:none;font-size:13px;color:#aaa;cursor:pointer;font-weight:600">📍 Change city</button>'+
+    '</div>'
+    ); // close recs.length ternary
+}
+
+function _showListVenueForm(){
+  var el = document.getElementById("list-venue-form");
+  if(!el) return;
+  el.innerHTML =
+    '<div style="background:#fff;border-radius:16px;border:1.5px solid #e5e5ea;padding:20px;margin-top:16px">'+
+      '<div style="font-weight:800;font-size:16px;margin-bottom:4px">🏢 List Your Venue with HireHub360</div>'+
+      '<div style="font-size:13px;color:var(--mu);margin-bottom:16px">Reach 3,400+ companies looking for corporate event spaces. Free to list — we handle inquiries.</div>'+
+      '<input id="lv-name" placeholder="Venue name *" style="width:100%;border:1.5px solid #e5e5ea;border-radius:10px;padding:11px 14px;font-size:13px;margin-bottom:10px;font-family:inherit;outline:none">'+
+      '<input id="lv-city" placeholder="City / Area *" value="'+(S.venueCity&&S.venueCity!=="Other"?S.venueCity:"")+'" style="width:100%;border:1.5px solid #e5e5ea;border-radius:10px;padding:11px 14px;font-size:13px;margin-bottom:10px;font-family:inherit;outline:none">'+
+      '<input id="lv-capacity" placeholder="Capacity (e.g. 50–200 guests)" style="width:100%;border:1.5px solid #e5e5ea;border-radius:10px;padding:11px 14px;font-size:13px;margin-bottom:10px;font-family:inherit;outline:none">'+
+      '<input id="lv-contact" placeholder="Your phone / email *" style="width:100%;border:1.5px solid #e5e5ea;border-radius:10px;padding:11px 14px;font-size:13px;margin-bottom:10px;font-family:inherit;outline:none">'+
+      '<button onclick="_submitListVenue()" style="width:100%;background:#ff6b00;color:#fff;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer">Submit — We\'ll be in touch within 24 hours</button>'+
     '</div>';
+}
+
+function _submitListVenue(){
+  var name=((document.getElementById("lv-name")||{}).value||"").trim();
+  var city=((document.getElementById("lv-city")||{}).value||"").trim();
+  var capacity=((document.getElementById("lv-capacity")||{}).value||"").trim();
+  var contact=((document.getElementById("lv-contact")||{}).value||"").trim();
+  if(!name||!contact){nt("⚠️ Venue name and contact are required");return;}
+  fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    name:"Venue Listing: "+name,email:contact.includes('@')?contact:'noemail@hirehub360.in',
+    phone:contact.includes('@')?'':contact,
+    subject:"New Venue Listing — "+city,
+    message:"Venue: "+name+"\nCity: "+city+"\nCapacity: "+capacity+"\nContact: "+contact
+  })}).catch(function(){});
+  var el=document.getElementById("list-venue-form");
+  if(el)el.innerHTML='<div style="background:#34c75918;border:1.5px solid #34c75940;border-radius:12px;padding:16px;text-align:center;margin-top:12px"><div style="font-size:20px;margin-bottom:6px">✅</div><div style="font-weight:700;color:#34c759">Submitted! We\'ll contact you within 24 hours.</div></div>';
 }
 
 function openVenueForm(categoryId, categoryName){
