@@ -24,10 +24,15 @@ export default async function handler(req, res) {
         order_amount:   amount / 100,   // Cashfree uses rupees, not paise
         order_currency: currency,
         customer_details: {
-          customer_id:    notes.userId || `user_${Date.now()}`,
+          customer_id:    notes.userId || `guest_${Date.now()}`,
           customer_email: customerEmail || notes.email || 'user@hirehub360.in',
           customer_phone: customerPhone || notes.phone || '9999999999',
           customer_name:  customerName  || notes.name  || 'HireHub User',
+        },
+        order_tags: {
+          user_id: notes.userId || '',
+          role:    notes.role   || '',
+          plan:    notes.plan   || '',
         },
         order_meta: {
           return_url: `https://hirehub360.in/hirehub.html?payment=success&order_id=${orderId}`,

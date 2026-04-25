@@ -1,5 +1,11 @@
 import Head from 'next/head'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { createClient } from '@supabase/supabase-js'
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+)
 
 // ─── PLAN DATA ────────────────────────────────────────────────────────────────
 const COMPANY_PLANS = [
@@ -178,6 +184,22 @@ export default function Pricing() {
   const [success, setSuccess] = useState('')
   const [error, setError]     = useState('')
   const [tab, setTab]         = useState('company') // 'company' | 'seeker'
+  const [userId, setUserId]   = useState(null)
+  const [userRole, setUserRole] = useState(null)
+  const [userEmail, setUserEmail] = useState('')
+  const [userName, setUserName]   = useState('')
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setUserId(session.user.id)
+        setUserEmail(session.user.email || '')
+        const meta = session.user.user_metadata || {}
+        setUserRole(meta.role || 'candidate')
+        setUserName(meta.name || meta.full_name || '')
+      }
+    })
+  }, [])
 
   async function handlePay(planId, amount, label) {
     if (!amount) {
@@ -196,7 +218,15 @@ export default function Pricing() {
           amount,
           currency: 'INR',
           receipt: `hire_${planId}_${Date.now()}`,
-          notes: { desc: label }
+          customerEmail: userEmail,
+          customerName:  userName,
+          notes: {
+            desc:   label,
+            userId: userId  || '',
+            role:   userRole || 'candidate',
+            email:  userEmail,
+            name:   userName,
+          }
         }),
       })
       const data = await res.json()
@@ -212,17 +242,22 @@ export default function Pricing() {
 
       if (result.error) throw new Error(result.error.message || 'Payment failed')
 
-      // 3. Verify with server
+      // 3. Verify with server + activate plan
       const vRes = await fetch('/api/payment/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderId: data.orderId, plan: planId }),
+        body: JSON.stringify({
+          orderId: data.orderId,
+          plan:    planId,
+          userId:  userId   || null,
+          role:    userRole  || null,
+        }),
       })
       const vData = await vRes.json()
       if (vData.ok) {
-        setSuccess(`🎉 Payment successful! ${label} is now active.`)
+        setSuccess(`🎉 Payment successful! ${label} is now active. Refresh the app to see your new plan.`)
       } else {
-        setError('Payment done but verification pending. Contact support if not activated.')
+        setError('Payment done but activation pending. Please refresh in 1 minute or contact support@hirehub360.in')
       }
       setLoading('')
     } catch (err) {

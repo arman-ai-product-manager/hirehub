@@ -45,36 +45,46 @@ export default async function handler(req, res) {
   const order     = event?.data?.order
   const payment   = event?.data?.payment
 
-  // Extract metadata stored in order note or customer id
+  // Extract userId — check order_tags first (most reliable), then customer_id
+  const tags       = order?.order_tags || {}
   const customerId = order?.customer_details?.customer_id || ''
-  const userId     = customerId.startsWith('user_') ? null : customerId
-  const orderNote  = order?.order_note || ''
+  const userId     = tags.user_id ||
+                     (customerId.startsWith('guest_') ? null : customerId) || null
+  const roleHint   = tags.role || null  // 'company' | 'candidate'
 
-  // Determine plan from order amount
-  let plan = 'basic'
+  // Determine plan from order_tags or amount
   const amount = order?.order_amount || 0
-  if (amount >= 2499) plan = 'scale'
-  else if (amount >= 999) plan = 'growth'
-  else if (amount >= 249) plan = 'career_plus'
-  else if (amount >= 99)  plan = 'pro'
+  let plan = tags.plan || 'basic'
+  if (!tags.plan) {
+    if (amount >= 2499) plan = 'scale'
+    else if (amount >= 999) plan = 'growth'
+    else if (amount >= 249) plan = 'career_plus'
+    else if (amount >= 99)  plan = 'pro'
+  }
+
+  const planPayload = {
+    plan,
+    plan_updated_at: new Date().toISOString(),
+    last_payment_id: payment?.cf_payment_id,
+  }
 
   try {
     if (eventType === 'PAYMENT_SUCCESS_WEBHOOK' && userId) {
-      // Try companies first, then candidates
-      const { data: co } = await supabaseService.from('companies').select('id').eq('id', userId).maybeSingle()
-      if (co) {
-        await supabaseService.from('companies').update({
-          plan,
-          plan_updated_at: new Date().toISOString(),
-          last_payment_id: payment?.cf_payment_id,
-        }).eq('id', userId)
+      if (roleHint === 'company') {
+        // Role known — update directly
+        await supabaseService.from('companies').update(planPayload).eq('id', userId)
+      } else if (roleHint === 'candidate') {
+        await supabaseService.from('candidates').update(planPayload).eq('id', userId)
       } else {
-        await supabaseService.from('candidates').update({
-          plan,
-          plan_updated_at: new Date().toISOString(),
-          last_payment_id: payment?.cf_payment_id,
-        }).eq('id', userId)
+        // Fallback: try companies first, then candidates
+        const { data: co } = await supabaseService.from('companies').select('id').eq('id', userId).maybeSingle()
+        if (co) {
+          await supabaseService.from('companies').update(planPayload).eq('id', userId)
+        } else {
+          await supabaseService.from('candidates').update(planPayload).eq('id', userId)
+        }
       }
+      console.log(`Plan '${plan}' activated for user ${userId} (role: ${roleHint || 'auto'})`)
     }
   } catch (err) {
     console.error('Webhook DB error:', err)
