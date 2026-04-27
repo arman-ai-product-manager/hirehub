@@ -2,6 +2,8 @@ const { supabaseService } = require('../../../lib/supabase')
 const { autoIndex, SITE } = require('../../../lib/autoIndex')
 const { googleIndex }     = require('../../../lib/googleIndex')
 
+export const config = { maxDuration: 300 } // 5 min for bulk mode
+
 // ─── TOPIC BANK — India + USA, Blue-collar, Freshers, Remote ─────────────────
 const TOPICS = [
 
