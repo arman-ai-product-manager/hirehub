@@ -382,20 +382,33 @@ function buildTags(topic) {
   return base
 }
 
-async function generateBlog(topic) {
+async function generateBlog(topic, retries = 2) {
   const prompt = buildPrompt(topic)
-  const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${process.env.GROQ_API_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: 'llama-3.3-70b-versatile',
-      messages: [{ role: 'user', content: prompt }],
-      max_tokens: 2200,
-      temperature: 0.72
-    })
-  })
-  const data = await res.json()
-  return data.choices?.[0]?.message?.content || ''
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    if (attempt > 0) await new Promise(r => setTimeout(r, 4000 * attempt)) // 4s, 8s backoff
+    try {
+      const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${process.env.GROQ_API_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'llama-3.3-70b-versatile',
+          messages: [{ role: 'user', content: prompt }],
+          max_tokens: 2200,
+          temperature: 0.72
+        })
+      })
+      const data = await res.json()
+      if (data.error) {
+        console.warn(`Groq error (attempt ${attempt+1}):`, data.error?.message || JSON.stringify(data.error))
+        continue
+      }
+      const content = data.choices?.[0]?.message?.content || ''
+      if (content.length >= 200) return content
+    } catch (e) {
+      console.warn(`Groq fetch error (attempt ${attempt+1}):`, e.message)
+    }
+  }
+  return ''
 }
 
 async function writeBlog(topic) {
@@ -451,8 +464,8 @@ export default async function handler(req, res) {
         results.push(result)
         if (result.ok) {
           written++
-          // small delay between AI calls to avoid rate limits
-          await new Promise(r => setTimeout(r, 1500))
+          // delay between AI calls to respect Groq rate limits
+          await new Promise(r => setTimeout(r, 3000))
         }
       }
       return res.json({ ok: true, written, results })
