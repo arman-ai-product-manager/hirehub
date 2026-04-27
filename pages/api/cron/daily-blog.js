@@ -2,38 +2,113 @@ const { supabaseService } = require('../../../lib/supabase')
 const { autoIndex, SITE } = require('../../../lib/autoIndex')
 const { googleIndex }     = require('../../../lib/googleIndex')
 
-// 60-day rotating topic list — cities, job categories, HR tips
+// ─── TOPIC BANK — India + USA, Blue-collar, Freshers, Remote ─────────────────
 const TOPICS = [
-  { city: 'Bangalore', angle: 'IT & Startup Hiring', pincodes: ['560001','560034','560066','560100','560103'], sector: 'IT' },
-  { city: 'Delhi NCR', angle: 'Fast Hiring for Sales & BPO', pincodes: ['110001','110020','110044','110085','122001','201301'], sector: 'Sales' },
-  { city: 'Pune', angle: 'Manufacturing & IT Job Posting', pincodes: ['411001','411014','411028','411045','411057'], sector: 'IT' },
-  { city: 'Hyderabad', angle: 'Tech & Pharma Hiring', pincodes: ['500001','500034','500081','500084','500032'], sector: 'Pharma' },
-  { city: 'Chennai', angle: 'Auto & IT Sector Hiring', pincodes: ['600001','600032','600042','600083','600097'], sector: 'Auto' },
-  { city: 'Ahmedabad', angle: 'Textile & Finance Hiring', pincodes: ['380001','380006','380015','380054','380058'], sector: 'Finance' },
-  { city: 'Kolkata', angle: 'Logistics & Retail Hiring', pincodes: ['700001','700013','700032','700091','700156'], sector: 'Logistics' },
-  { city: 'Surat', angle: 'Diamond & Textile Industry Hiring', pincodes: ['395001','395002','395004','395006','395010'], sector: 'Textile' },
-  { city: 'Jaipur', angle: 'Tourism & Retail Hiring', pincodes: ['302001','302004','302006','302012','302021'], sector: 'Retail' },
-  { city: 'Noida & Greater Noida', angle: 'IT Park & BPO Hiring', pincodes: ['201301','201306','201308','201310','201318'], sector: 'BPO' },
-  { city: 'Gurgaon', angle: 'MNC & Finance Hiring', pincodes: ['122001','122002','122003','122010','122022'], sector: 'Finance' },
-  { city: 'Chandigarh', angle: 'Government & IT Hiring', pincodes: ['160001','160011','160017','160022','160036'], sector: 'IT' },
-  { city: 'Lucknow', angle: 'FMCG & Retail Hiring', pincodes: ['226001','226010','226012','226016','226020'], sector: 'FMCG' },
-  { city: 'Nagpur', angle: 'Logistics & Healthcare Hiring', pincodes: ['440001','440010','440013','440022','440025'], sector: 'Healthcare' },
-  { city: 'Kochi', angle: 'Hospitality & IT Hiring', pincodes: ['682001','682011','682016','682030','682041'], sector: 'Hospitality' },
-  { city: 'Indore', angle: 'Pharma & IT Hiring', pincodes: ['452001','452002','452006','452010','452018'], sector: 'Pharma' },
-  { city: 'Coimbatore', angle: 'Manufacturing & Textile Hiring', pincodes: ['641001','641005','641006','641014','641018'], sector: 'Manufacturing' },
-  { city: 'Visakhapatnam', angle: 'Steel & Port Sector Hiring', pincodes: ['530001','530003','530012','530017','530022'], sector: 'Manufacturing' },
-  { city: 'Bhopal', angle: 'Government & Retail Hiring', pincodes: ['462001','462003','462010','462016','462023'], sector: 'Retail' },
-  { city: 'Vadodara', angle: 'Chemical & IT Hiring', pincodes: ['390001','390006','390009','390015','390021'], sector: 'Chemical' },
-  { city: 'Mumbai', angle: 'Finance & Banking Hiring', pincodes: ['400001','400013','400021','400051','400070'], sector: 'Finance' },
-  { city: 'Mumbai', angle: 'Logistics & Operations Hiring', pincodes: ['400070','400093','400601','400604','400703'], sector: 'Logistics' },
-  { city: 'Bangalore', angle: 'Product & Design Hiring', pincodes: ['560001','560008','560025','560047','560068'], sector: 'IT' },
-  { city: 'Delhi', angle: 'Healthcare & Hospital Hiring', pincodes: ['110001','110005','110006','110029','110060'], sector: 'Healthcare' },
-  { city: 'Pune', angle: 'BPO & Customer Support Hiring', pincodes: ['411001','411014','411041','411057','412101'], sector: 'BPO' },
-  { city: 'Hyderabad', angle: 'Real Estate & Construction Hiring', pincodes: ['500001','500016','500029','500033','500072'], sector: 'Real Estate' },
-  { city: 'Chennai', angle: 'BPO & Finance Hiring', pincodes: ['600001','600018','600035','600056','600100'], sector: 'Finance' },
-  { city: 'Bangalore', angle: 'E-Commerce & Delivery Hiring', pincodes: ['560029','560034','560037','560068','560076'], sector: 'E-Commerce' },
-  { city: 'Gurgaon', angle: 'Startup & HR Tech Hiring', pincodes: ['122001','122009','122011','122016','122051'], sector: 'HR Tech' },
-  { city: 'Noida', angle: 'Media & Digital Marketing Hiring', pincodes: ['201301','201303','201304','201307','201309'], sector: 'Digital Marketing' },
+
+  // ── INDIA: City + Sector (existing but expanded) ──────────────────────────
+  { type:'india-city', city:'Mumbai',       sector:'Banking & Finance',   angle:'Bank Jobs & Finance Hiring',          slug:'mumbai-banking-finance' },
+  { type:'india-city', city:'Bangalore',    sector:'IT',                  angle:'Software Developer & IT Hiring',       slug:'bangalore-it-software' },
+  { type:'india-city', city:'Delhi NCR',    sector:'Sales & BPO',         angle:'Sales Executive & BPO Hiring',         slug:'delhi-ncr-sales-bpo' },
+  { type:'india-city', city:'Pune',         sector:'IT & Manufacturing',  angle:'IT & Auto Sector Hiring',              slug:'pune-it-manufacturing' },
+  { type:'india-city', city:'Hyderabad',    sector:'Tech & Pharma',       angle:'Tech & Pharma Hiring',                 slug:'hyderabad-tech-pharma' },
+  { type:'india-city', city:'Chennai',      sector:'Auto & IT',           angle:'Automobile & IT Hiring',               slug:'chennai-auto-it' },
+  { type:'india-city', city:'Kolkata',      sector:'Logistics & Retail',  angle:'Logistics & Retail Hiring',            slug:'kolkata-logistics-retail' },
+  { type:'india-city', city:'Ahmedabad',    sector:'Textile & Finance',   angle:'Textile & Finance Hiring',             slug:'ahmedabad-textile-finance' },
+  { type:'india-city', city:'Surat',        sector:'Diamond & Textile',   angle:'Diamond & Textile Hiring',             slug:'surat-diamond-textile' },
+  { type:'india-city', city:'Jaipur',       sector:'Tourism & Retail',    angle:'Tourism & Retail Hiring',              slug:'jaipur-tourism-retail' },
+  { type:'india-city', city:'Gurgaon',      sector:'MNC & Startups',      angle:'MNC & Startup Hiring',                 slug:'gurgaon-mnc-startup' },
+  { type:'india-city', city:'Noida',        sector:'IT & Digital',        angle:'IT Park & Digital Marketing Hiring',   slug:'noida-it-digital' },
+  { type:'india-city', city:'Lucknow',      sector:'FMCG & Retail',       angle:'FMCG & Retail Hiring',                 slug:'lucknow-fmcg-retail' },
+  { type:'india-city', city:'Kochi',        sector:'Hospitality & IT',    angle:'Hospitality & IT Hiring',              slug:'kochi-hospitality-it' },
+  { type:'india-city', city:'Indore',       sector:'Pharma & IT',         angle:'Pharma & IT Hiring',                   slug:'indore-pharma-it' },
+  { type:'india-city', city:'Nagpur',       sector:'Healthcare & Logistics', angle:'Healthcare & Logistics Hiring',      slug:'nagpur-healthcare-logistics' },
+  { type:'india-city', city:'Coimbatore',   sector:'Manufacturing',       angle:'Manufacturing & Textile Hiring',       slug:'coimbatore-manufacturing' },
+  { type:'india-city', city:'Chandigarh',   sector:'IT & Govt',           angle:'IT & Government Sector Hiring',        slug:'chandigarh-it-govt' },
+  { type:'india-city', city:'Bhopal',       sector:'Retail & Govt',       angle:'Retail & Government Hiring',           slug:'bhopal-retail-govt' },
+  { type:'india-city', city:'Vadodara',     sector:'Chemical & IT',       angle:'Chemical & IT Hiring',                 slug:'vadodara-chemical-it' },
+
+  // ── INDIA: Freshers & Entry Level (HIGH TRAFFIC) ──────────────────────────
+  { type:'india-fresher', keyword:'jobs for freshers in India 2026',        angle:'No Experience Needed',       slug:'jobs-for-freshers-india-2026' },
+  { type:'india-fresher', keyword:'12th pass jobs 2026',                     angle:'After 12th Career Options',  slug:'12th-pass-jobs-2026' },
+  { type:'india-fresher', keyword:'10th pass jobs hiring immediately',       angle:'10th Pass Job Opportunities',slug:'10th-pass-jobs-hiring' },
+  { type:'india-fresher', keyword:'no experience jobs in India',             angle:'Jobs Without Experience',    slug:'no-experience-jobs-india' },
+  { type:'india-fresher', keyword:'part time jobs for students in India',    angle:'Student Jobs & Internships', slug:'part-time-jobs-students-india' },
+  { type:'india-fresher', keyword:'entry level jobs for graduates 2026',     angle:'Graduate Job Opportunities', slug:'entry-level-jobs-graduates-2026' },
+  { type:'india-fresher', keyword:'paid internships in India 2026',          angle:'Paid Internship Opportunities', slug:'paid-internships-india-2026' },
+  { type:'india-fresher', keyword:'jobs after MBA freshers India',           angle:'MBA Fresher Career Guide',   slug:'jobs-after-mba-freshers-india' },
+  { type:'india-fresher', keyword:'BCA BBA fresher jobs India',              angle:'BCA BBA Graduate Jobs',      slug:'bca-bba-fresher-jobs-india' },
+
+  // ── INDIA: Work From Home & Remote ────────────────────────────────────────
+  { type:'india-remote', keyword:'work from home jobs in India 2026',        angle:'WFH Job Opportunities',      slug:'work-from-home-jobs-india-2026' },
+  { type:'india-remote', keyword:'online jobs without investment from home',  angle:'Genuine Online Jobs India',  slug:'online-jobs-without-investment-india' },
+  { type:'india-remote', keyword:'data entry jobs work from home India',     angle:'Data Entry Remote Jobs',     slug:'data-entry-jobs-work-from-home-india' },
+  { type:'india-remote', keyword:'typing jobs from home India',              angle:'Typing & Data Entry Remote', slug:'typing-jobs-from-home-india' },
+  { type:'india-remote', keyword:'remote customer service jobs India',       angle:'Customer Service Remote Jobs', slug:'remote-customer-service-jobs-india' },
+  { type:'india-remote', keyword:'freelance jobs from home India',           angle:'Freelance Remote Work India', slug:'freelance-jobs-from-home-india' },
+
+  // ── INDIA: Urgent Hiring ───────────────────────────────────────────────────
+  { type:'india-urgent', keyword:'urgent job vacancy today',                 city:'Mumbai',    slug:'urgent-job-vacancy-mumbai' },
+  { type:'india-urgent', keyword:'walk in interview jobs this week',         city:'Bangalore', slug:'walk-in-interview-jobs-bangalore' },
+  { type:'india-urgent', keyword:'direct joining jobs no interview',         city:'Delhi',     slug:'direct-joining-jobs-delhi' },
+  { type:'india-urgent', keyword:'hiring immediately jobs today',            city:'Pune',      slug:'hiring-immediately-jobs-pune' },
+  { type:'india-urgent', keyword:'walk in interview jobs',                   city:'Hyderabad', slug:'walk-in-interview-jobs-hyderabad' },
+  { type:'india-urgent', keyword:'same day joining jobs',                    city:'Chennai',   slug:'same-day-joining-jobs-chennai' },
+
+  // ── INDIA: Company Specific (HIGH SEARCH VOLUME) ───────────────────────────
+  { type:'india-company', company:'TCS',             sector:'IT',        slug:'tcs-jobs-how-to-apply-2026' },
+  { type:'india-company', company:'Infosys',          sector:'IT',        slug:'infosys-jobs-freshers-2026' },
+  { type:'india-company', company:'Wipro',            sector:'IT',        slug:'wipro-jobs-apply-online-2026' },
+  { type:'india-company', company:'Reliance',         sector:'FMCG',      slug:'reliance-jobs-career-2026' },
+  { type:'india-company', company:'Amazon India',     sector:'Logistics', slug:'amazon-india-jobs-warehouse-2026' },
+  { type:'india-company', company:'Zomato',           sector:'Delivery',  slug:'zomato-delivery-jobs-apply-2026' },
+  { type:'india-company', company:'Flipkart',         sector:'E-commerce',slug:'flipkart-jobs-how-to-apply-2026' },
+  { type:'india-company', company:'HCL Technologies', sector:'IT',        slug:'hcl-jobs-freshers-2026' },
+
+  // ── USA: Blue-Collar by City (LOW COMPETITION, HIGH CONVERSION) ────────────
+  { type:'usa-blue', city:'Houston',     role:'warehouse jobs',       slug:'warehouse-jobs-houston-tx-hiring' },
+  { type:'usa-blue', city:'Dallas',      role:'warehouse jobs',       slug:'warehouse-jobs-dallas-hiring-immediately' },
+  { type:'usa-blue', city:'Chicago',     role:'warehouse jobs',       slug:'warehouse-jobs-chicago-il-hiring' },
+  { type:'usa-blue', city:'Los Angeles', role:'warehouse jobs',       slug:'warehouse-jobs-los-angeles-ca' },
+  { type:'usa-blue', city:'Phoenix',     role:'warehouse jobs',       slug:'warehouse-jobs-phoenix-az-hiring' },
+  { type:'usa-blue', city:'Houston',     role:'construction jobs',    slug:'construction-jobs-houston-tx-hiring' },
+  { type:'usa-blue', city:'Dallas',      role:'construction jobs',    slug:'construction-jobs-dallas-tx-now' },
+  { type:'usa-blue', city:'Chicago',     role:'cleaning jobs',        slug:'cleaning-jobs-chicago-il-hiring' },
+  { type:'usa-blue', city:'New York',    role:'delivery driver jobs', slug:'delivery-driver-jobs-new-york-ny' },
+  { type:'usa-blue', city:'Los Angeles', role:'delivery driver jobs', slug:'delivery-driver-jobs-los-angeles' },
+  { type:'usa-blue', city:'Houston',     role:'truck driver jobs',    slug:'truck-driver-jobs-houston-tx-cdl' },
+  { type:'usa-blue', city:'Dallas',      role:'truck driver jobs',    slug:'cdl-truck-driver-jobs-dallas-tx' },
+  { type:'usa-blue', city:'Chicago',     role:'cashier jobs',         slug:'cashier-jobs-chicago-part-time-full-time' },
+  { type:'usa-blue', city:'Austin',      role:'warehouse jobs',       slug:'part-time-warehouse-jobs-austin-tx' },
+  { type:'usa-blue', city:'Miami',       role:'construction jobs',    slug:'construction-jobs-miami-fl-now-hiring' },
+  { type:'usa-blue', city:'Atlanta',     role:'warehouse jobs',       slug:'warehouse-jobs-atlanta-ga-hiring' },
+  { type:'usa-blue', city:'Seattle',     role:'delivery driver jobs', slug:'delivery-driver-jobs-seattle-wa' },
+  { type:'usa-blue', city:'Denver',      role:'construction jobs',    slug:'construction-jobs-denver-co-hiring' },
+
+  // ── USA: Remote & Work From Home ───────────────────────────────────────────
+  { type:'usa-remote', keyword:'remote data entry jobs no experience USA',   slug:'remote-data-entry-jobs-no-experience-usa' },
+  { type:'usa-remote', keyword:'online jobs from home USA 2026',             slug:'online-jobs-from-home-usa-2026' },
+  { type:'usa-remote', keyword:'no experience remote jobs USA',              slug:'no-experience-remote-jobs-usa' },
+  { type:'usa-remote', keyword:'entry level remote jobs USA 2026',           slug:'entry-level-remote-jobs-usa-2026' },
+  { type:'usa-remote', keyword:'remote customer service jobs USA',           slug:'remote-customer-service-jobs-usa' },
+  { type:'usa-remote', keyword:'work from home jobs $20 per hour',           slug:'work-from-home-jobs-20-per-hour' },
+  { type:'usa-remote', keyword:'part time remote jobs USA no experience',    slug:'part-time-remote-jobs-usa-no-experience' },
+
+  // ── USA: High Paying & Urgent ──────────────────────────────────────────────
+  { type:'usa-highpay', keyword:'$20 per hour jobs near me USA',            slug:'20-dollar-per-hour-jobs-near-me-usa' },
+  { type:'usa-highpay', keyword:'jobs paying weekly no experience USA',     slug:'jobs-paying-weekly-no-experience-usa' },
+  { type:'usa-highpay', keyword:'highest paying blue collar jobs USA 2026', slug:'highest-paying-blue-collar-jobs-usa' },
+  { type:'usa-highpay', keyword:'urgent hiring high salary jobs USA',       slug:'urgent-hiring-high-salary-jobs-usa' },
+  { type:'usa-highpay', keyword:'CDL driver jobs $80000 salary USA',        slug:'cdl-driver-jobs-high-salary-usa' },
+
+  // ── USA: Healthcare & Skilled ──────────────────────────────────────────────
+  { type:'usa-skilled', role:'nurse jobs',              city:'New York',      slug:'nurse-jobs-new-york-ny-hiring' },
+  { type:'usa-skilled', role:'medical assistant jobs',  city:'Los Angeles',   slug:'medical-assistant-jobs-los-angeles' },
+  { type:'usa-skilled', role:'CNA jobs',                city:'Chicago',       slug:'cna-jobs-chicago-il-hiring-now' },
+  { type:'usa-skilled', role:'software developer jobs', city:'Austin',        slug:'software-developer-jobs-austin-tx' },
+  { type:'usa-skilled', role:'digital marketing jobs',  city:'New York',      slug:'digital-marketing-jobs-new-york-2026' },
+  { type:'usa-skilled', role:'electrician jobs',        city:'Houston',       slug:'electrician-jobs-houston-tx-hiring' },
+  { type:'usa-skilled', role:'plumber jobs',            city:'Dallas',        slug:'plumber-jobs-dallas-tx-hiring-now' },
+
 ]
 
 function mkSlug(s) {
@@ -41,113 +116,311 @@ function mkSlug(s) {
     .replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '')
 }
 
+// ─── PROMPT BUILDERS ─────────────────────────────────────────────────────────
+
+function buildPrompt(topic) {
+  const internalLinks = `
+INTERNAL LINKS (add 3–4 naturally in body):
+- [Post a job free on HireHub360](https://hirehub360.in)
+- [View all hiring plans](https://hirehub360.in/pricing)
+- [Read more hiring guides](https://hirehub360.in/blog)
+- [Browse jobs](https://hirehub360.in/jobs/in/${topic.city ? mkSlug(topic.city) : 'india'})`
+
+  const linkRules = `
+LINK RULES: All links mid-sentence only. Descriptive anchor text. Never "click here".`
+
+  if (topic.type === 'india-city') {
+    return `Write a detailed 900-1100 word SEO blog for HireHub360 (hirehub360.in), India's AI job portal.
+
+TITLE: "Post Jobs in ${topic.city} Fast — ${topic.angle} Guide 2026"
+TARGET KEYWORD: "post jobs in ${topic.city}" + "${topic.sector} hiring"
+AUDIENCE: HR managers & business owners in ${topic.city}
+INDUSTRY: ${topic.sector}
+
+Include:
+- Why ${topic.city} is a hotspot for ${topic.sector} hiring in 2026
+- Top areas/zones in ${topic.city} for hiring with pincodes
+- Common job roles, salary ranges, and average time to hire
+- Step-by-step: how to post a job on HireHub360
+- FAQ (4 questions)
+- Strong closing CTA: post first job free
+
+${internalLinks}
+EXTERNAL: [Ministry of Labour India](https://labour.gov.in), [People Matters](https://www.peoplematters.in), [IBEF](https://www.ibef.org) — cite facts naturally.
+${linkRules}
+
+Write in markdown only. Start with ## heading.`
+  }
+
+  if (topic.type === 'india-fresher') {
+    return `Write a detailed 900-1100 word SEO blog for HireHub360 (hirehub360.in).
+
+TITLE: "${topic.keyword.charAt(0).toUpperCase() + topic.keyword.slice(1)} — Complete Guide 2026"
+TARGET KEYWORD: "${topic.keyword}"
+AUDIENCE: Young job seekers, freshers, students in India
+ANGLE: ${topic.angle}
+
+Include:
+- Current job market for ${topic.angle} in India 2026
+- Top companies hiring (TCS, Infosys, Amazon, Zomato, startups)
+- In-demand skills for freshers right now
+- How to create a strong profile on HireHub360
+- Top cities hiring freshers: Mumbai, Bangalore, Pune, Hyderabad, Delhi
+- Resume tips specifically for freshers
+- FAQ (4 questions)
+- CTA: Apply for free on HireHub360
+
+${internalLinks}
+EXTERNAL: [NASSCOM](https://nasscom.in), [People Matters](https://www.peoplematters.in), [National Career Service](https://www.ncs.gov.in) — cite naturally.
+${linkRules}
+
+Write in markdown only. Start with ## heading.`
+  }
+
+  if (topic.type === 'india-remote') {
+    return `Write a detailed 900-1100 word SEO blog for HireHub360 (hirehub360.in).
+
+TITLE: "${topic.keyword.charAt(0).toUpperCase() + topic.keyword.slice(1)} — Verified Opportunities 2026"
+TARGET KEYWORD: "${topic.keyword}"
+AUDIENCE: Indian job seekers looking for remote / work-from-home jobs
+ANGLE: ${topic.angle}
+
+Include:
+- Why remote work is booming in India in 2026
+- Top genuine remote job categories (avoid scams section)
+- Skills needed for remote work
+- Companies hiring remote workers from India
+- How to apply on HireHub360 for remote jobs
+- Red flags to avoid (fake job scams)
+- FAQ (4 questions)
+- CTA: Browse remote jobs on HireHub360
+
+${internalLinks}
+EXTERNAL: [NASSCOM](https://nasscom.in), [Ministry of Labour India](https://labour.gov.in), [People Matters](https://www.peoplematters.in).
+${linkRules}
+
+Write in markdown only. Start with ## heading.`
+  }
+
+  if (topic.type === 'india-urgent') {
+    return `Write a detailed 900-1100 word SEO blog for HireHub360 (hirehub360.in).
+
+TITLE: "${topic.keyword.charAt(0).toUpperCase() + topic.keyword.slice(1)} in ${topic.city} — Apply Now 2026"
+TARGET KEYWORD: "${topic.keyword} ${topic.city}"
+AUDIENCE: Job seekers in ${topic.city} looking for immediate employment
+ANGLE: Urgent hiring, fast joining, same-week start
+
+Include:
+- Top industries doing urgent hiring in ${topic.city} right now
+- Roles with immediate joining: delivery, warehouse, BPO, sales, security, housekeeping
+- What "direct joining" means and how to spot genuine urgent jobs
+- How to apply fast on HireHub360 (profile tips for quick hire)
+- Area-wise urgent hiring in ${topic.city}
+- FAQ (4 questions)
+- CTA: See today's urgent openings on HireHub360
+
+${internalLinks}
+EXTERNAL: [Ministry of Labour India](https://labour.gov.in), [People Matters](https://www.peoplematters.in).
+${linkRules}
+
+Write in markdown only. Start with ## heading.`
+  }
+
+  if (topic.type === 'india-company') {
+    return `Write a detailed 900-1100 word SEO blog for HireHub360 (hirehub360.in).
+
+TITLE: "${topic.company} Jobs 2026 — How to Apply, Salary & Career Guide"
+TARGET KEYWORD: "${topic.company} jobs 2026" + "${topic.company} careers"
+AUDIENCE: Job seekers (freshers + experienced) wanting to join ${topic.company}
+SECTOR: ${topic.sector}
+
+Include:
+- Overview of ${topic.company} as an employer in 2026
+- Types of roles available (fresher + experienced)
+- Salary ranges at ${topic.company} by role and experience
+- Hiring process at ${topic.company} step by step
+- Skills & qualifications ${topic.company} looks for
+- Tips to crack ${topic.company} interview
+- How HireHub360 helps you land ${topic.company}-style roles
+- FAQ (4 questions)
+- CTA: Build your profile on HireHub360 and apply to similar companies
+
+IMPORTANT: Don't claim HireHub360 has ${topic.company} jobs directly — position as career guidance + similar roles.
+
+${internalLinks}
+EXTERNAL: [${topic.company} official careers page], [NASSCOM](https://nasscom.in), [People Matters](https://www.peoplematters.in).
+${linkRules}
+
+Write in markdown only. Start with ## heading.`
+  }
+
+  if (topic.type === 'usa-blue') {
+    return `Write a detailed 900-1100 word SEO blog for HireHub360 (hirehub360.in).
+
+TITLE: "${topic.role.charAt(0).toUpperCase() + topic.role.slice(1)} in ${topic.city} — Hiring Now 2026"
+TARGET KEYWORD: "${topic.role} in ${topic.city}" + "hiring immediately"
+AUDIENCE: US job seekers looking for ${topic.role} in ${topic.city} area
+ANGLE: Immediate hiring, good pay, no degree required
+
+Include:
+- Current demand for ${topic.role} in ${topic.city} in 2026
+- Top employers hiring ${topic.role} in ${topic.city} right now
+- Pay rates: hourly wages, weekly pay, overtime opportunities
+- Requirements: what employers actually need (no degree emphasis)
+- Neighborhoods/areas in ${topic.city} with most openings
+- How to apply fast — tips for same-week start
+- Benefits common in ${topic.role} positions (healthcare, 401k, etc)
+- FAQ (4 questions)
+- CTA: Create a free profile on HireHub360 and get matched with employers
+
+${internalLinks}
+EXTERNAL: [US Bureau of Labor Statistics](https://www.bls.gov), [SHRM](https://www.shrm.org), [Indeed hiring trends](https://www.hiringlab.org).
+${linkRules}
+
+Write in markdown only. Start with ## heading.`
+  }
+
+  if (topic.type === 'usa-remote') {
+    return `Write a detailed 900-1100 word SEO blog for HireHub360 (hirehub360.in).
+
+TITLE: "${topic.keyword.charAt(0).toUpperCase() + topic.keyword.slice(1)} — Legitimate Opportunities 2026"
+TARGET KEYWORD: "${topic.keyword}"
+AUDIENCE: US job seekers looking for remote work, especially no-experience candidates
+ANGLE: Legitimate remote jobs, how to avoid scams, fast apply
+
+Include:
+- Why remote work is booming in 2026 (stats from BLS)
+- Top legitimate remote job categories: customer service, data entry, virtual assistant, content moderation
+- Pay ranges for each category
+- Companies genuinely hiring remote workers in 2026
+- Skills to develop for remote work success
+- How to spot and avoid remote job scams
+- How HireHub360 helps match remote workers with employers
+- FAQ (4 questions)
+- CTA: Apply to remote jobs free on HireHub360
+
+${internalLinks}
+EXTERNAL: [US Bureau of Labor Statistics](https://www.bls.gov), [SHRM](https://www.shrm.org), [FlexJobs remote data](https://www.flexjobs.com).
+${linkRules}
+
+Write in markdown only. Start with ## heading.`
+  }
+
+  if (topic.type === 'usa-highpay') {
+    return `Write a detailed 900-1100 word SEO blog for HireHub360 (hirehub360.in).
+
+TITLE: "${topic.keyword.charAt(0).toUpperCase() + topic.keyword.slice(1)} — Complete Guide 2026"
+TARGET KEYWORD: "${topic.keyword}"
+AUDIENCE: US job seekers wanting high-paying jobs, often blue-collar or entry level
+
+Include:
+- Why these jobs pay well in 2026 (labor shortage, demand)
+- Specific job categories and their pay rates
+- Which industries/companies pay the most for this category
+- States/cities with highest pay
+- How to negotiate pay and get weekly pay
+- Benefits that come with these roles
+- How to apply and land these jobs quickly
+- FAQ (4 questions)
+- CTA: Find high-paying jobs on HireHub360
+
+${internalLinks}
+EXTERNAL: [US Bureau of Labor Statistics](https://www.bls.gov), [Indeed salary data](https://www.indeed.com/career/salaries), [Glassdoor](https://www.glassdoor.com).
+${linkRules}
+
+Write in markdown only. Start with ## heading.`
+  }
+
+  if (topic.type === 'usa-skilled') {
+    return `Write a detailed 900-1100 word SEO blog for HireHub360 (hirehub360.in).
+
+TITLE: "${topic.role.charAt(0).toUpperCase() + topic.role.slice(1)} in ${topic.city} — Hiring Now 2026"
+TARGET KEYWORD: "${topic.role} in ${topic.city}" + "hiring 2026"
+AUDIENCE: US job seekers looking for ${topic.role} in ${topic.city}
+ANGLE: Skilled jobs with strong pay and benefits
+
+Include:
+- Demand for ${topic.role} in ${topic.city} in 2026
+- Top employers and hospitals/companies hiring
+- Salary ranges and shift differentials
+- Certifications and qualifications required
+- Application tips and interview prep
+- Career growth path
+- FAQ (4 questions)
+- CTA: Apply for ${topic.role} positions on HireHub360
+
+${internalLinks}
+EXTERNAL: [US Bureau of Labor Statistics](https://www.bls.gov), [SHRM](https://www.shrm.org).
+${linkRules}
+
+Write in markdown only. Start with ## heading.`
+  }
+
+  // fallback
+  return `Write a 900 word SEO blog about "${topic.slug}" for HireHub360 (hirehub360.in). Include internal links to https://hirehub360.in. Write in markdown starting with ## heading.`
+}
+
+function buildMeta(topic) {
+  if (topic.type === 'india-city')    return { title: `Post Jobs in ${topic.city} — ${topic.angle} | HireHub360 2026`, excerpt: `Hire fast in ${topic.city}. Post jobs on HireHub360 and get verified candidates in 24 hours. Free job posting for ${topic.sector} roles.` }
+  if (topic.type === 'india-fresher') return { title: `${topic.keyword.charAt(0).toUpperCase()+topic.keyword.slice(1)} — Complete Guide 2026 | HireHub360`, excerpt: `Looking for ${topic.keyword}? Complete 2026 guide with top companies, salary, and how to apply fast on HireHub360.` }
+  if (topic.type === 'india-remote')  return { title: `${topic.keyword.charAt(0).toUpperCase()+topic.keyword.slice(1)} — Verified 2026 | HireHub360`, excerpt: `Find genuine ${topic.keyword}. Avoid scams, discover real opportunities, and apply free on HireHub360.` }
+  if (topic.type === 'india-urgent')  return { title: `${topic.keyword} in ${topic.city} — Apply Today 2026 | HireHub360`, excerpt: `Find urgent hiring jobs in ${topic.city} with same-week joining. Apply now on HireHub360.` }
+  if (topic.type === 'india-company') return { title: `${topic.company} Jobs 2026 — How to Apply & Salary Guide | HireHub360`, excerpt: `Complete guide to ${topic.company} jobs: salary, hiring process, tips, and similar opportunities on HireHub360.` }
+  if (topic.type === 'usa-blue')      return { title: `${topic.role.charAt(0).toUpperCase()+topic.role.slice(1)} in ${topic.city} — Hiring Now 2026 | HireHub360`, excerpt: `Find ${topic.role} in ${topic.city} with immediate hiring, weekly pay, and no degree required. Apply free on HireHub360.` }
+  if (topic.type === 'usa-remote')    return { title: `${topic.keyword.charAt(0).toUpperCase()+topic.keyword.slice(1)} — Legit Opportunities 2026 | HireHub360`, excerpt: `Find legitimate ${topic.keyword}. Avoid scams. Top companies, pay rates, and apply free on HireHub360.` }
+  if (topic.type === 'usa-highpay')   return { title: `${topic.keyword.charAt(0).toUpperCase()+topic.keyword.slice(1)} — 2026 Guide | HireHub360`, excerpt: `Complete guide to ${topic.keyword}: top employers, pay rates, and how to land these jobs fast.` }
+  if (topic.type === 'usa-skilled')   return { title: `${topic.role.charAt(0).toUpperCase()+topic.role.slice(1)} in ${topic.city} — Now Hiring 2026 | HireHub360`, excerpt: `Top employers hiring ${topic.role} in ${topic.city}. Salary, requirements & how to apply in 2026.` }
+  return { title: topic.slug.replace(/-/g,' '), excerpt: 'Job guide 2026 — HireHub360' }
+}
+
+function buildTags(topic) {
+  const base = ['job guide 2026', 'hirehub360']
+  if (topic.type?.startsWith('india')) return [...base, 'india jobs', topic.city || '', topic.sector || '', topic.keyword || ''].filter(Boolean)
+  if (topic.type?.startsWith('usa'))   return [...base, 'usa jobs', topic.city || '', topic.role || '', topic.keyword || ''].filter(Boolean)
+  return base
+}
+
 async function generateBlog(topic) {
-  const prompt = `Write a detailed, SEO-optimized blog post for HireHub360 (hirehub360.in), a job posting platform in India.
-
-Topic: "Post Jobs in ${topic.city} Fast — ${topic.angle}"
-Target audience: HR managers, recruiters, and business owners in ${topic.city} who hire regularly.
-Key pincodes to mention: ${topic.pincodes.join(', ')}
-Industry focus: ${topic.sector}
-
-Requirements:
-- 900-1200 words
-- Use markdown formatting (## headings, **bold**, tables, bullet points)
-- Include a section listing 8-10 specific areas/zones in ${topic.city} with their pincodes and top roles hired there
-- Include a table showing top job roles and avg applications in 24 hours
-- Include a "How to Post a Job" step-by-step section
-- Include FAQ section (4 questions)
-- Mention the pincodes: ${topic.pincodes.join(', ')} naturally in content
-- Do NOT use generic filler. Be specific to ${topic.city} and ${topic.sector}.
-- Tone: professional but direct. Built for Indian HR professionals.
-
-── LINKING RULES (Google E-E-A-T 2026 — MANDATORY) ──
-You MUST include EXACTLY these links naturally within the body content:
-
-INTERNAL LINKS (3–4 links, descriptive anchor text, contextual placement):
-- [Post a job for free on HireHub360](https://hirehub360.in) — use in intro or "how to post" section
-- [Browse ${topic.city} job listings](https://hirehub360.in/jobs/in/${topic.city.toLowerCase().split(' ')[0]}) — use in pincode/area section
-- [View hiring plans and pricing](https://hirehub360.in/pricing) — use in CTA or cost section
-- [Read more HR hiring guides](https://hirehub360.in/blog) — use in FAQ or closing section
-
-EXTERNAL LINKS (2–3 links, only high-authority sources, opens context of facts you mention):
-- [Ministry of Labour & Employment, India](https://labour.gov.in) — cite when mentioning employment trends or regulations
-- [NASSCOM India workforce data](https://nasscom.in) — cite when mentioning IT/tech hiring data (only if sector is IT/tech)
-- [SHRM HR best practices](https://www.shrm.org) — cite when mentioning HR practices or hiring benchmarks
-- [People Matters HR India](https://www.peoplematters.in) — cite when mentioning India HR industry statistics
-- [India Brand Equity Foundation](https://www.ibef.org) — cite when mentioning India industry/sector growth data
-
-Rules for links:
-1. ALL links must appear naturally mid-sentence — never in a "References" section
-2. Anchor text must be descriptive (never "click here", "read more", "this link")
-3. Internal links = dofollow. External links = include naturally, no rel attribute needed in markdown
-4. Each link must be contextually relevant to the sentence it appears in
-5. Do NOT stuff links. Each link earns its place.
-
-End with a strong CTA: "**Ready to hire in ${topic.city}?** [Post your first job free on HireHub360](https://hirehub360.in) and get verified candidates within 24 hours."
-
-Write only the blog content in markdown. No intro, no "here is the blog", just the markdown content starting with ## heading.`
-
+  const prompt = buildPrompt(topic)
   const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
-      'Content-Type': 'application/json'
-    },
+    headers: { 'Authorization': `Bearer ${process.env.GROQ_API_KEY}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
       model: 'llama-3.3-70b-versatile',
       messages: [{ role: 'user', content: prompt }],
-      max_tokens: 2000,
-      temperature: 0.7
+      max_tokens: 2200,
+      temperature: 0.72
     })
   })
-
   const data = await res.json()
   return data.choices?.[0]?.message?.content || ''
 }
 
 export default async function handler(req, res) {
-  // Allow GET for manual trigger, or Vercel cron (which sends GET)
-  if (req.method !== 'GET' && req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' })
-  }
+  if (req.method !== 'GET' && req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
-  // Verify cron secret to prevent abuse
   const secret = req.headers['x-cron-secret'] || req.query.secret
-  if (secret !== (process.env.CRON_SECRET || 'hirehub-cron-2026')) {
-    return res.status(401).json({ error: 'Unauthorized' })
-  }
+  if (secret !== (process.env.CRON_SECRET || 'hirehub-cron-2026')) return res.status(401).json({ error: 'Unauthorized' })
 
   try {
-    // Pick today's topic based on day of year
     const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000)
     const topic = TOPICS[dayOfYear % TOPICS.length]
+    const slug = topic.slug
 
-    // Generate slug (no date — evergreen URLs)
-    const slug = `post-jobs-${mkSlug(topic.city)}-${mkSlug(topic.sector)}`
-
-    // Check if slug already exists
+    // Check if already written
     const { data: existing } = await supabaseService.from('blogs').select('id').eq('slug', slug).maybeSingle()
-    if (existing) {
-      return res.json({ ok: true, message: 'Blog already written for today', slug })
-    }
+    if (existing) return res.json({ ok: true, message: 'Blog already written for today', slug })
 
-    // Generate content with AI
     const content = await generateBlog(topic)
-    if (!content || content.length < 200) {
-      return res.status(500).json({ error: 'AI generated empty content' })
-    }
+    if (!content || content.length < 200) return res.status(500).json({ error: 'AI generated empty content' })
 
-    const title = `Post Jobs in ${topic.city} Fast — ${topic.angle} | HireHub360`
-    const excerpt = `${topic.city} HRs — post a job on HireHub360 and get verified candidates in 24 hours. Covering ${topic.pincodes.slice(0,3).join(', ')} and all top ${topic.city} pincodes. Free job posting. Start now.`
+    const { title, excerpt } = buildMeta(topic)
+    const tags = buildTags(topic)
 
-    // Save to Supabase
     const { error } = await supabaseService.from('blogs').insert({
-      title,
-      slug,
-      excerpt,
-      content,
+      title, slug, excerpt, content,
       author: 'HireHub360 Team',
-      tags: ['job posting', topic.city.toLowerCase(), topic.sector.toLowerCase(), 'fast hiring', 'HR India'],
+      tags,
       published: true,
       updated_at: new Date().toISOString()
     })
@@ -155,20 +428,10 @@ export default async function handler(req, res) {
     if (error) return res.status(500).json({ error: error.message })
 
     const blogUrl = `${SITE}/blog/${slug}`
-
-    // IndexNow + sitemap pings (Bing, Yandex, Google sitemap ping)
     await autoIndex([blogUrl, `${SITE}/blog`])
+    const [gBlog] = await Promise.all([googleIndex([blogUrl])])
 
-    // Google Indexing API — direct crawl request
-    const [gBlog, gIndex] = await Promise.all([
-      googleIndex([blogUrl]),
-      googleIndex([`${SITE}/blog`]),
-    ])
-
-    return res.json({
-      ok: true, slug, title, city: topic.city,
-      google_indexed: gBlog[0]?.ok,
-    })
+    return res.json({ ok: true, slug, title, type: topic.type, google_indexed: gBlog[0]?.ok })
   } catch (e) {
     return res.status(500).json({ error: e.message })
   }
