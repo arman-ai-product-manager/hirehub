@@ -396,42 +396,74 @@ async function generateBlog(topic) {
   return data.choices?.[0]?.message?.content || ''
 }
 
+async function writeBlog(topic) {
+  const slug = topic.slug
+  const { data: existing } = await supabaseService.from('blogs').select('id').eq('slug', slug).maybeSingle()
+  if (existing) return { skipped: true, slug }
+
+  const content = await generateBlog(topic)
+  if (!content || content.length < 200) return { error: 'Empty content', slug }
+
+  const { title, excerpt } = buildMeta(topic)
+  const tags = buildTags(topic)
+
+  const { error } = await supabaseService.from('blogs').insert({
+    title, slug, excerpt, content,
+    author: 'HireHub360 Team',
+    tags,
+    published: true,
+    updated_at: new Date().toISOString()
+  })
+  if (error) return { error: error.message, slug }
+
+  const blogUrl = `${SITE}/blog/${slug}`
+  await autoIndex([blogUrl, `${SITE}/blog`])
+  await googleIndex([blogUrl])
+
+  return { ok: true, slug, title, type: topic.type }
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'GET' && req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
   const secret = req.headers['x-cron-secret'] || req.query.secret
   if (secret !== (process.env.CRON_SECRET || 'hirehub-cron-2026')) return res.status(401).json({ error: 'Unauthorized' })
 
+  const bulk = parseInt(req.query.bulk || '1', 10)
+
   try {
+    // BULK MODE: generate up to N blogs from unwritten topics
+    if (bulk > 1) {
+      const limit = Math.min(bulk, 20) // max 20 per call
+      const results = []
+      let written = 0
+
+      // shuffle topics slightly (by day offset) so we don't always start from topic 0
+      const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000)
+      const startIdx = dayOfYear % TOPICS.length
+      const ordered = [...TOPICS.slice(startIdx), ...TOPICS.slice(0, startIdx)]
+
+      for (const topic of ordered) {
+        if (written >= limit) break
+        const result = await writeBlog(topic)
+        results.push(result)
+        if (result.ok) {
+          written++
+          // small delay between AI calls to avoid rate limits
+          await new Promise(r => setTimeout(r, 1500))
+        }
+      }
+      return res.json({ ok: true, written, results })
+    }
+
+    // SINGLE MODE (daily cron)
     const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000)
     const topic = TOPICS[dayOfYear % TOPICS.length]
-    const slug = topic.slug
+    const result = await writeBlog(topic)
+    if (result.skipped) return res.json({ ok: true, message: 'Blog already written for today', slug: result.slug })
+    if (result.error) return res.status(500).json({ error: result.error })
+    return res.json(result)
 
-    // Check if already written
-    const { data: existing } = await supabaseService.from('blogs').select('id').eq('slug', slug).maybeSingle()
-    if (existing) return res.json({ ok: true, message: 'Blog already written for today', slug })
-
-    const content = await generateBlog(topic)
-    if (!content || content.length < 200) return res.status(500).json({ error: 'AI generated empty content' })
-
-    const { title, excerpt } = buildMeta(topic)
-    const tags = buildTags(topic)
-
-    const { error } = await supabaseService.from('blogs').insert({
-      title, slug, excerpt, content,
-      author: 'HireHub360 Team',
-      tags,
-      published: true,
-      updated_at: new Date().toISOString()
-    })
-
-    if (error) return res.status(500).json({ error: error.message })
-
-    const blogUrl = `${SITE}/blog/${slug}`
-    await autoIndex([blogUrl, `${SITE}/blog`])
-    const [gBlog] = await Promise.all([googleIndex([blogUrl])])
-
-    return res.json({ ok: true, slug, title, type: topic.type, google_indexed: gBlog[0]?.ok })
   } catch (e) {
     return res.status(500).json({ error: e.message })
   }
