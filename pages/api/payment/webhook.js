@@ -71,23 +71,50 @@ export default async function handler(req, res) {
     last_payment_id: payment?.cf_payment_id,
   }
 
+  // ── Subscription events ───────────────────────────────────────────────────
+  const subTags    = event?.data?.subscription?.tags || {}
+  const subUserId  = subTags.user_id  || null
+  const subRole    = subTags.role     || null
+  const subPlan    = subTags.plan     || plan
+
+  const isPaymentSuccess = eventType === 'PAYMENT_SUCCESS_WEBHOOK'
+  const isSubPayment     = eventType === 'SUBSCRIPTION_PAYMENT_SUCCESS'
+  const isSubActivated   = eventType === 'SUBSCRIPTION_ACTIVATED'
+
   try {
-    if (eventType === 'PAYMENT_SUCCESS_WEBHOOK' && userId) {
-      if (roleHint === 'company') {
-        // Role known — update directly
-        await supabaseService.from('companies').update(planPayload).eq('id', userId)
-      } else if (roleHint === 'candidate') {
-        await supabaseService.from('candidates').update(planPayload).eq('id', userId)
-      } else {
-        // Fallback: try companies first, then candidates
-        const { data: co } = await supabaseService.from('companies').select('id').eq('id', userId).maybeSingle()
-        if (co) {
-          await supabaseService.from('companies').update(planPayload).eq('id', userId)
-        } else {
-          await supabaseService.from('candidates').update(planPayload).eq('id', userId)
-        }
+    const targetUserId = userId || subUserId
+    const targetRole   = roleHint || subRole
+    const targetPlan   = subPlan || plan
+
+    if ((isPaymentSuccess || isSubPayment || isSubActivated) && targetUserId) {
+      const activatePayload = {
+        plan:            targetPlan,
+        plan_updated_at: new Date().toISOString(),
+        last_payment_id: payment?.cf_payment_id || event?.data?.subscription?.subReferenceId,
       }
-      console.log(`Plan '${plan}' activated for user ${userId} (role: ${roleHint || 'auto'})`)
+
+      if (targetRole === 'company') {
+        await supabaseService.from('companies').update(activatePayload).eq('id', targetUserId)
+      } else if (targetRole === 'candidate') {
+        await supabaseService.from('candidates').update(activatePayload).eq('id', targetUserId)
+      } else {
+        const { data: co } = await supabaseService.from('companies').select('id').eq('id', targetUserId).maybeSingle()
+        if (co) await supabaseService.from('companies').update(activatePayload).eq('id', targetUserId)
+        else     await supabaseService.from('candidates').update(activatePayload).eq('id', targetUserId)
+      }
+      console.log(`✅ Plan '${targetPlan}' activated for ${targetUserId} via ${eventType}`)
+    }
+
+    // Handle subscription cancellation / failure
+    if ((eventType === 'SUBSCRIPTION_CANCELLED' || eventType === 'SUBSCRIPTION_PAYMENT_FAILED') && subUserId) {
+      const downgradePayload = { plan_updated_at: new Date().toISOString() }
+      if (eventType === 'SUBSCRIPTION_CANCELLED') {
+        downgradePayload.plan = 'free'
+        console.log(`⚠️ Subscription cancelled for ${subUserId} — downgraded to free`)
+        const { data: co } = await supabaseService.from('companies').select('id').eq('id', subUserId).maybeSingle()
+        if (co) await supabaseService.from('companies').update({ plan: 'free' }).eq('id', subUserId)
+        else     await supabaseService.from('candidates').update({ plan: 'free' }).eq('id', subUserId)
+      }
     }
   } catch (err) {
     console.error('Webhook DB error:', err)

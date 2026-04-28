@@ -199,7 +199,33 @@ export default function Pricing() {
         setUserName(meta.name || meta.full_name || '')
       }
     })
+
+    // Handle return from Cashfree subscription mandate setup
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      if (params.get('sub_success') === '1') {
+        const plan   = params.get('plan')   || ''
+        const uId    = params.get('userId') || ''
+        const role   = params.get('role')   || ''
+        // Activate plan immediately (webhook also fires but this is instant)
+        if (uId && plan && role) {
+          fetch('/api/payment/verify-sub', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: uId, plan, role }),
+          }).catch(() => {})
+        }
+        const planLabel = plan.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+        setSuccess(`🎉 Auto-pay setup done! Your ${planLabel} plan is now active. You'll be charged ₹${plan==='growth'?999:plan==='scale'?2499:plan==='career_plus'?249:99}/month automatically.`)
+        // Clean URL
+        window.history.replaceState({}, '', '/pricing')
+      }
+    }
   }, [])
+
+  // Monthly plans use Cashfree Subscription (auto-pay)
+  // Credit packs use one-time order
+  const SUBSCRIPTION_PLANS = ['growth', 'scale', 'pro_seeker', 'career_plus']
 
   async function handlePay(planId, amount, label) {
     if (!amount) {
@@ -207,10 +233,43 @@ export default function Pricing() {
       return
     }
     if (amount === 0) return
+
+    if (!userId) {
+      setError('Please log in to HireHub360 first, then come back to this page to subscribe.')
+      return
+    }
+
     setLoading(planId)
     setError('')
+
+    // ── SUBSCRIPTION (monthly auto-pay) ───────────────────────────────────────
+    if (SUBSCRIPTION_PLANS.includes(planId)) {
+      try {
+        const res = await fetch('/api/payment/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            plan:          planId,
+            userId:        userId,
+            role:          userRole || 'candidate',
+            customerEmail: userEmail,
+            customerName:  userName,
+          }),
+        })
+        const data = await res.json()
+        if (!res.ok || !data.authLink) throw new Error(data.error || 'Could not create subscription')
+
+        // Redirect to Cashfree mandate setup page
+        window.location.href = data.authLink
+      } catch (err) {
+        setError(err.message || 'Could not start subscription. Please try again.')
+        setLoading('')
+      }
+      return
+    }
+
+    // ── ONE-TIME ORDER (CV credit packs) ──────────────────────────────────────
     try {
-      // 1. Create order
       const res = await fetch('/api/payment/order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -232,7 +291,6 @@ export default function Pricing() {
       const data = await res.json()
       if (!res.ok || !data.paymentSessionId) throw new Error(data.error || 'Could not create order')
 
-      // 2. Open Cashfree checkout
       if (typeof window === 'undefined' || !window.Cashfree) throw new Error('Payment SDK not loaded. Please refresh.')
       const cf = window.Cashfree({ mode: 'production' })
       const result = await cf.checkout({
@@ -242,7 +300,6 @@ export default function Pricing() {
 
       if (result.error) throw new Error(result.error.message || 'Payment failed')
 
-      // 3. Verify with server + activate plan
       const vRes = await fetch('/api/payment/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -255,9 +312,9 @@ export default function Pricing() {
       })
       const vData = await vRes.json()
       if (vData.ok) {
-        setSuccess(`🎉 Payment successful! ${label} is now active. Refresh the app to see your new plan.`)
+        setSuccess(`🎉 Payment successful! ${label} activated. Refresh the app to see changes.`)
       } else {
-        setError('Payment done but activation pending. Please refresh in 1 minute or contact support@hirehub360.in')
+        setError('Payment done but activation pending. Refresh in 1 min or email support@hirehub360.in')
       }
       setLoading('')
     } catch (err) {
