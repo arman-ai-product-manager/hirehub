@@ -111,6 +111,78 @@ const TOPICS = [
   { type:'usa-skilled', role:'electrician jobs',        city:'Houston',       slug:'electrician-jobs-houston-tx-hiring' },
   { type:'usa-skilled', role:'plumber jobs',            city:'Dallas',        slug:'plumber-jobs-dallas-tx-hiring-now' },
 
+  // ── INDIA: More Cities ────────────────────────────────────────────────────
+  { type:'india-city', city:'Vizag',        sector:'Port & Manufacturing',  angle:'Port & Manufacturing Hiring',       slug:'vizag-port-manufacturing-jobs' },
+  { type:'india-city', city:'Patna',        sector:'Govt & Education',      angle:'Government & Education Hiring',     slug:'patna-govt-education-jobs' },
+  { type:'india-city', city:'Ranchi',       sector:'Mining & Steel',        angle:'Mining & Steel Industry Hiring',    slug:'ranchi-mining-steel-jobs' },
+  { type:'india-city', city:'Bhubaneswar',  sector:'IT & Retail',           angle:'IT & Retail Hiring',                slug:'bhubaneswar-it-retail-jobs' },
+  { type:'india-city', city:'Mysore',       sector:'IT & Tourism',          angle:'IT & Tourism Hiring',               slug:'mysore-it-tourism-jobs' },
+  { type:'india-city', city:'Thiruvananthapuram', sector:'IT & Govt',       angle:'IT & Government Hiring',            slug:'thiruvananthapuram-it-govt-jobs' },
+  { type:'india-city', city:'Mangalore',    sector:'Banking & Retail',      angle:'Banking & Retail Hiring',           slug:'mangalore-banking-retail-jobs' },
+  { type:'india-city', city:'Rajkot',       sector:'Engineering & Auto',    angle:'Engineering & Auto Hiring',         slug:'rajkot-engineering-auto-jobs' },
+  { type:'india-city', city:'Amritsar',     sector:'Retail & Hospitality',  angle:'Retail & Hospitality Hiring',       slug:'amritsar-retail-hospitality-jobs' },
+  { type:'india-city', city:'Agra',         sector:'Tourism & Manufacturing', angle:'Tourism & Manufacturing Hiring',  slug:'agra-tourism-manufacturing-jobs' },
+
+  // ── INDIA: More Fresher Topics ────────────────────────────────────────────
+  { type:'india-fresher', keyword:'diploma jobs in India 2026',              angle:'Diploma Holder Job Opportunities', slug:'diploma-jobs-india-2026' },
+  { type:'india-fresher', keyword:'ITI jobs in India 2026',                  angle:'ITI Trade Jobs & Career Guide',    slug:'iti-jobs-india-2026' },
+  { type:'india-fresher', keyword:'government jobs for freshers 2026',       angle:'Govt Job Opportunities for New Grads', slug:'government-jobs-freshers-2026' },
+  { type:'india-fresher', keyword:'bank jobs for freshers India 2026',       angle:'Banking Sector Fresher Jobs',      slug:'bank-jobs-freshers-india-2026' },
+  { type:'india-fresher', keyword:'hotel jobs for freshers India',           angle:'Hospitality & Hotel Fresher Jobs', slug:'hotel-jobs-freshers-india' },
+  { type:'india-fresher', keyword:'call center jobs freshers India',         angle:'BPO & Call Centre Entry Jobs',     slug:'call-center-jobs-freshers-india' },
+
+  // ── INDIA: More Remote ────────────────────────────────────────────────────
+  { type:'india-remote', keyword:'social media jobs from home India',        angle:'Social Media Remote Jobs',         slug:'social-media-jobs-from-home-india' },
+  { type:'india-remote', keyword:'content writing jobs from home India',     angle:'Content Writing Remote Jobs',      slug:'content-writing-jobs-from-home-india' },
+  { type:'india-remote', keyword:'online teaching jobs from home India',     angle:'Online Tutor & Teaching Jobs',     slug:'online-teaching-jobs-from-home-india' },
+  { type:'india-remote', keyword:'virtual assistant jobs India work from home', angle:'Virtual Assistant Remote Jobs', slug:'virtual-assistant-jobs-india-wfh' },
+
+  // ── INDIA: More Companies ─────────────────────────────────────────────────
+  { type:'india-company', company:'Accenture India',   sector:'IT Services',  slug:'accenture-india-jobs-freshers-2026' },
+  { type:'india-company', company:'Cognizant',         sector:'IT',           slug:'cognizant-jobs-freshers-apply-2026' },
+  { type:'india-company', company:'Swiggy',            sector:'Delivery',     slug:'swiggy-delivery-jobs-apply-2026' },
+  { type:'india-company', company:'HDFC Bank',         sector:'Banking',      slug:'hdfc-bank-jobs-career-2026' },
+  { type:'india-company', company:'Bajaj Finserv',     sector:'Finance',      slug:'bajaj-finserv-jobs-2026' },
+  { type:'india-company', company:'Ola',               sector:'Mobility',     slug:'ola-driver-jobs-apply-2026' },
+  { type:'india-company', company:'PhonePe',           sector:'Fintech',      slug:'phonepe-jobs-career-2026' },
+
+  // ── INDIA: Salary & Career Guides ─────────────────────────────────────────
+  { type:'india-fresher', keyword:'highest paying jobs in India for freshers 2026', angle:'High Salary Fresher Jobs', slug:'highest-paying-jobs-freshers-india-2026' },
+  { type:'india-fresher', keyword:'jobs in India without degree 2026',       angle:'No Degree Job Opportunities',      slug:'jobs-india-without-degree-2026' },
+  { type:'india-fresher', keyword:'best sectors to work in India 2026',      angle:'Top Sectors for Job Growth',       slug:'best-sectors-work-india-2026' },
+  { type:'india-fresher', keyword:'how to get a job fast in India',          angle:'Fast Job Search Tips India',       slug:'how-to-get-job-fast-india' },
+
+  // ── USA: More Blue Collar ─────────────────────────────────────────────────
+  { type:'usa-blue', city:'San Antonio',   role:'warehouse jobs',         slug:'warehouse-jobs-san-antonio-tx' },
+  { type:'usa-blue', city:'Las Vegas',     role:'hospitality jobs',       slug:'hospitality-jobs-las-vegas-nv' },
+  { type:'usa-blue', city:'Orlando',       role:'hospitality jobs',       slug:'hospitality-jobs-orlando-fl-hiring' },
+  { type:'usa-blue', city:'Charlotte',     role:'warehouse jobs',         slug:'warehouse-jobs-charlotte-nc-hiring' },
+  { type:'usa-blue', city:'Nashville',     role:'construction jobs',      slug:'construction-jobs-nashville-tn-hiring' },
+  { type:'usa-blue', city:'Portland',      role:'delivery driver jobs',   slug:'delivery-driver-jobs-portland-or' },
+  { type:'usa-blue', city:'San Diego',     role:'cleaning jobs',          slug:'cleaning-jobs-san-diego-ca-hiring' },
+  { type:'usa-blue', city:'Philadelphia',  role:'warehouse jobs',         slug:'warehouse-jobs-philadelphia-pa' },
+  { type:'usa-blue', city:'Columbus',      role:'manufacturing jobs',     slug:'manufacturing-jobs-columbus-oh' },
+  { type:'usa-blue', city:'Indianapolis',  role:'warehouse jobs',         slug:'warehouse-jobs-indianapolis-in' },
+
+  // ── USA: More Skilled ─────────────────────────────────────────────────────
+  { type:'usa-skilled', role:'HVAC technician jobs',   city:'Houston',      slug:'hvac-technician-jobs-houston-tx' },
+  { type:'usa-skilled', role:'welder jobs',            city:'Dallas',       slug:'welder-jobs-dallas-tx-hiring-now' },
+  { type:'usa-skilled', role:'forklift operator jobs', city:'Chicago',      slug:'forklift-operator-jobs-chicago-il' },
+  { type:'usa-skilled', role:'security guard jobs',    city:'Los Angeles',  slug:'security-guard-jobs-los-angeles-ca' },
+  { type:'usa-skilled', role:'dental assistant jobs',  city:'Miami',        slug:'dental-assistant-jobs-miami-fl' },
+  { type:'usa-skilled', role:'pharmacy technician jobs', city:'New York',   slug:'pharmacy-technician-jobs-new-york' },
+
+  // ── USA: More High Pay ────────────────────────────────────────────────────
+  { type:'usa-highpay', keyword:'trade jobs that pay over $30 an hour USA',   slug:'trade-jobs-30-dollars-hour-usa' },
+  { type:'usa-highpay', keyword:'jobs that pay $1000 a week without degree USA', slug:'jobs-1000-week-no-degree-usa' },
+  { type:'usa-highpay', keyword:'best paying jobs in USA without college 2026',  slug:'best-paying-jobs-no-college-usa-2026' },
+  { type:'usa-highpay', keyword:'union jobs USA benefits salary 2026',          slug:'union-jobs-usa-benefits-salary-2026' },
+
+  // ── USA: More Remote ──────────────────────────────────────────────────────
+  { type:'usa-remote', keyword:'Amazon work from home jobs USA 2026',          slug:'amazon-work-from-home-jobs-usa-2026' },
+  { type:'usa-remote', keyword:'healthcare remote jobs USA no experience',     slug:'healthcare-remote-jobs-usa-no-experience' },
+  { type:'usa-remote', keyword:'remote bookkeeping jobs USA',                  slug:'remote-bookkeeping-jobs-usa-2026' },
+
 ]
 
 function mkSlug(s) {
@@ -471,13 +543,18 @@ export default async function handler(req, res) {
       return res.json({ ok: true, written, results })
     }
 
-    // SINGLE MODE (daily cron)
+    // SINGLE MODE (daily cron) — find next unwritten topic
     const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000)
-    const topic = TOPICS[dayOfYear % TOPICS.length]
-    const result = await writeBlog(topic)
-    if (result.skipped) return res.json({ ok: true, message: 'Blog already written for today', slug: result.slug })
-    if (result.error) return res.status(500).json({ error: result.error })
-    return res.json(result)
+    const startIdx = dayOfYear % TOPICS.length
+    const ordered = [...TOPICS.slice(startIdx), ...TOPICS.slice(0, startIdx)]
+
+    for (const topic of ordered) {
+      const result = await writeBlog(topic)
+      if (result.skipped) continue        // already written, try next
+      if (result.error) continue          // groq failed, try next
+      return res.json(result)             // success
+    }
+    return res.json({ ok: true, message: 'All topics already written — add more topics!' })
 
   } catch (e) {
     return res.status(500).json({ error: e.message })
