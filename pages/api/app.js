@@ -7,7 +7,8 @@ const BUILD_VERSION = process.env.VERCEL_DEPLOYMENT_ID || Date.now().toString()
 // Serve hirehub.html as a dynamic API response — bypasses Vercel/Cloudflare CDN edge cache
 // so users ALWAYS get the latest version on every request
 export default function handler(req, res) {
-  const filePath = path.join(process.cwd(), 'public', 'hirehub.html')
+  // NOT in public/ — so Cloudflare/Vercel CDN never caches it as a static asset
+  const filePath = path.join(process.cwd(), 'hirehub-src.html')
 
   let html
   try {
