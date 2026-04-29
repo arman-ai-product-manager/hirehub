@@ -2,20 +2,9 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  async rewrites() {
-    return [
-      // Rewrite (not redirect) — URL stays as /hirehub.html, served fresh every time
-      // No CDN caching, no URL change visible to user
-      {
-        source: '/hirehub.html',
-        destination: '/api/app',
-      },
-    ]
-  },
   async headers() {
     return [
       {
-        // Tell Cloudflare + browsers: NEVER cache hirehub.html
         source: '/hirehub.html',
         headers: [
           { key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate, max-age=0' },
