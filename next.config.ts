@@ -2,27 +2,27 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  async redirects() {
+  async rewrites() {
     return [
-      // Redirect static hirehub.html to dynamic API route — prevents Vercel/Cloudflare CDN caching
+      // Rewrite (not redirect) — URL stays as /hirehub.html, served fresh every time
+      // No CDN caching, no URL change visible to user
       {
         source: '/hirehub.html',
         destination: '/api/app',
-        permanent: false,
       },
     ]
   },
   async headers() {
     return [
       {
-        // Tell Cloudflare + browsers: NEVER cache hirehub.html or the app route
+        // Tell Cloudflare + browsers: NEVER cache hirehub.html
         source: '/hirehub.html',
         headers: [
           { key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate, max-age=0' },
           { key: 'Pragma', value: 'no-cache' },
           { key: 'Expires', value: '0' },
-          { key: 'Surrogate-Control', value: 'no-store' },      // Cloudflare CDN: don't cache
-          { key: 'CDN-Cache-Control', value: 'no-store' },      // Cloudflare CDN: don't cache
+          { key: 'Surrogate-Control', value: 'no-store' },
+          { key: 'CDN-Cache-Control', value: 'no-store' },
           { key: 'Cloudflare-CDN-Cache-Control', value: 'no-store' },
         ],
       },
