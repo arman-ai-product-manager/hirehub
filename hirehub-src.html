@@ -2120,46 +2120,46 @@ function _venueInCity(locStr, city){
   return l.includes(c);
 }
 
-// ── VENUE BOOKING — Internal venue catalogue ──────────────────────
+// ── VENUE BOOKING — Generic venue categories (no brand names) ────
 var _VENUES = [
-  {name:"The Game Palacio",  icon:"🎮", loc:"Mumbai · Pune · Noida · Hyderabad",  why:"Luxury entertainment hub with multi-zone experiences — perfect for larger groups.",  tags:["bonding","premium","energy"]},
-  {name:"Formula Karting",   icon:"🏎️", loc:"Pune · Noida",                        why:"India's premier karting track — unbeatable for adrenaline-driven team moments.",   tags:["energy","unique","premium"]},
-  {name:"Snow World",        icon:"❄️", loc:"Mumbai · Pune · Ahmedabad",           why:"Real indoor snowfall year-round — a jaw-dropping setting no one will forget.",      tags:["unique","bonding","energy"]},
-  {name:"Amazonia",          icon:"🌿", loc:"Mumbai",                              why:"Rainforest-themed luxury dining with live performances — ideal for clients.",        tags:["client","premium","unique"]},
-  {name:"Luna Et Sol",       icon:"🌙", loc:"Mumbai",                              why:"Alpine-inspired luxury lounge — moonlit ambience that sets the perfect tone.",       tags:["client","premium"]},
-  {name:"Kamikaze",          icon:"🍸", loc:"Noida",                               why:"Ultra-premium cocktail bar — sophisticated, memorable, conversation-starting.",      tags:["client","premium","unique"]},
-  {name:"The Game Superpark",icon:"🏄", loc:"Pune",                                why:"4 flagship experiences in one venue — the most versatile all-day outing option.",   tags:["bonding","energy","unique"]},
-  {name:"The Game Garden",   icon:"🎪", loc:"Navi Mumbai",                         why:"Relaxed gaming and bites — great balance of fun and value for team outings.",       tags:["bonding","casual","budget"]},
-  {name:"The Game",          icon:"🎯", loc:"Mumbai",                              why:"Gyro rides, air walks & magic lanes — India's most cutting-edge indoor thrill.",    tags:["energy","unique","bonding"]},
-  {name:"Koa",               icon:"🌺", loc:"Juhu · Thane",                        why:"Bohemian café-bar with lush vibes — feels premium without the formality.",          tags:["casual","client","unique"]},
-  {name:"The Beer Garden",   icon:"🍺", loc:"Navi Mumbai",                         why:"Open-air craft brews and great food — effortless, social and easy on the budget.", tags:["casual","budget","bonding"]},
-  {name:"Verde",             icon:"🇮🇹", loc:"Noida · Hyderabad",                  why:"Refined Italian dining — a classically impressive setting for client meals.",       tags:["client","premium","casual"]},
-  {name:"Pokiddo",           icon:"🤸", loc:"Pune · Noida · Thane",               why:"High-energy trampoline park — great for competitive, active team events.",          tags:["energy","bonding","budget"]},
-  {name:"American Pie",      icon:"🍕", loc:"Mumbai · Pune · Noida (12 locations)",why:"Crowd-pleasing food in a lively setting — budget-friendly and widely available.",   tags:["casual","budget","bonding"]},
-  {name:"The Game Ranch",    icon:"🍖", loc:"Powai · Malad",                       why:"Western-themed gaming and global cuisine — relaxed but with real wow-factor.",      tags:["casual","unique","bonding"]},
+  {name:"Luxury Entertainment Hub",    icon:"🎮", loc:"Mumbai · Pune · Delhi NCR · Hyderabad", why:"Multi-zone entertainment venue with premium experiences — perfect for larger groups.",     tags:["bonding","premium","energy"]},
+  {name:"Indoor Karting Arena",        icon:"🏎️", loc:"Pune · Delhi NCR",                      why:"High-speed indoor karting track — unbeatable for adrenaline-driven team moments.",        tags:["energy","unique","premium"]},
+  {name:"Snow & Ice Experience",       icon:"❄️", loc:"Mumbai · Pune · Ahmedabad",              why:"Real indoor snow year-round — a jaw-dropping setting no team will forget.",               tags:["unique","bonding","energy"]},
+  {name:"Rainforest Theme Restaurant", icon:"🌿", loc:"Mumbai",                                 why:"Jungle-themed luxury dining with live performances — ideal for client entertainment.",     tags:["client","premium","unique"]},
+  {name:"Rooftop Lounge & Bar",        icon:"🌙", loc:"Mumbai · Bangalore",                     why:"Premium rooftop lounge with stunning city views — sets the perfect ambience.",            tags:["client","premium"]},
+  {name:"Premium Cocktail Bar",        icon:"🍸", loc:"Delhi NCR · Bangalore",                  why:"Upscale cocktail experience — sophisticated, memorable, conversation-starting.",          tags:["client","premium","unique"]},
+  {name:"Multi-Experience Fun Park",   icon:"🏄", loc:"Pune · Mumbai",                          why:"4+ flagship experiences in one venue — most versatile all-day outing option.",           tags:["bonding","energy","unique"]},
+  {name:"Gaming Café & Eatery",        icon:"🎪", loc:"Mumbai · Hyderabad",                     why:"Relaxed gaming and bites — great balance of fun and value for team outings.",            tags:["bonding","casual","budget"]},
+  {name:"Adventure Indoor Park",       icon:"🎯", loc:"Mumbai · Delhi NCR",                     why:"Gyro rides, air walks & adventure lanes — cutting-edge indoor thrills.",                 tags:["energy","unique","bonding"]},
+  {name:"Bohemian Café Bar",           icon:"🌺", loc:"Mumbai · Pune",                          why:"Relaxed café-bar with lush vibes — feels premium without the formality.",               tags:["casual","client","unique"]},
+  {name:"Open Air Garden Restaurant",  icon:"🍺", loc:"Mumbai · Bangalore",                     why:"Open-air dining and drinks — effortless, social and easy on the budget.",               tags:["casual","budget","bonding"]},
+  {name:"Fine Dining Restaurant",      icon:"🍝", loc:"Delhi NCR · Hyderabad",                  why:"Refined multi-cuisine dining — a classically impressive setting for client meals.",      tags:["client","premium","casual"]},
+  {name:"Trampoline & Sports Arena",   icon:"🤸", loc:"Pune · Delhi NCR · Mumbai",              why:"High-energy trampoline park — great for competitive, active team events.",              tags:["energy","bonding","budget"]},
+  {name:"Casual Dining Chain",         icon:"🍕", loc:"Mumbai · Pune · Delhi NCR (pan-India)", why:"Crowd-pleasing food in a lively setting — budget-friendly and widely available.",       tags:["casual","budget","bonding"]},
+  {name:"Theme Restaurant & Gaming",   icon:"🍖", loc:"Mumbai",                                 why:"Themed dining with gaming zones and global cuisine — relaxed but with real wow-factor.",tags:["casual","unique","bonding"]},
 ];
 
 // Goal → pref → [venue name, venue name, venue name]
 var _VREC = {
   bonding: {
-    budget:  ["The Game Garden","Pokiddo","American Pie"],
-    premium: ["The Game Palacio","The Game Superpark","Amazonia"],
-    unique:  ["Snow World","The Game Superpark","The Game"],
+    budget:  ["Gaming Café & Eatery","Trampoline & Sports Arena","Casual Dining Chain"],
+    premium: ["Luxury Entertainment Hub","Multi-Experience Fun Park","Rainforest Theme Restaurant"],
+    unique:  ["Snow & Ice Experience","Multi-Experience Fun Park","Adventure Indoor Park"],
   },
   client: {
-    budget:  ["Verde","The Game Ranch","Koa"],
-    premium: ["Luna Et Sol","Kamikaze","Amazonia"],
-    unique:  ["Amazonia","Snow World","Koa"],
+    budget:  ["Fine Dining Restaurant","Theme Restaurant & Gaming","Bohemian Café Bar"],
+    premium: ["Rooftop Lounge & Bar","Premium Cocktail Bar","Rainforest Theme Restaurant"],
+    unique:  ["Rainforest Theme Restaurant","Snow & Ice Experience","Bohemian Café Bar"],
   },
   energy: {
-    budget:  ["Pokiddo","The Game Garden","Formula Karting"],
-    premium: ["Formula Karting","The Game Palacio","The Game"],
-    unique:  ["Snow World","The Game","The Game Superpark"],
+    budget:  ["Trampoline & Sports Arena","Gaming Café & Eatery","Indoor Karting Arena"],
+    premium: ["Indoor Karting Arena","Luxury Entertainment Hub","Adventure Indoor Park"],
+    unique:  ["Snow & Ice Experience","Adventure Indoor Park","Multi-Experience Fun Park"],
   },
   casual: {
-    budget:  ["The Beer Garden","American Pie","The Game Garden"],
-    premium: ["Koa","The Game Ranch","Luna Et Sol"],
-    unique:  ["Koa","The Game Ranch","Snow World"],
+    budget:  ["Open Air Garden Restaurant","Casual Dining Chain","Gaming Café & Eatery"],
+    premium: ["Bohemian Café Bar","Theme Restaurant & Gaming","Rooftop Lounge & Bar"],
+    unique:  ["Bohemian Café Bar","Theme Restaurant & Gaming","Snow & Ice Experience"],
   },
 };
 
