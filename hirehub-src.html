@@ -1463,6 +1463,7 @@ function unlockContact(cid){
   if(S.unlockedContacts[key]&&typeof S.unlockedContacts[key]==='object'){
     var el=document.getElementById("co-body");if(el)renderCoFindCVs(el);return;
   }
+  if(S._master){ S.credits=99999; } // master: always unlimited
   if(S.credits<1){
     nt("⚠️ No credits left. Buy a credit pack to unlock contacts.");openPricing('co');return;
   }
@@ -1564,7 +1565,7 @@ function renderCoFindCVs(el){
       '<span>💎 <b style="color:#af52de">'+Math.floor(totalPool*.12)+'</b> IIT/IIM/NIT grads</span>'+
     '</div>'+
     '<div style="background:#fff;border:1.5px solid #e5e5ea;border-radius:10px;padding:8px 14px;font-size:12px;font-weight:700;white-space:nowrap">'+
-      '💳 <span id="credit-count" style="color:#ff6b00">'+S.credits+'</span> credits · <button style="background:none;border:none;color:#0071e3;font-size:12px;font-weight:700;cursor:pointer;padding:0" onclick="openPricing(\'co\')">Buy More</button>'+
+      '💳 <span id="credit-count" style="color:#ff6b00">'+(S._master?'∞':S.credits)+'</span> credits'+(S._master?' · <span style="font-size:11px;font-weight:700;color:#ff6b00">👑 Master</span>':' · <button style="background:none;border:none;color:#0071e3;font-size:12px;font-weight:700;cursor:pointer;padding:0" onclick="openPricing(\'co\')">Buy More</button>')+
     '</div>'+
   '</div>'+
   // ── Filters ──
@@ -3524,6 +3525,19 @@ function doApply(jobId){
              sal:job.shide?"Salary on joining":job.sal,candidateName:S.cp.name||"Candidate",
              role:S.cp.current_role,skills:S.cp.skills||[],fitScore:job.fit,status:"applied",appliedAt:new Date().toISOString()};
 
+    // ── Master: skip all guardrails, apply instantly ──────────────
+    if(S._master){
+      fetch('/api/apply/submit',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+        body:JSON.stringify({job_id:job.id,app:app,master:true})})
+      .then(function(r){return r.json();}).then(function(sub){
+        dbSet("app:"+app.id,app);S.ca.push(app);dbSet("cd:apps",S.ca);
+        nt("🎉 Applied! 👑 Master account — unlimited applies.");cdGo(4);
+      }).catch(function(){
+        dbSet("app:"+app.id,app);S.ca.push(app);dbSet("cd:apps",S.ca);
+        nt("🎉 Applied!");cdGo(4);
+      });
+      return;
+    }
     // Step 1: pre-check (guardrails)
     fetch('/api/apply/check',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
       body:JSON.stringify({job_id:job.id,company_id:job.companyId||null})})
@@ -4698,8 +4712,47 @@ function finishTest(){
 
   loadIVData();
 
+  // ══════════════════════════════════════════════════════════════════
+  // MASTER ACCOUNT — armanshk612@gmail.com — Lifetime enterprise access
+  // All premium features, unlimited credits, zero limits — forever.
+  // ══════════════════════════════════════════════════════════════════
+  var _MASTER = 'armanshk612@gmail.com';
+  function _applyMasterAccount(){
+    S._master = true;
+    // Company side: enterprise plan + verified + unlimited credits
+    if(S.co){
+      S.co.plan = 'enterprise'; S.co.verified = true;
+      try{ localStorage.setItem(S.phone+'_co:profile', JSON.stringify(S.co)); }catch(e){}
+    }
+    // Candidate side: enterprise plan
+    if(S.cp){
+      S.cp._plan = 'enterprise'; S.cp.plan = 'enterprise';
+      try{ localStorage.setItem(S.phone+'_cd:profile', JSON.stringify(S.cp)); }catch(e){}
+    }
+    // Unlimited CV credits
+    S.credits = 99999;
+    try{ localStorage.setItem('hh_credits','99999'); }catch(e){}
+    // Unlimited ATS scans
+    S.atsScans = 99999;
+    try{ localStorage.setItem('hh_ats_scans','99999'); }catch(e){}
+    // Update credit counter in UI
+    var cc = document.getElementById('credit-count');
+    if(cc) cc.textContent = '∞';
+    console.log('%c👑 Master account active — all features unlocked', 'color:#ff6b00;font-weight:900;font-size:16px');
+    // One-time Supabase DB update (sets plan in DB too, silently)
+    SB.auth.getSession().then(function(sr){
+      if(!sr.data||!sr.data.session) return;
+      var jwt = sr.data.session.access_token;
+      SB.from('companies').update({plan:'enterprise',cv_credits:99999}).eq('id',S._uid).then(function(){});
+      SB.from('candidates').update({plan:'enterprise'}).eq('id',S._uid).then(function(){});
+    });
+  }
+
   function _afterHydrate(){
     S.co=dbGet("co:profile");S.cp=dbGet("cd:profile");S.ca=dbGet("cd:apps")||[];
+
+    // ── Master account check ──────────────────────────────────────
+    if(S.phone && S.phone === _MASTER){ _applyMasterAccount(); }
 
     // ── Handle pending HR invite token (from ?hr_token= in URL) ──
     if(window._pendingHRToken && S._uid){
