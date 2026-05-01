@@ -185,10 +185,15 @@ body.dark .co-drawer{background:#1c1c1e;border-left:1px solid #3a3a3c}
 body.dark .co-drw-tab{color:#f5f5f7}
 body.dark .co-drw-tab:hover{background:#2c2c2e}
 
-/* ── MOBILE BOTTOM-SHEET MODALS ── */
+/* ── MOBILE BOTTOM-SHEET MODALS (only specific modals, not login) ── */
 @media(max-width:640px){
-  .mbg{padding:0!important;align-items:flex-end!important}
-  .mbox{border-radius:22px 22px 0 0!important;padding:20px 16px!important;max-height:92vh!important;max-width:100%!important;width:100%!important}
+  #m-price.mbg,#m-share.mbg,#m-seo.mbg,#m-co-edit.mbg{
+    padding:0!important;align-items:flex-end!important
+  }
+  #m-price .mbox,#m-share .mbox,#m-seo .mbox,#m-co-edit .mbox{
+    border-radius:22px 22px 0 0!important;padding:20px 16px!important;
+    max-height:92vh!important;max-width:100%!important;width:100%!important
+  }
   #m-price .mbox{padding:16px 12px!important}
 }
 
@@ -196,15 +201,14 @@ body.dark .co-drw-tab:hover{background:#2c2c2e}
 @media(max-width:768px){
   .co-tab-bar{display:none!important}
   .co-nav-burger{display:flex!important}
-  .pg{overflow-x:hidden}
   /* Candidate: desktop nav buttons hidden on mobile — bot-nav handles it */
   .cd-desk-btn{display:none!important}
   /* Tighter candidate nav on mobile */
   #pg-cd .nav{gap:6px}
-  /* Content doesn't overflow horizontally */
-  .con{overflow-x:hidden}
   /* Cards don't bleed out */
   .card{word-break:break-word}
+  /* Only clip content areas — NOT .pg (breaks iOS Safari scroll) */
+  #co-body,#cd-body{overflow-x:hidden;max-width:100%}
 }
 </style>
 <!-- Supabase Auth + DB client — blocking load so SB is ready before any code runs -->
