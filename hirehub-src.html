@@ -1820,6 +1820,11 @@ function renderCoDash(el){
     }).join("")+
     '<div style="margin-top:12px"><button class="btn fi fu" onclick="coTab(\'post\')">➕ Post Another Job →</button></div>';
   el.innerHTML=
+    (S._master?'<div style="background:linear-gradient(135deg,#1a0a00,#2d1200);border-radius:16px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;gap:12px;border:1px solid rgba(255,107,0,.4)">'+
+    '<div style="font-size:28px;line-height:1">👑</div>'+
+    '<div><div style="font-weight:800;font-size:14px;color:#ff9500;letter-spacing:-.02em">Master Account — Lifetime Enterprise Access</div>'+
+    '<div style="font-size:12px;color:rgba(255,255,255,.6);margin-top:2px">∞ Credits &nbsp;·&nbsp; ∞ Job Posts &nbsp;·&nbsp; ∞ CV Unlocks &nbsp;·&nbsp; ∞ ATS Scans &nbsp;·&nbsp; No Limits Ever</div></div>'+
+    '</div>':"")+
     '<div style="margin-bottom:20px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">'+
     '<div><h2 style="font-weight:800;font-size:22px;letter-spacing:-.04em;margin-bottom:4px">Dashboard</h2>'+
     '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">'+
@@ -3009,7 +3014,11 @@ function renderCdProfile(el){
   var pct=Math.round(filled/10*100),sc=p.fit_score||85;
   var fc=fitC(sc),fb=fitB(sc);
   var fields=[["Full Name",p.name],["Phone",p.phone],["Email",p.email],["Location",p.location],["Experience",p.experience_years+" years"],["Notice Period",p.notice_period],["Current Role",p.current_role],["Salary Expected",p.salary_expectation]];
-  el.innerHTML=shareBtn+viewsBadge+
+  el.innerHTML=(S._master?'<div style="background:linear-gradient(135deg,#1a0a00,#2d1200);border-radius:16px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;gap:12px;border:1px solid rgba(255,107,0,.4)">'+
+    '<div style="font-size:28px;line-height:1">👑</div>'+
+    '<div><div style="font-weight:800;font-size:14px;color:#ff9500">Master Account — Lifetime Enterprise Access</div>'+
+    '<div style="font-size:12px;color:rgba(255,255,255,.6);margin-top:2px">∞ Applies &nbsp;·&nbsp; ∞ ATS Scans &nbsp;·&nbsp; Priority in HR search &nbsp;·&nbsp; No Limits Ever</div></div>'+
+    '</div>':"")+shareBtn+viewsBadge+
     '<div class="card" style="padding:17px 18px;margin-bottom:13px;background:'+(pct===100?"var(--gl)":"var(--gl2)")+';border:1.5px solid '+(pct===100?"rgba(52,199,89,.25)":"rgba(255,159,10,.25)")+'">'+
     '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div><div style="font-weight:700;font-size:14px;margin-bottom:2px">Profile Completeness</div><div style="font-size:12px;color:var(--mu)">'+(pct===100?"100% — Direct HR Access unlocked 🔓":"Add "+(100-pct)+"% more to unlock Direct HR Access")+'</div></div><div style="font-weight:800;font-size:25px;letter-spacing:-.04em;color:'+(pct===100?"var(--gr)":"var(--go)")+'">'+pct+'%</div></div>'+
     '<div class="pbt"><div class="pbf" style="width:'+pct+'%;background:'+(pct===100?"var(--gr)":"var(--go)")+'"></div></div>'+
@@ -4813,6 +4822,19 @@ function finishTest(){
   var _MASTER = 'armanshk612@gmail.com';
   function _applyMasterAccount(){
     S._master = true;
+    // Show 👑 badge in every nav bar
+    setTimeout(function(){
+      document.querySelectorAll('.nav .logo').forEach(function(logo){
+        if(!logo.querySelector('.master-badge')){
+          var b=document.createElement('span');
+          b.className='master-badge';
+          b.title='Master Account — Lifetime Enterprise';
+          b.style.cssText='font-size:14px;margin-left:4px;vertical-align:middle;cursor:default';
+          b.textContent='👑';
+          logo.appendChild(b);
+        }
+      });
+    }, 300);
     // Company side: enterprise plan + verified + unlimited credits
     if(S.co){
       S.co.plan = 'enterprise'; S.co.verified = true;
