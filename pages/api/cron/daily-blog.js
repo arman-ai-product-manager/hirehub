@@ -183,6 +183,47 @@ const TOPICS = [
   { type:'usa-remote', keyword:'healthcare remote jobs USA no experience',     slug:'healthcare-remote-jobs-usa-no-experience' },
   { type:'usa-remote', keyword:'remote bookkeeping jobs USA',                  slug:'remote-bookkeeping-jobs-usa-2026' },
 
+  // ── MUMBAI DOMINATION — Corporate, HR & CV Focus ──────────────────────────
+  // Sector-by-sector Mumbai corporate jobs
+  { type:'india-city', city:'Mumbai', sector:'Media & Entertainment', angle:'OTT & Media Industry Hiring in BKC & Andheri', slug:'mumbai-media-entertainment-jobs-bkc-andheri' },
+  { type:'india-city', city:'Mumbai', sector:'Investment Banking',    angle:'BFSI & Investment Banking Jobs in Nariman Point', slug:'mumbai-investment-banking-jobs-nariman-point' },
+  { type:'india-city', city:'Mumbai', sector:'Logistics & Port',      angle:'JNPT Port & Logistics Jobs in Navi Mumbai',       slug:'mumbai-logistics-port-jobs-navi-mumbai' },
+  { type:'india-city', city:'Mumbai', sector:'Pharmaceuticals',       angle:'Pharma & Biotech Hiring in Mumbai & Thane',       slug:'mumbai-pharma-biotech-jobs-thane' },
+  { type:'india-city', city:'Mumbai', sector:'Real Estate & Infra',   angle:'Construction & Real Estate Hiring in Mumbai',     slug:'mumbai-real-estate-construction-jobs' },
+  { type:'india-city', city:'Mumbai', sector:'Retail & FMCG',         angle:'FMCG & Modern Trade Hiring in Mumbai',            slug:'mumbai-fmcg-retail-jobs-2026' },
+  { type:'india-city', city:'Mumbai', sector:'Advertising & PR',      angle:'Ad Agency & PR Jobs in Mumbai Powai Lower Parel', slug:'mumbai-advertising-pr-jobs-powai' },
+  { type:'india-city', city:'Mumbai', sector:'Hospitality & Hotels',  angle:'Hotel & Luxury Hospitality Hiring in Mumbai',     slug:'mumbai-hospitality-hotel-jobs-2026' },
+  { type:'india-city', city:'Mumbai', sector:'EdTech & Startups',     angle:'EdTech Startup Jobs in Andheri & Powai Mumbai',   slug:'mumbai-edtech-startup-jobs-andheri' },
+  { type:'india-city', city:'Mumbai', sector:'Insurance',             angle:'Insurance Sales & Operations Jobs in Mumbai',     slug:'mumbai-insurance-jobs-2026' },
+
+  // Mumbai freshers & job seekers
+  { type:'india-fresher', keyword:'jobs for freshers in Mumbai 2026',          angle:'Entry-Level Jobs Mumbai — No Experience', slug:'jobs-for-freshers-mumbai-2026' },
+  { type:'india-fresher', keyword:'best areas to find jobs in Mumbai',         angle:'Top Locations for Jobs in Mumbai',         slug:'best-areas-to-find-jobs-in-mumbai' },
+  { type:'india-fresher', keyword:'MBA fresher jobs in Mumbai 2026',           angle:'MBA Jobs Mumbai — Top Sectors Hiring',     slug:'mba-fresher-jobs-mumbai-2026' },
+  { type:'india-fresher', keyword:'walk in interview jobs Mumbai this week',   angle:'Walk-In Interviews Mumbai 2026',           slug:'walk-in-interview-mumbai-this-week' },
+  { type:'india-fresher', keyword:'sales executive jobs in Mumbai 2026',       angle:'Sales Jobs Mumbai — Freshers Welcome',     slug:'sales-executive-jobs-mumbai-2026' },
+  { type:'india-fresher', keyword:'office jobs in Mumbai for graduates',       angle:'Office Admin & Operations Jobs Mumbai',     slug:'office-jobs-mumbai-graduates' },
+
+  // Mumbai CV & HR guides (brings both sides)
+  { type:'india-city', city:'Mumbai', sector:'HR & Recruitment', angle:'How Mumbai HR Managers Find & Hire Talent in 2026', slug:'mumbai-hr-talent-hiring-guide-2026' },
+  { type:'india-city', city:'Mumbai', sector:'HR & Recruitment', angle:'Top Recruitment Agencies & Job Portals in Mumbai',   slug:'top-recruitment-agencies-mumbai-2026' },
+  { type:'india-city', city:'Mumbai', sector:'ATS & CV',         angle:'How to Write a CV that Gets Calls in Mumbai 2026',   slug:'how-to-write-cv-for-mumbai-jobs' },
+  { type:'india-city', city:'Mumbai', sector:'ATS & CV',         angle:'ATS-Optimised Resume Tips for Mumbai Job Market',    slug:'ats-resume-tips-mumbai-job-market' },
+  { type:'india-city', city:'Mumbai', sector:'Salary Insights',  angle:'Average Salaries by Role in Mumbai 2026',            slug:'average-salary-by-role-mumbai-2026' },
+  { type:'india-city', city:'Mumbai', sector:'Salary Insights',  angle:'Salary Negotiation Tips for Mumbai Corporate Jobs',  slug:'salary-negotiation-tips-mumbai' },
+
+  // Mumbai corporate events & venue (HR + company angle)
+  { type:'india-city', city:'Mumbai', sector:'Corporate Events',  angle:'Best Corporate Team Outing & Venue Booking Mumbai', slug:'corporate-team-outing-venue-mumbai-2026' },
+  { type:'india-city', city:'Mumbai', sector:'Corporate Events',  angle:'How to Plan a Company Hiring Day in Mumbai',        slug:'how-to-plan-company-hiring-day-mumbai' },
+  { type:'india-city', city:'Mumbai', sector:'Corporate Events',  angle:'Employee Onboarding & Welcome Party Ideas Mumbai',  slug:'employee-onboarding-welcome-party-mumbai' },
+  { type:'india-city', city:'Mumbai', sector:'Corporate Events',  angle:'Top Corporate Dinner Venues in Mumbai for HR Teams', slug:'corporate-dinner-venues-mumbai-hr' },
+
+  // Mumbai urgent & direct hiring
+  { type:'india-urgent', keyword:'urgent hiring Mumbai corporate offices 2026',  city:'Mumbai', slug:'urgent-hiring-mumbai-corporate-2026' },
+  { type:'india-urgent', keyword:'direct joining jobs Mumbai no experience',     city:'Mumbai', slug:'direct-joining-jobs-mumbai' },
+  { type:'india-urgent', keyword:'same day joining jobs in Mumbai today',        city:'Mumbai', slug:'same-day-joining-jobs-mumbai' },
+  { type:'india-urgent', keyword:'night shift jobs in Mumbai BPO and IT',       city:'Mumbai', slug:'night-shift-jobs-mumbai-bpo-it' },
+
 ]
 
 function mkSlug(s) {

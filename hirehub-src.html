@@ -170,6 +170,42 @@ textarea{resize:vertical}
 }
 body{-webkit-text-size-adjust:100%}
 *{-webkit-tap-highlight-color:transparent}
+
+/* ── COMPANY MOBILE DRAWER ── */
+.co-tab-bar{display:flex;gap:3px;align-items:center;overflow-x:auto}
+.co-nav-burger{display:none;align-items:center;gap:8px}
+.co-drawer-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+.co-drawer-bg.open{display:block}
+.co-drawer{position:fixed;top:0;right:-320px;width:min(300px,85vw);height:100%;background:#fff;z-index:501;box-shadow:-8px 0 40px rgba(0,0,0,.15);transition:right .28s cubic-bezier(.4,0,.2,1);overflow-y:auto;padding-bottom:env(safe-area-inset-bottom)}
+.co-drawer.open{right:0}
+body.dark .co-drawer{background:#1c1c1e;border-left:1px solid #3a3a3c}
+.co-drw-tab{display:flex;align-items:center;gap:12px;width:100%;padding:14px 18px;border:none;background:transparent;font-family:inherit;font-size:15px;font-weight:600;color:var(--ink);cursor:pointer;border-radius:12px;margin-bottom:2px;text-align:left;-webkit-tap-highlight-color:transparent;transition:background .15s}
+.co-drw-tab:hover,.co-drw-tab:active{background:var(--bl2)}
+.co-drw-tab.on{background:rgba(255,107,0,.1);color:#ff6b00}
+body.dark .co-drw-tab{color:#f5f5f7}
+body.dark .co-drw-tab:hover{background:#2c2c2e}
+
+/* ── MOBILE BOTTOM-SHEET MODALS ── */
+@media(max-width:640px){
+  .mbg{padding:0!important;align-items:flex-end!important}
+  .mbox{border-radius:22px 22px 0 0!important;padding:20px 16px!important;max-height:92vh!important;max-width:100%!important;width:100%!important}
+  #m-price .mbox{padding:16px 12px!important}
+}
+
+/* ── MOBILE NAV + LAYOUT FIXES ── */
+@media(max-width:768px){
+  .co-tab-bar{display:none!important}
+  .co-nav-burger{display:flex!important}
+  .pg{overflow-x:hidden}
+  /* Candidate: desktop nav buttons hidden on mobile — bot-nav handles it */
+  .cd-desk-btn{display:none!important}
+  /* Tighter candidate nav on mobile */
+  #pg-cd .nav{gap:6px}
+  /* Content doesn't overflow horizontally */
+  .con{overflow-x:hidden}
+  /* Cards don't bleed out */
+  .card{word-break:break-word}
+}
 </style>
 <!-- Supabase Auth + DB client — blocking load so SB is ready before any code runs -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
@@ -332,7 +368,8 @@ body{-webkit-text-size-adjust:100%}
 <div id="pg-co" class="pg">
   <nav class="nav">
     <div class="logo">Hire<span>Hub</span><span style="color:#ff6b00;font-size:.65em;font-weight:900;vertical-align:super;margin-left:1px">360</span></div>
-    <div style="display:flex;gap:3px;align-items:center;overflow-x:auto">
+    <!-- Desktop tab bar -->
+    <div class="co-tab-bar">
       <button class="tab-btn on" id="ct-dash" onclick="coTab('dash')">🏠 Dashboard</button>
       <button class="tab-btn" id="ct-post" onclick="coTab('post')">➕ Post Job</button>
       <button class="tab-btn" id="ct-cands" onclick="coTab('cands')">👥 Applicants</button>
@@ -346,7 +383,37 @@ body{-webkit-text-size-adjust:100%}
         style="background:none;border:1.5px solid var(--ln);border-radius:999px;padding:5px 9px;cursor:pointer;font-size:12px;font-weight:700;color:var(--ink2)">🌐 EN</button>
       <button class="btn gh sm" onclick="showPg('pg-role')">← Back</button>
     </div>
+    <!-- Mobile hamburger -->
+    <div class="co-nav-burger">
+      <span id="co-curtab-lbl" style="font-size:12px;font-weight:700;color:var(--ac);max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">🏠 Dashboard</span>
+      <button onclick="openCoDrawer()" aria-label="Open menu" style="background:none;border:1.5px solid var(--ln);border-radius:10px;padding:7px 12px;cursor:pointer;font-size:20px;line-height:1;color:var(--ink)">☰</button>
+    </div>
   </nav>
+
+  <!-- Mobile right-side navigation drawer -->
+  <div class="co-drawer-bg" id="co-drw-bg" onclick="closeCoDrawer()"></div>
+  <div class="co-drawer" id="co-drawer">
+    <div style="padding:16px 20px;border-bottom:1px solid var(--ln);display:flex;justify-content:space-between;align-items:center;background:var(--bg);position:sticky;top:0;z-index:1">
+      <div class="logo" style="font-size:18px">Hire<span>Hub</span><span style="color:#ff6b00;font-size:.65em;font-weight:900;vertical-align:super;margin-left:1px">360</span></div>
+      <button onclick="closeCoDrawer()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#999;line-height:1;padding:4px">✕</button>
+    </div>
+    <div style="padding:10px">
+      <button class="co-drw-tab on" id="cdt-dash"  onclick="coTab('dash');closeCoDrawer()">🏠 Dashboard</button>
+      <button class="co-drw-tab"    id="cdt-post"  onclick="coTab('post');closeCoDrawer()">➕ Post Job</button>
+      <button class="co-drw-tab"    id="cdt-cands" onclick="coTab('cands');closeCoDrawer()">👥 Applicants</button>
+      <button class="co-drw-tab"    id="cdt-venue" onclick="coTab('venue');closeCoDrawer()">🏢 Venue</button>
+      <button class="co-drw-tab"    id="cdt-iv"    onclick="coTab('iv');closeCoDrawer()">🎯 Interviews</button>
+      <button class="co-drw-tab"    id="cdt-seo"   onclick="coTab('seo');closeCoDrawer()">🔍 SEO Hub</button>
+      <button class="co-drw-tab"    id="cdt-cvs"   onclick="coTab('cvs');closeCoDrawer()">🔎 Find CVs</button>
+      <button class="co-drw-tab"    id="cdt-brand" onclick="coTab('brand');closeCoDrawer()">🏷️ Brand Kit</button>
+      <button class="co-drw-tab"    id="cdt-team"  onclick="coTab('team');closeCoDrawer()">🧑‍💼 Team</button>
+    </div>
+    <div style="padding:10px 10px 28px;border-top:1px solid var(--ln);margin-top:4px">
+      <button class="co-drw-tab" onclick="toggleTranslate();closeCoDrawer()">🌐 Translate Page</button>
+      <button class="co-drw-tab" style="color:#ff375f" onclick="showPg('pg-role')">← Back to Home</button>
+    </div>
+  </div>
+
   <div class="con" id="co-body"></div>
 </div>
 
@@ -358,14 +425,14 @@ body{-webkit-text-size-adjust:100%}
   </div>
   <nav class="nav">
     <div class="logo" style="cursor:pointer" onclick="cdGo(3)">Hire<span>Hub</span><span style="color:#ff6b00;font-size:.65em;font-weight:900;vertical-align:super;margin-left:1px">360</span></div>
-    <div class="fl">
-      <button class="btn gh sm" id="cd-btn-j" style="display:none" onclick="cdGo(3)">Jobs</button>
-      <button class="btn gh sm" id="cd-btn-t" style="display:none" onclick="cdGo(4)">Track</button>
-      <button class="btn gh sm" id="cd-btn-iv" style="display:none" onclick="cdGo(5)">🎯 Interviews</button>
-      <button class="btn gh sm" id="cd-btn-ats" style="display:none;background:linear-gradient(90deg,#ff6b00,#ff9500);color:#fff;border:none" onclick="cdGo(8)">🤖 ATS</button>
-      <button onclick="toggleTranslate()" title="Translate page"
-        style="background:none;border:1.5px solid var(--ln);border-radius:999px;padding:5px 9px;cursor:pointer;font-size:12px;font-weight:700;color:var(--ink2)">🌐 EN</button>
-      <button class="btn gh sm" onclick="SB&&SB.auth.signOut().then(function(){showPg('pg-login');})" style="font-size:12px;color:#ff375f">Sign Out</button>
+    <div class="fl" style="flex-shrink:0">
+      <!-- Desktop nav buttons — hidden on mobile (bot-nav handles mobile navigation) -->
+      <button class="btn gh sm cd-desk-btn" id="cd-btn-j" style="display:none" onclick="cdGo(3)">Jobs</button>
+      <button class="btn gh sm cd-desk-btn" id="cd-btn-t" style="display:none" onclick="cdGo(4)">Track</button>
+      <button class="btn gh sm cd-desk-btn" id="cd-btn-iv" style="display:none" onclick="cdGo(5)">🎯 Interviews</button>
+      <button class="btn cd-desk-btn" id="cd-btn-ats" style="display:none;background:linear-gradient(90deg,#ff6b00,#ff9500);color:#fff;border:none;font-size:13px;padding:8px 14px" onclick="cdGo(8)">🤖 ATS</button>
+      <button onclick="toggleTranslate()" title="Translate" style="background:none;border:1.5px solid var(--ln);border-radius:999px;padding:5px 9px;cursor:pointer;font-size:12px;font-weight:700;color:var(--ink2)">🌐</button>
+      <button onclick="SB&&SB.auth.signOut().then(function(){showPg('pg-login');})" style="background:none;border:1.5px solid #ff375f;border-radius:999px;padding:5px 10px;cursor:pointer;font-size:12px;font-weight:700;color:#ff375f">Exit</button>
     </div>
   </nav>
   <div id="cd-bar"></div>
@@ -1351,6 +1418,11 @@ function _coTabRender(t){
   S.coTab=t;
   document.querySelectorAll(".tab-btn").forEach(function(b){b.classList.remove("on");});
   var tb=document.getElementById("ct-"+t);if(tb)tb.classList.add("on");
+  // Sync mobile drawer active state + label
+  document.querySelectorAll(".co-drw-tab").forEach(function(b){b.classList.remove("on");});
+  var dtb=document.getElementById("cdt-"+t);if(dtb)dtb.classList.add("on");
+  var _tabLbls={"dash":"🏠 Dashboard","post":"➕ Post Job","cands":"👥 Applicants","venue":"🏢 Venue","iv":"🎯 Interviews","seo":"🔍 SEO Hub","cvs":"🔎 Find CVs","brand":"🏷️ Brand Kit","team":"🧑‍💼 Team"};
+  var lbl=document.getElementById("co-curtab-lbl");if(lbl)lbl.textContent=_tabLbls[t]||"☰ Menu";
   var body=document.getElementById("co-body");if(!body)return;
   if(!S.co){renderCoVerify(body);return;}
   if(t==="dash")  renderCoDash(body);
@@ -4331,8 +4403,22 @@ function autoIndexJob(job){
 }
 
 // ═══ MOBILE BOT NAV ═══════════════════════════════════════════
-function showBotNav(role){var bn=document.getElementById('bot-nav');if(bn)bn.classList.add('on');}
+function showBotNav(role){
+  // Bottom nav is only for candidates — companies use the hamburger drawer instead
+  if(role==='company')return;
+  var bn=document.getElementById('bot-nav');if(bn)bn.classList.add('on');
+}
 function hideBotNav(){var bn=document.getElementById('bot-nav');if(bn)bn.classList.remove('on');}
+function openCoDrawer(){
+  var d=document.getElementById('co-drawer'),bg=document.getElementById('co-drw-bg');
+  if(d)d.classList.add('open');if(bg)bg.classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeCoDrawer(){
+  var d=document.getElementById('co-drawer'),bg=document.getElementById('co-drw-bg');
+  if(d)d.classList.remove('open');if(bg)bg.classList.remove('open');
+  document.body.style.overflow='';
+}
 function bnTab(tab){
   document.querySelectorAll('.bn-item').forEach(function(b){b.classList.remove('active');});
   var a=document.getElementById('bn-'+tab);if(a)a.classList.add('active');
