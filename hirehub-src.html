@@ -1816,7 +1816,14 @@ function renderCoDash(el){
     }).join("")+
     '<div style="margin-top:12px"><button class="btn fi fu" onclick="coTab(\'post\')">➕ Post Another Job →</button></div>';
   el.innerHTML=
-    '<div style="margin-bottom:20px"><h2 style="font-weight:800;font-size:22px;letter-spacing:-.04em;margin-bottom:4px">Dashboard</h2><p style="color:var(--mu);font-size:14px">Company: '+S.co.name+'</p></div>'+
+    '<div style="margin-bottom:20px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">'+
+    '<div><h2 style="font-weight:800;font-size:22px;letter-spacing:-.04em;margin-bottom:4px">Dashboard</h2>'+
+    '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">'+
+    (S.co.logo?'<img src="'+S.co.logo+'" style="width:28px;height:28px;border-radius:7px;object-fit:contain;border:1px solid var(--ln)" onerror="this.style.display=\'none\'"/>':'')+
+    '<span style="color:var(--mu);font-size:14px">'+S.co.name+(S.co.city?' · '+S.co.city:'')+(S.co.sector?' · '+S.co.sector:'')+'</span>'+
+    (S.co.verified?'<span style="background:var(--gl);color:var(--gr);font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px">✅ Verified</span>':'')+'</div></div>'+
+    '<button class="btn gh sm" onclick="openCoProfileEdit()" style="flex-shrink:0;white-space:nowrap">✏️ Edit Profile</button>'+
+    '</div>'+
     '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:12px;margin-bottom:18px">'+
     stats.map(function(s){return '<div class="card" style="padding:18px 15px"><div style="font-size:20px;margin-bottom:6px">'+s[3]+'</div><div style="font-weight:800;font-size:26px;letter-spacing:-.04em;color:'+s[2]+';line-height:1;margin-bottom:3px">'+s[0]+'</div><div style="font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.06em">'+s[1]+'</div></div>';}).join("")+
     '</div>'+
@@ -1827,6 +1834,86 @@ function renderCoDash(el){
     '<div style="margin-top:18px;text-align:center"><button class="btn gh sm" onclick="openPricing(\'co\')">💎 Company Pricing Plans</button></div>'+
     // Partners section
     renderPartnersSection();
+}
+
+// ── Company Profile Edit ─────────────────────────────────────────────────────
+function openCoProfileEdit(){
+  if(!S.co){nt("⚠️ No company profile found.");return;}
+  var co=S.co;
+  var f=function(id,val){var el=document.getElementById(id);if(el)el.value=val||"";};
+  f("cp-name",    co.name||co.company_name||"");
+  f("cp-city",    co.city||"");
+  f("cp-website", co.website||"");
+  f("cp-gst",     co.gst||"");
+  f("cp-logo",    co.logo||"");
+  f("cp-about",   co.about||"");
+  // Sector dropdown
+  var sec=document.getElementById("cp-sector");
+  if(sec){for(var i=0;i<sec.options.length;i++){if(sec.options[i].value===(co.sector||"")){sec.selectedIndex=i;break;}}}
+  // Logo preview
+  if(co.logo){
+    var prev=document.getElementById("cp-logo-preview"),img=document.getElementById("cp-logo-img");
+    if(prev)prev.style.display="block";if(img)img.src=co.logo;
+  }
+  // Live logo preview on input
+  var logoInp=document.getElementById("cp-logo");
+  if(logoInp)logoInp.oninput=function(){
+    var url=this.value.trim();
+    var prev=document.getElementById("cp-logo-preview"),img=document.getElementById("cp-logo-img");
+    if(prev)prev.style.display=url?"block":"none";if(img)img.src=url;
+  };
+  var st=document.getElementById("cp-status");if(st)st.textContent="";
+  mOpen("m-co-edit");
+}
+
+function saveCoProfile(){
+  var name=(document.getElementById("cp-name")||{}).value||"";
+  if(!name.trim()){nt("⚠️ Company name is required.");return;}
+  var btn=document.getElementById("cp-save-btn");
+  if(btn){btn.disabled=true;btn.textContent="Saving…";}
+  var st=document.getElementById("cp-status");if(st)st.textContent="";
+
+  S.co.name        = name.trim();
+  S.co.company_name= name.trim();
+  S.co.city        = (document.getElementById("cp-city")||{}).value||S.co.city||"";
+  S.co.sector      = (document.getElementById("cp-sector")||{}).value||S.co.sector||"";
+  S.co.website     = (document.getElementById("cp-website")||{}).value||"";
+  S.co.gst         = ((document.getElementById("cp-gst")||{}).value||"").toUpperCase();
+  S.co.logo        = (document.getElementById("cp-logo")||{}).value||"";
+  S.co.about       = (document.getElementById("cp-about")||{}).value||"";
+
+  // Save to localStorage (instant)
+  dbSet("co:profile", S.co);
+
+  // Push to Supabase
+  SB.auth.getSession().then(function(sr){
+    var uid=sr&&sr.data&&sr.data.session&&sr.data.session.user&&sr.data.session.user.id;
+    if(!uid){if(btn){btn.disabled=false;btn.textContent="💾 Save Changes";}return;}
+    SB.from("companies").upsert({
+      id:          uid,
+      company_name:S.co.name,
+      city:        S.co.city,
+      sector:      S.co.sector,
+      website:     S.co.website,
+      gst:         S.co.gst,
+      logo_url:    S.co.logo,
+      about:       S.co.about,
+      updated_at:  new Date().toISOString()
+    }).then(function(res){
+      if(btn){btn.disabled=false;btn.textContent="💾 Save Changes";}
+      if(res.error){
+        if(st)st.innerHTML='<span style="color:#ff375f">⚠️ '+res.error.message+'</span>';
+        return;
+      }
+      // Update dashboard company name display
+      var dashTitle=document.querySelector("#co-body p");
+      if(dashTitle&&dashTitle.textContent.indexOf("Company:")>=0)dashTitle.textContent="Company: "+S.co.name;
+      mClose("m-co-edit");
+      nt("✅ Company profile updated!");
+      // Refresh dashboard
+      if(S.coTab==="dash")coTab("dash");
+    });
+  });
 }
 
 function renderCoPost(el){
@@ -4072,8 +4159,11 @@ function renderCoBrand(el) {
   var br = getBrand();
   el.innerHTML =
     '<div style="margin-bottom:20px">'+
-    '<h2 style="font-weight:800;font-size:22px;letter-spacing:-.04em;margin-bottom:4px">🏷️ Brand Kit</h2>'+
-    '<p style="color:var(--mu);font-size:14px">Create a white-label career page with your own brand. Share it anywhere — no coding needed.</p>'+
+    '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">'+
+    '<div><h2 style="font-weight:800;font-size:22px;letter-spacing:-.04em;margin-bottom:4px">🏷️ Brand Kit</h2>'+
+    '<p style="color:var(--mu);font-size:14px;max-width:500px">Create a white-label career page with your own brand. Share it anywhere — no coding needed.</p></div>'+
+    '<button class="btn gh sm" onclick="openCoProfileEdit()" style="flex-shrink:0;white-space:nowrap">✏️ Edit Company Info</button>'+
+    '</div>'+
     '</div>'+
 
     // What you get strip
@@ -4964,6 +5054,43 @@ function finishTest(){
   </div>
 </div>
 
+<!-- ═══════ EDIT COMPANY PROFILE MODAL ═══════ -->
+<div class="mbg" id="m-co-edit" onclick="mClose('m-co-edit')">
+  <div class="mbox" onclick="event.stopPropagation()" style="max-width:560px;position:relative">
+    <button onclick="mClose('m-co-edit')" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:22px;cursor:pointer;color:#aaa;line-height:1;z-index:2">✕</button>
+    <div style="font-weight:800;font-size:20px;letter-spacing:-.04em;margin-bottom:4px">✏️ Edit Company Profile</div>
+    <p style="font-size:13px;color:var(--mu);margin-bottom:20px">Update your company info — changes reflect immediately across all job listings.</p>
+    <div class="g2" style="margin-bottom:12px">
+      <div style="grid-column:1/-1"><label class="lbl">Company Name *</label><input id="cp-name" placeholder="Acme Technologies Pvt Ltd"/></div>
+      <div><label class="lbl">City</label><input id="cp-city" placeholder="Mumbai"/></div>
+      <div><label class="lbl">Sector</label>
+        <select id="cp-sector">
+          <option value="">Select sector</option>
+          <option>IT & Software</option><option>Banking & Finance</option><option>Healthcare</option>
+          <option>Manufacturing</option><option>Retail & FMCG</option><option>Education</option>
+          <option>Hospitality & Tourism</option><option>Logistics</option><option>Construction</option>
+          <option>Media & Entertainment</option><option>Pharma & Biotech</option><option>Real Estate</option>
+          <option>E-Commerce</option><option>Consulting</option><option>Other</option>
+        </select>
+      </div>
+      <div style="grid-column:1/-1"><label class="lbl">Website URL</label><input id="cp-website" type="url" placeholder="https://yourcompany.com"/></div>
+      <div style="grid-column:1/-1"><label class="lbl">GST Number</label><input id="cp-gst" placeholder="22AAAAA0000A1Z5" style="text-transform:uppercase"/></div>
+      <div style="grid-column:1/-1"><label class="lbl">Logo URL <span style="font-weight:400;color:var(--mu)">(paste image link)</span></label><input id="cp-logo" type="url" placeholder="https://yourcompany.com/logo.png"/></div>
+      <div style="grid-column:1/-1"><label class="lbl">About / Company Description <span style="font-weight:400;color:var(--mu)">(optional)</span></label><textarea id="cp-about" rows="3" placeholder="Tell candidates who you are, what you build, and why they should join..."></textarea></div>
+    </div>
+    <div id="cp-logo-preview" style="display:none;margin-bottom:14px">
+      <label class="lbl">Logo Preview</label>
+      <div style="width:64px;height:64px;border-radius:14px;border:1.5px solid var(--ln);overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--bg)">
+        <img id="cp-logo-img" src="" style="max-width:100%;max-height:100%;object-fit:contain"/>
+      </div>
+    </div>
+    <div class="fw" style="gap:10px">
+      <button class="btn fi fu" onclick="saveCoProfile()" id="cp-save-btn">💾 Save Changes</button>
+      <button class="btn gh sm" onclick="mClose('m-co-edit')">Cancel</button>
+    </div>
+    <div id="cp-status" style="margin-top:10px;font-size:13px;text-align:center"></div>
+  </div>
+</div>
 
 <style>
 .bot-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--ln);z-index:300;padding:6px 0 max(8px,env(safe-area-inset-bottom));}
