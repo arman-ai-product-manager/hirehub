@@ -612,21 +612,27 @@ function _hydrate(user, cb){
   S.phone = user.email;
   var meta = user.user_metadata || {};
   if(meta.name){ var n=document.getElementById("ph-nav"); if(n) n.textContent=meta.name; }
+  // Restore brand kit from auth metadata (survives logout/device switch)
+  if(meta.brand){ try{localStorage.setItem(user.email+"_co:brand",JSON.stringify(meta.brand));}catch(e){} }
+  // Restore co:stats from auth metadata
+  if(meta.coStats){ try{localStorage.setItem(user.email+"_co:stats",JSON.stringify(meta.coStats));}catch(e){} }
   if(!window.SB){ if(cb) cb(); return; }
 
-  // Timeout safety — never hang more than 4 seconds
+  // Timeout safety — never hang more than 6 seconds
   var called=false;
-  var timer=setTimeout(function(){ if(!called){called=true;if(cb)cb();} },4000);
+  var timer=setTimeout(function(){ if(!called){called=true;if(cb)cb();} },6000);
 
-  // All 5 queries in parallel (5th is CV unlocks for company accounts)
+  var JOB_COLS="id,title,company_name,location,salary_label,salary_hidden,experience,job_type,sector,skills,currency,remote_policy,visa_sponsor,company_id,status,slug,created_at";
+  // 6 queries in parallel — added company's OWN jobs query (index 5) so they always reload on login
   Promise.all([
     SB.from("companies").select("*").eq("id",user.id).maybeSingle(),
     SB.from("candidates").select("*").eq("id",user.id).maybeSingle(),
-    SB.from("jobs").select("id,title,company_name,location,salary_label,salary_hidden,experience,job_type,sector,skills,currency,remote_policy,visa_sponsor,company_id,status,slug,created_at").eq("status","active").order("created_at",{ascending:false}).limit(30),
+    SB.from("jobs").select(JOB_COLS).eq("status","active").order("created_at",{ascending:false}).limit(30),
     SB.from("hr_users").select("*").eq("id",user.id).maybeSingle(),
-    SB.from("cv_unlocks").select("candidate_id").eq("company_id",user.id)
+    SB.from("cv_unlocks").select("candidate_id").eq("company_id",user.id),
+    SB.from("jobs").select(JOB_COLS).eq("company_id",user.id).order("created_at",{ascending:false}).limit(50)
   ]).then(function(results){
-    var coR=results[0], cdR=results[1], jobsR=results[2], hrR=results[3], unlocksR=results[4];
+    var coR=results[0], cdR=results[1], jobsR=results[2], hrR=results[3], unlocksR=results[4], myJobsR=results[5];
     if(coR.data){
       var co=coR.data;
       var coObj={id:co.id,name:co.company_name,gst:co.gst,city:co.city,sector:co.sector,verified:co.verified,plan:co.plan,website:co.website,phone:user.email,cv_credits:co.cv_credits||0};
@@ -640,7 +646,7 @@ function _hydrate(user, cb){
     if(unlocksR&&unlocksR.data){
       unlocksR.data.forEach(function(u){
         if(!S.unlockedContacts['c_'+u.candidate_id]){
-          S.unlockedContacts['c_'+u.candidate_id]=true; // will be enriched on demand
+          S.unlockedContacts['c_'+u.candidate_id]=true;
         }
       });
       try{localStorage.setItem("hh_unlocked",JSON.stringify(S.unlockedContacts));}catch(e){}
@@ -651,14 +657,18 @@ function _hydrate(user, cb){
       try{localStorage.setItem(user.email+"_cd:profile",JSON.stringify(cdObj));}catch(e){}
       S.cp=cdObj;
     }
-    // HR user — set global state (takes priority over candidate routing)
     if(hrR&&hrR.data){
-      S._hrUser=hrR.data; // { id, company_id, permissions, ... }
+      S._hrUser=hrR.data;
       S._role='hr';
     }
+    // Load global active jobs (for job seekers feed)
+    function _toJobObj(j){return {id:j.id,title:j.title,company:j.company_name,loc:j.location,sal:j.salary_label,shide:j.salary_hidden,exp:j.experience,type:j.job_type,sec:j.sector,skills:j.skills||[],curr:j.currency,remote:j.remote_policy,visa:j.visa_sponsor,companyId:j.company_id,status:j.status,slug:j.slug,createdAt:j.created_at,source:"HireHub360"};}
     if(jobsR.data) jobsR.data.forEach(function(j){
-      var jobObj={id:j.id,title:j.title,company:j.company_name,loc:j.location,sal:j.salary_label,shide:j.salary_hidden,exp:j.experience,type:j.job_type,sec:j.sector,skills:j.skills||[],curr:j.currency,remote:j.remote_policy,visa:j.visa_sponsor,companyId:j.company_id,status:j.status,slug:j.slug,createdAt:j.created_at,source:"HireHub360"};
-      try{localStorage.setItem("sh_job:"+j.id,JSON.stringify(jobObj));}catch(e){}
+      try{localStorage.setItem("sh_job:"+j.id,JSON.stringify(_toJobObj(j)));}catch(e){}
+    });
+    // Load company's OWN jobs — guaranteed restore even if not in global top-30
+    if(myJobsR&&myJobsR.data) myJobsR.data.forEach(function(j){
+      try{localStorage.setItem("sh_job:"+j.id,JSON.stringify(_toJobObj(j)));}catch(e){}
     });
     clearTimeout(timer);
     if(!called){called=true;if(cb)cb();}
@@ -2031,8 +2041,9 @@ function doPostJob(){
     company:S.co.name,companyId:S.co.id,verified:true,status:"active",applicants:0,
     createdAt:new Date().toISOString(),source:"HireHub360"};
   dbSet("job:"+job.id,job);S.postedJob=job;S.seoSteps=[];
-  // Track total jobs ever posted by this company
+  // Track total jobs ever posted by this company (persisted to auth metadata so it survives logout)
   var cs=dbGet("co:stats")||{totalPosted:0};cs.totalPosted=(cs.totalPosted||0)+1;dbSet("co:stats",cs);
+  if(window.SB) SB.auth.updateUser({data:{coStats:cs}}).catch(function(){});
   gsLog("job_post",{id:job.id,title:job.title,company:job.company,loc:job.loc,sal:job.sal,shide:job.shide,exp:job.exp,type:job.type,sec:job.sec,skills:job.skills,curr:job.curr,visa:job.visa,remote:job.remote,companyId:job.companyId,status:job.status});
   var prog=document.getElementById("seo-prog");if(prog)prog.style.display="block";
   var si=0;
@@ -4380,6 +4391,8 @@ function saveBrand() {
   var br = getBrandFromForm();
   if(!br.name) { nt("⚠️ Enter brand / company name"); return; }
   dbSet("co:brand", br);
+  // Persist brand to Supabase Auth metadata so it survives logout/device switch
+  if(window.SB) SB.auth.updateUser({data:{brand:br}}).catch(function(){});
   var slug = mkSlug(br.name);
   var link = _careerLink(br);
   nt("✅ Brand saved! Career page: hirehub360.in/careers/"+slug);
