@@ -1,7 +1,7 @@
 import Head from 'next/head'
 import { supabaseService } from '../../lib/supabase'
 
-export default function CareerPage({ company, jobs }) {
+export default function CareerPage({ company, jobs, params_slug }) {
   if (!company.name) {
     return (
       <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'system-ui,sans-serif',background:'#f5f5f7'}}>
@@ -28,6 +28,15 @@ export default function CareerPage({ company, jobs }) {
         <meta name="description" content={`${name} is hiring! ${jobs.length} open position${jobs.length!==1?'s':''}. ${tagline}`} />
         <meta property="og:title" content={`${name} — We're Hiring!`} />
         <meta property="og:description" content={`${jobs.length} open positions at ${name}. ${tagline}`} />
+        <meta property="og:image" content={logo || 'https://hirehub360.in/og-default.png'} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:url" content={`https://hirehub360.in/careers/${params_slug}`} />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={`${name} — We're Hiring!`} />
+        <meta name="twitter:description" content={`${jobs.length} open positions at ${name}. ${tagline}`} />
+        <meta name="twitter:image" content={logo || 'https://hirehub360.in/og-default.png'} />
         <meta name="viewport" content="width=device-width,initial-scale=1.0" />
         <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>" />
         <style>{`
@@ -87,7 +96,7 @@ export default function CareerPage({ company, jobs }) {
                     </div>
                   )}
                 </div>
-                <a href={`https://hirehub360.in/hirehub.html`} target="_blank" rel="noopener"
+                <a href={`https://hirehub360.in/jobs/${job.slug || (job.title+'-'+job.company_name+'-'+(job.location||'')).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}`} target="_blank" rel="noopener"
                   className="apply-btn" style={{background:c,color:'#fff',flexShrink:0}}>{cta}</a>
               </div>
             ))}
@@ -120,24 +129,32 @@ export async function getServerSideProps({ params, query }) {
     logo:    query.logo ? decodeURIComponent(query.logo) : null,
   }
 
-  // Jobs from Supabase — match company_name to slug (flexible)
+  // Jobs from Supabase — prefer exact company_id match (when ?id= param present), else fuzzy name
   let jobs = []
   try {
-    const searchName = slug.replace(/-/g, ' ')
-    const { data } = await supabaseService
+    const companyId = query.id ? decodeURIComponent(query.id) : null
+    let q = supabaseService
       .from('jobs')
-      .select('id,title,location,salary_label,job_type,skills,company_name')
+      .select('id,slug,title,location,salary_label,job_type,skills,company_name,company_id')
       .eq('status', 'active')
-      .or(`company_name.ilike.%${searchName}%,company_name.ilike.%${slug}%`)
       .order('created_at', { ascending: false })
       .limit(50)
+
+    if (companyId) {
+      q = q.eq('company_id', companyId)
+    } else {
+      const searchName = slug.replace(/-/g, ' ')
+      q = q.or(`company_name.ilike.%${searchName}%,company_name.ilike.%${slug}%`)
+    }
+
+    const { data } = await q
     jobs = data || []
   } catch(e) {}
 
   // If no brand name in query and no jobs found, show 404
   if (!query.n && jobs.length === 0) {
-    return { props: { company: { name: null }, jobs: [] } }
+    return { props: { company: { name: null }, jobs: [], params_slug: slug } }
   }
 
-  return { props: { company, jobs } }
+  return { props: { company, jobs, params_slug: slug } }
 }
