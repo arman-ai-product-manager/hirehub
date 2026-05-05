@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { marked } from 'marked'
 const { supabaseService } = require('../../lib/supabase')
 
-export default function BlogPost({ post, related }) {
+export default function BlogPost({ post, related, faqItems }) {
   if (!post) return (
     <div style={{padding:'80px 24px',textAlign:'center',fontFamily:'sans-serif'}}>
       <div style={{fontSize:48,marginBottom:16}}>📄</div>
@@ -114,6 +114,17 @@ export default function BlogPost({ post, related }) {
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(localSchema) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
+        {faqItems && faqItems.length > 0 && (
+          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'FAQPage',
+            mainEntity: faqItems.map(f => ({
+              '@type': 'Question',
+              name: f.q || f.question,
+              acceptedAnswer: { '@type': 'Answer', text: f.a || f.answer }
+            }))
+          }) }} />
+        )}
       </Head>
 
       <nav style={{background:'#fff',borderBottom:'1px solid #eee',padding:'0 24px',display:'flex',alignItems:'center',gap:32,height:56,position:'sticky',top:0,zIndex:100}}>
@@ -217,6 +228,13 @@ export async function getStaticProps({ params }) {
 
   if (!post) return { notFound: true }
 
+  // Extract FAQPage schema data embedded as <!-- FAQ_JSON: [...] --> by AI cron
+  let faqItems = []
+  const faqMatch = (post.content || '').match(/<!--\s*FAQ_JSON:\s*(\[[\s\S]*?\])\s*-->/)
+  if (faqMatch) {
+    try { faqItems = JSON.parse(faqMatch[1]) } catch (_) {}
+  }
+
   // Fetch 4 related posts (same tags first, then recents — exclude current)
   const tags = (post.tags || []).slice(0, 2)
   let related = []
@@ -249,5 +267,5 @@ export async function getStaticProps({ params }) {
     }
   }
 
-  return { props: { post, related }, revalidate: 3600 }
+  return { props: { post, related, faqItems }, revalidate: 3600 }
 }
