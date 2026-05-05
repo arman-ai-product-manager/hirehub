@@ -224,6 +224,107 @@ const TOPICS = [
   { type:'india-urgent', keyword:'same day joining jobs in Mumbai today',        city:'Mumbai', slug:'same-day-joining-jobs-mumbai' },
   { type:'india-urgent', keyword:'night shift jobs in Mumbai BPO and IT',       city:'Mumbai', slug:'night-shift-jobs-mumbai-bpo-it' },
 
+  // ── CLUSTER 1 — LABOUR: City × Area Matrix ───────────────────────────────
+  { type:'labour', city:'Mumbai', area:'Dharavi',      skill:'construction workers',  slug:'hire-construction-workers-dharavi-mumbai' },
+  { type:'labour', city:'Mumbai', area:'Bhiwandi',     skill:'warehouse workers',     slug:'hire-warehouse-workers-bhiwandi-mumbai' },
+  { type:'labour', city:'Mumbai', area:'Navi Mumbai',  skill:'daily wage workers',    slug:'hire-daily-wage-workers-navi-mumbai' },
+  { type:'labour', city:'Mumbai', area:'Thane',        skill:'manpower supply',       slug:'manpower-supply-thane-mumbai' },
+  { type:'labour', city:'Mumbai', area:'Andheri',      skill:'housekeeping staff',    slug:'hire-housekeeping-staff-andheri-mumbai' },
+  { type:'labour', city:'Mumbai', area:'Bandra-Kurla', skill:'office support staff',  slug:'hire-office-support-staff-bkc-mumbai' },
+  { type:'labour', city:'Mumbai', area:'Worli',        skill:'security guards',       slug:'hire-security-guards-worli-mumbai' },
+  { type:'labour', city:'Mumbai', area:'Chembur',      skill:'factory workers',       slug:'hire-factory-workers-chembur-mumbai' },
+  { type:'labour', city:'Mumbai', area:'Malad',        skill:'delivery staff',        slug:'hire-delivery-staff-malad-mumbai' },
+  { type:'labour', city:'Mumbai', area:'Borivali',     skill:'labour contractor',     slug:'labour-contractor-borivali-mumbai' },
+  { type:'labour', city:'Pune',   area:'Pimpri-Chinchwad', skill:'factory workers',  slug:'hire-factory-workers-pimpri-chinchwad-pune' },
+  { type:'labour', city:'Pune',   area:'Hadapsar',     skill:'warehouse workers',     slug:'hire-warehouse-workers-hadapsar-pune' },
+  { type:'labour', city:'Bangalore', area:'Whitefield', skill:'construction workers', slug:'hire-construction-workers-whitefield-bangalore' },
+  { type:'labour', city:'Bangalore', area:'Electronic City', skill:'factory workers', slug:'hire-factory-workers-electronic-city-bangalore' },
+  { type:'labour', city:'Delhi',  area:'Noida',        skill:'manpower supply',       slug:'manpower-supply-noida-delhi' },
+  { type:'labour', city:'Delhi',  area:'Gurgaon',      skill:'security guards',       slug:'hire-security-guards-gurgaon-delhi' },
+  { type:'labour', city:'Hyderabad', area:'Hitech City', skill:'office support staff', slug:'hire-office-support-staff-hitech-city-hyderabad' },
+  { type:'labour', city:'Chennai', area:'Ambattur',    skill:'factory workers',       slug:'hire-factory-workers-ambattur-chennai' },
+
+  // ── CLUSTER 2 — FREELANCE: Skill × City Matrix ───────────────────────────
+  { type:'freelance', skill:'graphic designer',       city:'Mumbai',    slug:'hire-freelance-graphic-designer-mumbai' },
+  { type:'freelance', skill:'web developer',          city:'Mumbai',    slug:'hire-freelance-web-developer-mumbai' },
+  { type:'freelance', skill:'UI UX designer',         city:'India',     slug:'hire-freelance-ui-ux-designer-india' },
+  { type:'freelance', skill:'content writer',         city:'Mumbai',    slug:'hire-freelance-content-writer-mumbai' },
+  { type:'freelance', skill:'video editor',           city:'India',     slug:'hire-freelance-video-editor-india' },
+  { type:'freelance', skill:'social media manager',   city:'Mumbai',    slug:'hire-freelance-social-media-manager-mumbai' },
+  { type:'freelance', skill:'graphic designer',       city:'Bangalore', slug:'hire-freelance-graphic-designer-bangalore' },
+  { type:'freelance', skill:'web developer',          city:'Bangalore', slug:'hire-freelance-web-developer-bangalore' },
+  { type:'freelance', skill:'React developer',        city:'India',     slug:'hire-freelance-react-developer-india' },
+  { type:'freelance', skill:'WordPress developer',    city:'Mumbai',    slug:'hire-freelance-wordpress-developer-mumbai' },
+  { type:'freelance', skill:'logo designer',          city:'India',     slug:'hire-freelance-logo-designer-india' },
+  { type:'freelance', skill:'copywriter',             city:'Mumbai',    slug:'hire-freelance-copywriter-mumbai' },
+  { type:'freelance', skill:'video editor',           city:'Mumbai',    slug:'hire-freelance-video-editor-mumbai' },
+  { type:'freelance', skill:'app developer',          city:'India',     slug:'hire-freelance-app-developer-india' },
+  { type:'freelance', skill:'Python developer',       city:'Bangalore', slug:'hire-freelance-python-developer-bangalore' },
+  { type:'freelance', skill:'graphic designer',       city:'Delhi',     slug:'hire-freelance-graphic-designer-delhi' },
+  { type:'freelance', skill:'web developer',          city:'Pune',      slug:'hire-freelance-web-developer-pune' },
+  { type:'freelance', skill:'motion graphics artist', city:'Mumbai',    slug:'hire-freelance-motion-graphics-artist-mumbai' },
+
+  // ── CLUSTER 3 — DIGITAL MARKETING: Skill × City ──────────────────────────
+  { type:'digital-mkt', skill:'digital marketer',           city:'Mumbai',    slug:'hire-digital-marketer-mumbai' },
+  { type:'digital-mkt', skill:'SEO expert',                 city:'Mumbai',    slug:'hire-seo-expert-mumbai' },
+  { type:'digital-mkt', skill:'Google Ads specialist',      city:'India',     slug:'hire-google-ads-specialist-india' },
+  { type:'digital-mkt', skill:'social media manager',       city:'Mumbai',    slug:'hire-social-media-manager-mumbai' },
+  { type:'digital-mkt', skill:'Meta Ads expert',            city:'India',     slug:'hire-meta-ads-expert-india' },
+  { type:'digital-mkt', skill:'content marketer',           city:'Mumbai',    slug:'hire-content-marketer-mumbai' },
+  { type:'digital-mkt', skill:'email marketing expert',     city:'India',     slug:'hire-email-marketing-expert-india' },
+  { type:'digital-mkt', skill:'SEO expert',                 city:'Bangalore', slug:'hire-seo-expert-bangalore' },
+  { type:'digital-mkt', skill:'digital marketer',           city:'Delhi',     slug:'hire-digital-marketer-delhi' },
+  { type:'digital-mkt', skill:'Google Ads specialist',      city:'Mumbai',    slug:'hire-google-ads-specialist-mumbai' },
+  { type:'digital-mkt', skill:'PPC expert',                 city:'India',     slug:'hire-ppc-expert-india' },
+  { type:'digital-mkt', skill:'social media manager',       city:'Bangalore', slug:'hire-social-media-manager-bangalore' },
+  { type:'digital-mkt', skill:'digital marketer',           city:'Hyderabad', slug:'hire-digital-marketer-hyderabad' },
+  { type:'digital-mkt', skill:'YouTube channel manager',    city:'India',     slug:'hire-youtube-channel-manager-india' },
+  { type:'digital-mkt', skill:'influencer marketing manager', city:'Mumbai',  slug:'hire-influencer-marketing-manager-mumbai' },
+  { type:'digital-mkt-problem', problem:'business is not getting leads online', city:'Mumbai', slug:'mumbai-business-not-getting-leads-fix' },
+  { type:'digital-mkt-problem', problem:'Google Ads campaign is burning budget with no results', city:'India', slug:'google-ads-failing-hire-specialist-india' },
+  { type:'digital-mkt-problem', problem:'social media has zero engagement', city:'Mumbai', slug:'social-media-no-engagement-hire-expert-mumbai' },
+
+  // ── CLUSTER 4 — DATA ANALYTICS: Skill × City ─────────────────────────────
+  { type:'data-analytics', skill:'data analyst',              city:'Mumbai',    slug:'hire-data-analyst-mumbai' },
+  { type:'data-analytics', skill:'Power BI expert',           city:'India',     slug:'hire-power-bi-expert-india' },
+  { type:'data-analytics', skill:'data scientist',            city:'Mumbai',    slug:'hire-freelance-data-scientist-mumbai' },
+  { type:'data-analytics', skill:'Excel analyst',             city:'India',     slug:'hire-excel-analyst-india' },
+  { type:'data-analytics', skill:'business analyst',          city:'Mumbai',    slug:'hire-business-analyst-mumbai' },
+  { type:'data-analytics', skill:'SQL developer',             city:'India',     slug:'hire-sql-developer-india' },
+  { type:'data-analytics', skill:'data analyst',              city:'Bangalore', slug:'hire-data-analyst-bangalore' },
+  { type:'data-analytics', skill:'Tableau expert',            city:'India',     slug:'hire-tableau-expert-india' },
+  { type:'data-analytics', skill:'data engineer',             city:'Bangalore', slug:'hire-data-engineer-bangalore' },
+  { type:'data-analytics', skill:'Python data analyst',       city:'India',     slug:'hire-python-data-analyst-india' },
+  { type:'data-analytics', skill:'machine learning engineer', city:'Bangalore', slug:'hire-machine-learning-engineer-bangalore' },
+  { type:'data-analytics', skill:'data analyst',              city:'Delhi',     slug:'hire-data-analyst-delhi' },
+  { type:'data-analytics', skill:'business analyst',          city:'Pune',      slug:'hire-business-analyst-pune' },
+
+  // ── COMPARISON PAGES (rank fast, high buying intent) ─────────────────────
+  { type:'comparison', vs:'Upwork',      angle:'Indian businesses',   slug:'hirehub360-vs-upwork-which-is-better-india' },
+  { type:'comparison', vs:'Fiverr',      angle:'Indian businesses',   slug:'hirehub360-vs-fiverr-honest-comparison-india-2025' },
+  { type:'comparison', vs:'Naukri',      angle:'freelancers in India', slug:'hirehub360-vs-naukri-for-freelancers-india' },
+  { type:'comparison', vs:'LinkedIn',    angle:'Mumbai businesses',   slug:'hirehub360-vs-linkedin-hiring-mumbai' },
+  { type:'comparison', vs:'Internshala', angle:'freshers in India',   slug:'hirehub360-vs-internshala-india-freshers' },
+
+  // ── SALARY & RATE PAGES (immediate conversion) ───────────────────────────
+  { type:'salary-rate', skill:'freelance graphic designer', city:'Mumbai', slug:'freelance-graphic-designer-rate-mumbai-2025' },
+  { type:'salary-rate', skill:'data analyst',               city:'India',  slug:'data-analyst-salary-india-2025-freelance-vs-fulltime' },
+  { type:'salary-rate', skill:'SEO services',               city:'Mumbai', slug:'how-much-does-seo-cost-mumbai-2025' },
+  { type:'salary-rate', skill:'social media management',    city:'India',  slug:'social-media-manager-rate-india-2025' },
+  { type:'salary-rate', skill:'freelance web development',  city:'Mumbai', slug:'freelance-web-developer-rate-mumbai-2025' },
+  { type:'salary-rate', skill:'digital marketing agency',   city:'India',  slug:'digital-marketing-agency-cost-india-2025' },
+  { type:'salary-rate', skill:'Power BI consultant',        city:'India',  slug:'power-bi-consultant-rate-india-2025' },
+  { type:'salary-rate', skill:'warehouse manpower supply',  city:'Mumbai', slug:'warehouse-manpower-cost-mumbai-2025' },
+
+  // ── NEAR ME HYPERLOCAL PAGES ─────────────────────────────────────────────
+  { type:'near-me', skill:'digital marketer',  city:'Mumbai',    slug:'digital-marketer-near-me-mumbai' },
+  { type:'near-me', skill:'freelance developer', city:'Thane',   slug:'freelance-developer-near-me-thane' },
+  { type:'near-me', skill:'SEO expert',        city:'Pune',      slug:'seo-expert-near-me-pune' },
+  { type:'near-me', skill:'data analyst',      city:'Bangalore', slug:'data-analyst-near-me-bangalore' },
+  { type:'near-me', skill:'labour contractor', city:'Mumbai',    slug:'labour-contractor-near-me-mumbai' },
+  { type:'near-me', skill:'graphic designer',  city:'Mumbai',    slug:'graphic-designer-near-me-mumbai' },
+  { type:'near-me', skill:'Google Ads expert', city:'Mumbai',    slug:'google-ads-expert-near-me-mumbai' },
+
 ]
 
 function mkSlug(s) {
@@ -471,6 +572,342 @@ ${linkRules}
 Write in markdown only. Start with ## heading.`
   }
 
+  if (topic.type === 'labour') {
+    const cityArea = topic.area ? `${topic.area}, ${topic.city}` : topic.city
+    return `You are India's top Local SEO content strategist. Write a 2000-2200 word expert blog for HireHub360 (hirehub360.in) targeting business owners and HR managers in ${cityArea}.
+
+H1 (use exactly once): "How to Hire ${topic.skill} in ${cityArea} — 2025 Complete Guide"
+PRIMARY KEYWORD: "hire ${topic.skill} ${cityArea}" — use at 1.5% density
+META TITLE (under 60 chars): "Hire ${topic.skill} in ${topic.area||topic.city} 2025 | HireHub360"
+
+STRUCTURE (follow exactly):
+## How to Hire ${topic.skill} in ${cityArea} — 2025 Complete Guide
+**Intro (150 words):** Open with the hiring pain point businesses in ${cityArea} face. Mention HireHub360 naturally. Include primary keyword in first 100 words.
+
+## Why ${cityArea} Businesses Need Reliable ${topic.skill} in 2025
+200 words. Industry stats, labour shortage data, why demand is rising. Cite [Ministry of Labour India](https://labour.gov.in) or [IBEF](https://www.ibef.org).
+
+## Types of ${topic.skill} Available on HireHub360 in ${topic.city}
+List 6-8 sub-roles with 2-line descriptions each. Be specific to ${cityArea} industry.
+
+## Areas in ${topic.city} We Cover for ${topic.skill} Hiring
+List 10 areas in ${topic.city} — each with 2 lines on why that area, typical demand, and pincodes where relevant.
+
+## How HireHub360 Works — Hire ${topic.skill} in 3 Steps
+Step 1: Post your ${topic.skill} requirement free — takes 2 minutes
+Step 2: Get matched profiles in 2-24 hours — verified, background-checked
+Step 3: Interview, hire, pay securely — zero middleman fees
+
+## Why HireHub360 Beats Local Labour Agencies in ${topic.city}
+Comparison table: HireHub360 ✅ vs Traditional Agency ❌ — cover: cost, speed, verification, transparency, replacement guarantee.
+
+## What Does It Cost to Hire ${topic.skill} in ${cityArea}? — 2025 Rates
+Give realistic daily/monthly rate ranges. Break down by experience level. This section ranks for high-intent searches.
+
+## 6 FAQs — ${topic.skill} Hiring in ${cityArea}
+Use questions people actually search. Answer each in 60-80 words. Format as ### Q: ... / **A:** ...
+
+## Client Success Stories from ${topic.city}
+3 realistic testimonials: Name, company, area in ${topic.city}, star rating (4.8-5.0), specific result achieved (e.g., "reduced hiring time from 3 weeks to 48 hours").
+
+**Conclusion:** Strong WhatsApp CTA. Repeat primary keyword. Post your ${topic.skill} requirement free on HireHub360 today.
+
+INTERNAL LINKS (add 3 naturally): [Post a job free](https://hirehub360.in) · [Browse all hiring plans](https://hirehub360.in) · [Read more hiring guides](https://hirehub360.in/blog)
+TONE: Premium, confident, expert. Speak to business owners. Use data. Never sound generic or AI-written.
+Output markdown only. FAQPage schema data embedded as <!-- FAQ_JSON: [...] --> comment at end.`
+  }
+
+  if (topic.type === 'freelance') {
+    return `You are India's top Local SEO content strategist. Write a 2000-2200 word expert blog for HireHub360 (hirehub360.in) targeting startup founders and business owners wanting to hire freelancers in ${topic.city}.
+
+H1 (use exactly once): "Where to Hire Top Freelance ${topic.skill} in ${topic.city} — 2025 Guide"
+PRIMARY KEYWORD: "hire freelance ${topic.skill} ${topic.city}" — 1.5% density
+META TITLE (under 60 chars): "Hire Freelance ${topic.skill} ${topic.city} 2025 | HireHub360"
+
+STRUCTURE (follow exactly):
+## Where to Hire Top Freelance ${topic.skill} in ${topic.city} — 2025 Guide
+**Intro (150 words):** Open with the pain point: finding reliable, affordable freelance ${topic.skill} in ${topic.city} is hard. Mention HireHub360 as the solution naturally. Primary keyword in first 100 words.
+
+## Why ${topic.city} Businesses Are Choosing Freelance ${topic.skill} in 2025
+200 words. Cost savings vs agency, flexibility, India freelance market growth. Cite [NASSCOM](https://nasscom.in) or [Statista India](https://www.statista.com).
+
+## Top Skills to Look for When Hiring a Freelance ${topic.skill}
+List 6-8 specific skills/tools with 2-line descriptions. Be technical enough to build trust.
+
+## Cities and Areas We Cover for Freelance ${topic.skill} Hiring
+List 8 Indian cities (Mumbai, Bangalore, Delhi, Pune, Hyderabad, Chennai, Ahmedabad, Noida) — 2 lines each on freelance talent pool.
+
+## How HireHub360 Works — Hire a Freelance ${topic.skill} in 3 Steps
+Step 1: Post your project free — takes 2 minutes
+Step 2: Get matched top ${topic.skill} profiles in 2-24 hours
+Step 3: Hire, collaborate, pay securely — milestone-based payments
+
+## Best Freelance ${topic.skill} Platforms in India Compared — 2025
+Comparison table: HireHub360 ✅ vs Upwork ❌ vs Fiverr ❌ vs Freelancer.com ❌
+Criteria: India focus, pricing, quality vetting, payment security, response time, Hindi support.
+
+## How Much Does a Freelance ${topic.skill} Cost in ${topic.city}? — 2025 Rates
+Break down: hourly rate, per-project rate, monthly retainer. Give realistic ranges by experience level (fresher / mid / expert).
+
+## 6 FAQs — Hiring Freelance ${topic.skill} in ${topic.city}
+Real questions people search. Each answer 60-80 words. Format as ### Q: ... / **A:** ...
+
+## Success Stories — ${topic.city} Businesses Who Hired on HireHub360
+3 realistic client testimonials: founder name, company type, city area, rating, specific result.
+
+**Conclusion:** Strong WhatsApp CTA. Repeat primary keyword. Post your project free on HireHub360 — get matched with top freelance ${topic.skill} in ${topic.city} today.
+
+INTERNAL LINKS (3 natural): [Post a project free](https://hirehub360.in) · [Browse freelancers](https://hirehub360.in) · [Read more guides](https://hirehub360.in/blog)
+EXTERNAL LINKS (1): [NASSCOM](https://nasscom.in) or [Statista](https://www.statista.com)
+TONE: Premium, confident. Speak to startup founders and SME owners. Use real numbers.
+Output markdown only. FAQPage schema data embedded as <!-- FAQ_JSON: [...] --> comment at end.`
+  }
+
+  if (topic.type === 'digital-mkt') {
+    return `You are India's top Local SEO content strategist. Write a 2000-2200 word expert blog for HireHub360 (hirehub360.in) targeting business owners in ${topic.city} who need to hire digital marketing talent.
+
+H1 (use exactly once): "How to Hire a ${topic.skill} in ${topic.city} — 2025 Complete Guide"
+PRIMARY KEYWORD: "hire ${topic.skill} ${topic.city}" — 1.5% density
+META TITLE (under 60 chars): "Hire ${topic.skill} in ${topic.city} 2025 | HireHub360"
+
+STRUCTURE (follow exactly):
+## How to Hire a ${topic.skill} in ${topic.city} — 2025 Complete Guide
+**Intro (150 words):** Pain point: finding a genuine, results-driven ${topic.skill} in ${topic.city} is expensive and time-consuming. HireHub360 solves this. Primary keyword in first 100 words.
+
+## What a ${topic.skill} Does and Why ${topic.city} Businesses Need One in 2025
+200 words. Digital ad spend growth in India, ROI of hiring right specialist, why generalists fail. Cite [NASSCOM](https://nasscom.in) or [Google India report](https://economictimes.indiatimes.com).
+
+## Top Skills to Demand When Hiring a ${topic.skill} in ${topic.city}
+List 6-8 tools/skills (e.g. GA4, Meta Business Suite, SEMrush) with 2-line descriptions.
+
+## Areas in ${topic.city} and Sectors We Serve
+List 8-10 areas in ${topic.city} or 8 cities if ${topic.city}==='India'. 2 lines each on digital marketing demand.
+
+## How HireHub360 Works — Hire a ${topic.skill} in 3 Steps
+Step 1: Post your requirement free — describe your goal, budget, timeline
+Step 2: Get matched vetted ${topic.skill} profiles in 2-24 hours
+Step 3: Interview, hire, pay securely — performance milestones
+
+## Why HireHub360 Beats Other Platforms for Hiring ${topic.skill} in ${topic.city}
+Comparison table: HireHub360 ✅ vs LinkedIn Recruiter ❌ vs Naukri ❌ vs Local Agency ❌
+Criteria: cost, talent quality, speed, India-market expertise, accountability.
+
+## How Much Does It Cost to Hire a ${topic.skill} in ${topic.city}? — 2025 Rates
+Monthly retainer ranges, per-campaign rates, freelance vs agency vs in-house cost breakdown.
+
+## 6 FAQs — Hiring a ${topic.skill} in ${topic.city}
+Real search queries. 60-80 words each. Format: ### Q: ... / **A:** ...
+
+## Results Our Clients Achieved After Hiring on HireHub360
+3 realistic case studies: business type, city area, challenge, solution, measurable result (e.g., "leads increased 3x in 90 days").
+
+**Conclusion:** Repeat primary keyword. WhatsApp CTA. Post your ${topic.skill} requirement free on HireHub360 today.
+
+INTERNAL LINKS (3): [Post requirement free](https://hirehub360.in) · [Browse digital marketers](https://hirehub360.in) · [More hiring guides](https://hirehub360.in/blog)
+EXTERNAL: [NASSCOM](https://nasscom.in)
+TONE: Expert, data-driven. Talk to business owners who have been burned by bad hires before.
+Output markdown only. FAQPage schema data embedded as <!-- FAQ_JSON: [...] --> comment at end.`
+  }
+
+  if (topic.type === 'digital-mkt-problem') {
+    return `You are India's top content strategist. Write a 2000-word problem-solution blog for HireHub360 (hirehub360.in).
+
+H1: "Your ${topic.problem} in ${topic.city} — Here's the Fix (2025)"
+PRIMARY KEYWORD: "${topic.problem} ${topic.city}" — 1.5% density
+
+STRUCTURE:
+## Your ${topic.problem} in ${topic.city} — Here's the Fix
+**Intro:** Empathise hard. This is a real problem thousands of ${topic.city} businesses face. Primary keyword in first 100 words.
+## Why This Happens — The Root Cause Most Businesses Miss
+Real reasons: wrong hire, wrong strategy, no accountability, chasing vanity metrics.
+## 5 Signs Your Current Setup Is Failing
+Bullet checklist business owners can self-audit.
+## The Real Fix — Hire a Specialist, Not a Generalist
+What specialist skills solve this exact problem. What to look for, what to avoid.
+## How HireHub360 Solves This for ${topic.city} Businesses in 3 Steps
+Step 1 → 2 → 3. Specific to this problem type.
+## Case Study — How a ${topic.city} Business Fixed This in 60 Days
+Realistic story: business type, problem, specialist hired via HireHub360, result with numbers.
+## What It Costs to Fix This Right — ${topic.city} Market Rates 2025
+Budget ranges. Why cheap is expensive. ROI of hiring right.
+## 6 FAQs
+Format: ### Q: ... / **A:** ... (60-80 words each)
+**Conclusion:** Strong CTA. WhatsApp. Primary keyword repeat.
+INTERNAL LINKS (3): [Post requirement free](https://hirehub360.in) · [Browse experts](https://hirehub360.in) · [Blog](https://hirehub360.in/blog)
+Output markdown only.`
+  }
+
+  if (topic.type === 'data-analytics') {
+    return `You are India's top Local SEO content strategist. Write a 2000-2200 word expert blog for HireHub360 (hirehub360.in) targeting startup founders and business leaders in ${topic.city} who need data talent.
+
+H1 (use exactly once): "How to Hire a ${topic.skill} in ${topic.city} — 2025 Complete Guide"
+PRIMARY KEYWORD: "hire ${topic.skill} ${topic.city}" — 1.5% density
+META TITLE (under 60 chars): "Hire ${topic.skill} ${topic.city} 2025 | HireHub360"
+
+STRUCTURE (follow exactly):
+## How to Hire a ${topic.skill} in ${topic.city} — 2025 Complete Guide
+**Intro (150 words):** Pain: data talent is scarce and expensive. Businesses in ${topic.city} are falling behind without proper analytics. HireHub360 bridges the gap. Primary keyword in first 100 words.
+
+## Why ${topic.city} Startups and Enterprises Are Hiring ${topic.skill}s in 2025
+200 words. Data economy growth in India, how analytics drives decisions, cost of bad data. Cite [NASSCOM](https://nasscom.in) or [Statista](https://www.statista.com).
+
+## Key Skills and Tools a ${topic.skill} Must Have in 2025
+List 6-8 tools/skills specific to ${topic.skill} (e.g., Python, SQL, Power BI, Tableau, Excel) — 2 lines each.
+
+## Cities and Industries We Cover for ${topic.skill} Hiring
+List 8 cities (Bangalore, Mumbai, Hyderabad, Pune, Delhi, Chennai, Ahmedabad, Noida) with 2 lines each on data talent pool.
+
+## How HireHub360 Works — Hire a ${topic.skill} in 3 Steps
+Step 1: Post your data project free — describe deliverables, tools needed, timeline
+Step 2: Get matched verified ${topic.skill} profiles in 2-24 hours
+Step 3: Hire on hourly/project/full-time basis. Pay securely.
+
+## Why HireHub360 Beats Other Platforms for ${topic.skill} Hiring in India
+Comparison table: HireHub360 ✅ vs Naukri ❌ vs LinkedIn ❌ vs Consulting firms ❌
+Criteria: cost, vetting depth, data skill specialisation, turnaround, India market rates.
+
+## How Much Does It Cost to Hire a ${topic.skill} in ${topic.city}? — 2025 Rates
+Hourly, monthly, per-project breakdown. Fresher vs mid vs senior. Freelance vs full-time cost comparison.
+
+## 6 FAQs — Hiring a ${topic.skill} in ${topic.city}
+Real questions from Google. 60-80 words each. Format: ### Q: ... / **A:** ...
+
+## How Mumbai and Bangalore Startups Are Using Data to Win in 2025
+3 realistic mini-case-studies: industry, data problem, ${topic.skill} hired via HireHub360, business outcome with numbers.
+
+**Conclusion:** Repeat primary keyword. WhatsApp CTA. Post your ${topic.skill} requirement free today.
+
+INTERNAL LINKS (3): [Post requirement free](https://hirehub360.in) · [Browse analysts](https://hirehub360.in) · [Blog](https://hirehub360.in/blog)
+EXTERNAL: [NASSCOM](https://nasscom.in) or [Statista](https://www.statista.com)
+TONE: Expert, data-driven, premium. Speak to founders who understand ROI.
+Output markdown only. FAQPage schema data embedded as <!-- FAQ_JSON: [...] --> comment at end.`
+  }
+
+  if (topic.type === 'comparison') {
+    return `You are India's top SEO content strategist. Write a 2000-word honest comparison blog for HireHub360 (hirehub360.in).
+
+H1 (use exactly once): "HireHub360 vs ${topic.vs} — Which is Better for ${topic.angle}? (2025)"
+PRIMARY KEYWORD: "HireHub360 vs ${topic.vs}" — 1.5% density
+META TITLE (under 60 chars): "HireHub360 vs ${topic.vs} for India 2025 | Honest Review"
+
+These comparison pages rank FAST because people search them before deciding. Be honest but position HireHub360's strengths clearly.
+
+STRUCTURE:
+## HireHub360 vs ${topic.vs} — Which is Better for ${topic.angle}? (2025)
+**Intro (150 words):** Why this comparison matters for ${topic.angle}. Primary keyword in first 100 words.
+
+## Quick Verdict — Which Platform Wins?
+2-paragraph summary: for which use cases HireHub360 wins, and for which ${topic.vs} might still make sense.
+
+## HireHub360 vs ${topic.vs} — Feature-by-Feature Comparison Table
+Full markdown table with 10 rows:
+| Feature | HireHub360 | ${topic.vs} |
+Rows: India focus, pricing, talent quality vetting, payment security, response time, Hindi/regional language support, blue-collar support, data privacy, customer support, refund policy
+Use ✅/❌/⚠️ emojis.
+
+## Pricing Comparison — HireHub360 vs ${topic.vs}
+Real price ranges. Show where HireHub360 saves money for Indian businesses.
+
+## Quality of Talent — HireHub360 vs ${topic.vs}
+Depth of vetting, India-specific expertise, how each platform matches talent.
+
+## Which Platform is Better for Different Use Cases?
+3 scenarios: (1) hiring a freelancer fast, (2) blue-collar labour, (3) long-term specialist hire. Winner for each.
+
+## What ${topic.angle} Say About Both Platforms
+3 realistic reviews from Indian business owners (not generic).
+
+## 6 FAQs
+Format: ### Q: ... / **A:** ... (60-80 words each)
+
+**Conclusion:** Honest summary. WhatsApp CTA. Try HireHub360 free today.
+INTERNAL LINKS (3): [Post requirement free](https://hirehub360.in) · [Browse talent](https://hirehub360.in) · [Blog](https://hirehub360.in/blog)
+Output markdown only.`
+  }
+
+  if (topic.type === 'salary-rate') {
+    return `You are India's top SEO content strategist. Write a 2000-word pricing/salary guide for HireHub360 (hirehub360.in).
+
+H1 (use exactly once): "${topic.skill.charAt(0).toUpperCase()+topic.skill.slice(1)} Cost in ${topic.city} 2025 — Complete Pricing Guide"
+PRIMARY KEYWORD: "${topic.skill} rate ${topic.city} 2025" — 1.5% density
+META TITLE (under 60 chars): "${topic.skill} Cost ${topic.city} 2025 | HireHub360"
+
+Salary/rate pages convert IMMEDIATELY because they attract people ready to hire. Be specific with numbers.
+
+STRUCTURE:
+## ${topic.skill.charAt(0).toUpperCase()+topic.skill.slice(1)} Cost in ${topic.city} 2025 — Complete Pricing Guide
+**Intro (150 words):** Business owners search this before making a hiring decision. Give them the answer fast. Primary keyword in first 100 words.
+
+## What Affects the Cost of ${topic.skill} in ${topic.city}?
+6-8 factors: experience level, project complexity, turnaround time, tools used, industry, full-time vs freelance.
+
+## ${topic.skill.charAt(0).toUpperCase()+topic.skill.slice(1)} Rate Card — ${topic.city} 2025
+Detailed table with columns: Experience Level | Hourly Rate | Monthly Rate | Per-Project Range
+Rows: Fresher (0-1 yr), Mid-level (2-4 yr), Senior (5+ yr), Expert/Specialist
+Use INR ranges. Be realistic.
+
+## Freelance vs Full-Time vs Agency — Cost Comparison
+Table comparing total cost of ownership for each model. Include hidden costs.
+
+## What You Get at Each Price Point
+What ₹10k/month gets you vs ₹30k vs ₹60k+ — manage expectations clearly.
+
+## Red Flags — Why Cheap ${topic.skill} in ${topic.city} Costs More in the End
+3-4 real scenarios where lowballing backfired. Brief case-study format.
+
+## How to Get the Best Rate on HireHub360
+Step-by-step: write a clear brief, set realistic budget, evaluate portfolios, do a paid trial project.
+
+## 6 FAQs — ${topic.skill} Pricing in ${topic.city}
+Format: ### Q: ... / **A:** ... (60-80 words each)
+
+**Conclusion:** Repeat primary keyword. WhatsApp CTA. Post your requirement and get quotes from verified talent — free on HireHub360.
+INTERNAL LINKS (3): [Post requirement free](https://hirehub360.in) · [Browse talent](https://hirehub360.in) · [Pricing guides](https://hirehub360.in/blog)
+EXTERNAL: [NASSCOM](https://nasscom.in) or [Glassdoor India](https://www.glassdoor.co.in)
+Output markdown only.`
+  }
+
+  if (topic.type === 'near-me') {
+    return `You are India's top hyperlocal SEO content strategist. Write a 2000-word near-me landing page blog for HireHub360 (hirehub360.in).
+
+H1 (use exactly once): "${topic.skill.charAt(0).toUpperCase()+topic.skill.slice(1)} Near Me in ${topic.city} — Find & Hire Today (2025)"
+PRIMARY KEYWORD: "${topic.skill} near me ${topic.city}" — 1.5% density
+META TITLE (under 60 chars): "${topic.skill} Near Me ${topic.city} 2025 | HireHub360"
+
+Google loves hyperlocal near-me pages. Write with maximum local intent signals.
+
+STRUCTURE:
+## ${topic.skill.charAt(0).toUpperCase()+topic.skill.slice(1)} Near Me in ${topic.city} — Find & Hire Today (2025)
+**Intro (150 words):** You're in ${topic.city} and need a ${topic.skill} fast. Stop Googling. HireHub360 has verified, local ${topic.skill}s available now. Primary keyword in first 100 words.
+
+## Why Hire a Local ${topic.skill} in ${topic.city}?
+Benefits of local vs remote for this skill type. Timezone, in-person meetings, local market understanding.
+
+## ${topic.city} Areas We Cover for ${topic.skill} Hiring
+List 12 specific areas/neighbourhoods in ${topic.city} — 1-2 lines each on availability and demand.
+
+## How to Find a ${topic.skill} Near You in ${topic.city} — HireHub360 Process
+Step 1: Post your location and requirement — free
+Step 2: Get matched with local ${topic.skill}s near ${topic.city} in 2-24 hours
+Step 3: Meet, verify, hire. Pay only when satisfied.
+
+## What to Look for in a ${topic.skill} in ${topic.city}
+Portfolio, references, tools, local clients they've worked with.
+
+## Average Cost of a ${topic.skill} in ${topic.city} — 2025 Rates
+Realistic local rate ranges. Monthly, per-project, hourly.
+
+## Verified ${topic.skill}s in ${topic.city} — What Sets HireHub360 Apart
+How HireHub360 vets local talent: background checks, portfolio review, client references, test project.
+
+## 6 FAQs — ${topic.skill} Near Me ${topic.city}
+Local-intent questions people actually search. Format: ### Q: ... / **A:** ...
+
+**Conclusion:** You don't need to search anymore. Post your requirement on HireHub360 and get matched with a ${topic.skill} near you in ${topic.city} today. WhatsApp CTA.
+INTERNAL LINKS (3): [Post requirement free](https://hirehub360.in) · [Browse local talent](https://hirehub360.in) · [More guides](https://hirehub360.in/blog)
+Output markdown only. Include LocalBusiness schema hint as <!-- LOCAL_SCHEMA: city=${topic.city}, skill=${topic.skill} --> at end.`
+  }
+
   // fallback
   return `Write a 900 word SEO blog about "${topic.slug}" for HireHub360 (hirehub360.in). Include internal links to https://hirehub360.in. Write in markdown starting with ## heading.`
 }
@@ -485,13 +922,28 @@ function buildMeta(topic) {
   if (topic.type === 'usa-remote')    return { title: `${topic.keyword.charAt(0).toUpperCase()+topic.keyword.slice(1)} — Legit Opportunities 2026 | HireHub360`, excerpt: `Find legitimate ${topic.keyword}. Avoid scams. Top companies, pay rates, and apply free on HireHub360.` }
   if (topic.type === 'usa-highpay')   return { title: `${topic.keyword.charAt(0).toUpperCase()+topic.keyword.slice(1)} — 2026 Guide | HireHub360`, excerpt: `Complete guide to ${topic.keyword}: top employers, pay rates, and how to land these jobs fast.` }
   if (topic.type === 'usa-skilled')   return { title: `${topic.role.charAt(0).toUpperCase()+topic.role.slice(1)} in ${topic.city} — Now Hiring 2026 | HireHub360`, excerpt: `Top employers hiring ${topic.role} in ${topic.city}. Salary, requirements & how to apply in 2026.` }
-  return { title: topic.slug.replace(/-/g,' '), excerpt: 'Job guide 2026 — HireHub360' }
+  if (topic.type === 'labour')        return { title: `Hire ${topic.skill} in ${topic.area||topic.city} 2025 | HireHub360`, excerpt: `Find verified ${topic.skill} in ${topic.area||topic.city}. Post your requirement free and get matched in 24 hours on HireHub360.` }
+  if (topic.type === 'freelance')     return { title: `Hire Freelance ${topic.skill} in ${topic.city} 2025 | HireHub360`, excerpt: `Find top freelance ${topic.skill} in ${topic.city}. Compare rates, portfolios & hire the best. Post free on HireHub360.` }
+  if (topic.type === 'digital-mkt')   return { title: `Hire ${topic.skill} in ${topic.city} 2025 | HireHub360`, excerpt: `Find vetted ${topic.skill}s in ${topic.city}. Get matched in 24 hours. Post your requirement free on HireHub360.` }
+  if (topic.type === 'digital-mkt-problem') return { title: `${topic.problem} in ${topic.city} — Fix It Now | HireHub360`, excerpt: `Is your ${topic.problem}? Hire a specialist from HireHub360 and fix it in 60 days. Real results, real accountability.` }
+  if (topic.type === 'data-analytics') return { title: `Hire ${topic.skill} in ${topic.city} 2025 | HireHub360`, excerpt: `Find expert ${topic.skill}s in ${topic.city}. Vetted profiles, fast matching, competitive rates. Post free on HireHub360.` }
+  if (topic.type === 'comparison')    return { title: `HireHub360 vs ${topic.vs} — Which Is Better for India? 2025`, excerpt: `Honest comparison of HireHub360 vs ${topic.vs} for ${topic.angle}. Pricing, talent quality, India focus — full breakdown.` }
+  if (topic.type === 'salary-rate')   return { title: `${topic.skill} Cost in ${topic.city} 2025 — Full Pricing Guide`, excerpt: `Exact ${topic.skill} rates in ${topic.city} 2025. Hourly, monthly & per-project ranges. Find the best value on HireHub360.` }
+  if (topic.type === 'near-me')       return { title: `${topic.skill} Near Me in ${topic.city} 2025 | HireHub360`, excerpt: `Find verified ${topic.skill}s near you in ${topic.city}. Local talent, fast matching, free to post on HireHub360.` }
+  return { title: topic.slug.replace(/-/g,' '), excerpt: 'Hiring guide 2025 — HireHub360' }
 }
 
 function buildTags(topic) {
-  const base = ['job guide 2026', 'hirehub360']
-  if (topic.type?.startsWith('india')) return [...base, 'india jobs', topic.city || '', topic.sector || '', topic.keyword || ''].filter(Boolean)
-  if (topic.type?.startsWith('usa'))   return [...base, 'usa jobs', topic.city || '', topic.role || '', topic.keyword || ''].filter(Boolean)
+  const base = ['hirehub360']
+  if (topic.type?.startsWith('india')) return [...base, 'india jobs', 'job guide 2026', topic.city || '', topic.sector || '', topic.keyword || ''].filter(Boolean)
+  if (topic.type?.startsWith('usa'))   return [...base, 'usa jobs', 'job guide 2026', topic.city || '', topic.role || '', topic.keyword || ''].filter(Boolean)
+  if (topic.type === 'labour')         return [...base, 'labour hiring', 'manpower supply', topic.city, topic.area || '', topic.skill].filter(Boolean)
+  if (topic.type === 'freelance')      return [...base, 'hire freelancer', 'freelance india', topic.city, topic.skill, 'best freelance platform india 2025'].filter(Boolean)
+  if (topic.type === 'digital-mkt' || topic.type === 'digital-mkt-problem') return [...base, 'digital marketing', topic.city || '', topic.skill || '', 'hire digital marketer india 2025', 'seo expert mumbai'].filter(Boolean)
+  if (topic.type === 'data-analytics') return [...base, 'data analytics', 'hire data analyst', topic.city, topic.skill, 'power bi expert india'].filter(Boolean)
+  if (topic.type === 'comparison')     return [...base, 'platform comparison', topic.vs, 'best freelance platform india', 'hirehub360 review'].filter(Boolean)
+  if (topic.type === 'salary-rate')    return [...base, 'freelance rates india', topic.skill, topic.city, 'hiring cost india 2025'].filter(Boolean)
+  if (topic.type === 'near-me')        return [...base, 'near me hiring', topic.skill, topic.city, 'local talent india'].filter(Boolean)
   return base
 }
 
@@ -584,18 +1036,36 @@ export default async function handler(req, res) {
       return res.json({ ok: true, written, results })
     }
 
-    // SINGLE MODE (daily cron) — find next unwritten topic
-    const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000)
-    const startIdx = dayOfYear % TOPICS.length
-    const ordered = [...TOPICS.slice(startIdx), ...TOPICS.slice(0, startIdx)]
+    // DAILY MODE — publish 4 blogs: one per cluster (labour, freelance, digital-mkt, data-analytics)
+    // Each cluster also falls back to comparison/salary/near-me if its primary pool is exhausted
+    const CLUSTER_TYPES = [
+      ['labour'],
+      ['freelance', 'freelance-compare'],
+      ['digital-mkt', 'digital-mkt-problem', 'comparison', 'near-me'],
+      ['data-analytics', 'salary-rate'],
+    ]
 
-    for (const topic of ordered) {
-      const result = await writeBlog(topic)
-      if (result.skipped) continue        // already written, try next
-      if (result.error) continue          // groq failed, try next
-      return res.json(result)             // success
+    const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000)
+    const dailyResults = []
+
+    for (const clusterTypes of CLUSTER_TYPES) {
+      // Within each cluster, rotate by day so we don't always pick the same topic
+      const clusterTopics = TOPICS.filter(t => clusterTypes.includes(t.type))
+      const startIdx = dayOfYear % Math.max(clusterTopics.length, 1)
+      const ordered = [...clusterTopics.slice(startIdx), ...clusterTopics.slice(0, startIdx)]
+
+      for (const topic of ordered) {
+        const result = await writeBlog(topic)
+        if (result.skipped) continue
+        if (result.error) continue
+        dailyResults.push(result)
+        await new Promise(r => setTimeout(r, 3000)) // respect Groq rate limits
+        break
+      }
     }
-    return res.json({ ok: true, message: 'All topics already written — add more topics!' })
+
+    if (dailyResults.length === 0) return res.json({ ok: true, message: 'All topics already written — add more topics!' })
+    return res.json({ ok: true, written: dailyResults.length, results: dailyResults })
 
   } catch (e) {
     return res.status(500).json({ error: e.message })
