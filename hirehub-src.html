@@ -792,7 +792,7 @@ function convertSalary(inrAmount, toCurr) {
 // ── PRICING DATA ──────────────────────────────────────────────
 var CO_PLANS = [
   {n:"Free",     p:"₹0",     s:"Forever", c:"var(--mu)",bg:"var(--bg)",
-   f:["2 job posts/month","AI candidate matching","Google auto-index","Share cards","Anti-ghosting alerts"]},
+   f:["2 job posts/month","AI candidate matching","Google auto-index","Job Posters","Anti-ghosting alerts"]},
   {n:"Growth",   p:"₹1,499", s:"/month",  c:"var(--bl)",bg:"var(--bl2)", badge:"Most Popular",
    f:["Unlimited job posts","AI fit scoring","Salary hide option","Bulk HR messaging","Direct candidate chat","Hiring analytics","Priority support"]},
   {n:"Scale",    p:"₹3,999", s:"/month",  c:"var(--ac)",bg:"var(--al)",  badge:"Best Value",
@@ -865,7 +865,7 @@ function showPg(id){
 }
 
 // ── TICKER ────────────────────────────────────────────────────
-var TICKS=["⚡ Priya Sharma shortlisted at Swiggy — 96% AI fit score","🎉 TechCorp hired their developer via HireHub360 today","🏢 Team of 28 booked a venue through HireHub360 in 2 hours","📈 Job auto-indexed on Google in 3 minutes","🚨 5 fake listings blocked before going live","📤 Share card downloaded 1,200+ times this week"];
+var TICKS=["⚡ Priya Sharma shortlisted at Swiggy — 96% AI fit score","🎉 TechCorp hired their developer via HireHub360 today","🏢 Team of 28 booked a venue through HireHub360 in 2 hours","📈 Job auto-indexed on Google in 3 minutes","🚨 5 fake listings blocked before going live","📤 Job Poster downloaded 1,200+ times this week"];
 var ti=0;
 setInterval(function(){ti=(ti+1)%TICKS.length;var e=document.getElementById("tick-t");if(e)e.textContent=TICKS[ti];},4200);
 
@@ -1837,7 +1837,7 @@ function renderCoDash(el){
         '<div class="fw">'+
         '<button class="btn gh sm" onclick="coTab(\'cands\')">Applicants</button>'+
         '<button class="btn ol-bl sm" onclick="openShare(\'🚀\',\''+job.company+' is Hiring!\',\''+job.title+' · '+job.loc+'\',\''+jUrl+'\')">📤 Share</button>'+
-        '<button class="btn sm" style="background:var(--pu);border:none;color:#fff" onclick="openShareCardModal(\''+job.company+'\',\''+job.title+'\',\''+job.sal+'\',\''+job.loc+'\',\''+jUrl+'\')">📸 Poster</button>'+
+        '<button class="btn sm" style="background:var(--pu);border:none;color:#fff" onclick="openShareCardModal(\''+job.company+'\',\''+job.title+'\',\''+job.sal+'\',\''+job.loc+'\',\''+jUrl+'\')">📸 Job Poster</button>'+
         (S._role==='company'&&(job.companyId===S._uid||(S.co&&job.companyId===S.co.id))?
           '<button class="btn sm" style="background:transparent;border:1.5px solid var(--bl);color:var(--bl)" onclick="openEditJob(\''+job.id+'\')">✏️ Edit</button>'+
           '<button class="btn sm" style="background:transparent;border:1.5px solid var(--rd);color:var(--rd)" onclick="confirmDelJob(\''+job.id+'\',\''+job.title+'\')">🗑 Remove</button>':"")+
@@ -2134,7 +2134,7 @@ function doPostJob(){
 
         // ── Bottom actions ──
         '<div class="fw">'+
-          '<button class="btn sm pu" onclick="openShareCardModal(\''+job.company+'\',\''+job.title+'\',\''+job.sal+'\',\''+job.loc+'\',\''+seo.url+'\');mClose(\'m-seo\')">📸 Make Poster</button>'+
+          '<button class="btn sm pu" onclick="openShareCardModal(\''+job.company+'\',\''+job.title+'\',\''+job.sal+'\',\''+job.loc+'\',\''+seo.url+'\');mClose(\'m-seo\')">📸 Job Poster</button>'+
           '<button class="btn fi sm" onclick="mClose(\'m-seo\');loadCoData();coTab(\'dash\')">View Dashboard →</button>'+
         '</div>';
       mOpen("m-seo");
@@ -2171,7 +2171,7 @@ function renderCoCands(el){
           (S._role!=='hr'?'<button class="btn gf sm" onclick="updApp(\''+app.id+'\',\'hired\')">Mark Hired 🎉</button>':'<button class="btn fi sm" onclick="scheduleInterview(\''+app.id+'\')">📅 Schedule</button>')+
           '<button class="btn gh sm" onclick="updApp(\''+app.id+'\',\'rejected\')">Pass</button>'+
         '</div>':"")+
-        (app.status==="hired"?'<div class="fw"><button class="btn ti sm" onclick="coTab(\'venue\')">🏢 Book Celebration</button><button class="btn ol-gr sm" onclick="openShare(\'🎉\',\'We Made a Great Hire!\',\''+(app.candidateName||"")+(app.jobTitle?" joins as "+app.jobTitle:"")+'\')">📤 Share</button><button class="btn sm pu" onclick="openShareCardModal(\''+S.co.name+'\',\''+(app.jobTitle||"")+'\',\'\',\'\')">📸 Poster</button></div>':"")+
+        (app.status==="hired"?'<div class="fw"><button class="btn ti sm" onclick="coTab(\'venue\')">🏢 Book Celebration</button><button class="btn ol-gr sm" onclick="openShare(\'🎉\',\'We Made a Great Hire!\',\''+(app.candidateName||"")+(app.jobTitle?" joins as "+app.jobTitle:"")+'\')">📤 Share</button><button class="btn sm pu" onclick="openShareCardModal(\''+S.co.name+'\',\''+(app.jobTitle||"")+'\',\'\',\'\')">📸 Job Poster</button></div>':"")+
         '</div>'+fitBadge(app.fitScore||80,50)+'</div></div>';
     }).join(""));
 }
@@ -3623,7 +3623,7 @@ function rJL(){
         (ap?'<div class="fw" style="align-items:center"><span class="pill" style="background:var(--gl);color:var(--gr)">✅ Applied — Tracking live</span>&nbsp;<button class="btn gh sm" onclick="cdGo(4)">View Status →</button></div>':
         '<div class="fw"><button class="btn fi sm" onclick="doApply(\''+job.id+'\')">1-Tap Apply →</button>'+
         '<button class="btn gh sm" onclick="openShare(\'💼\',\''+job.title+' at '+job.company+'\',\''+job.loc+' · '+(job.shide?"Competitive":job.sal)+'\')">📤 Share</button>'+
-        '<button class="btn sm pu" onclick="openShareCardModal(\''+job.company+'\',\''+job.title+'\',\''+(job.shide?"Competitive":job.sal)+'\',\''+job.loc+'\')">📸 Poster</button>'+
+        '<button class="btn sm pu" onclick="openShareCardModal(\''+job.company+'\',\''+job.title+'\',\''+(job.shide?"Competitive":job.sal)+'\',\''+job.loc+'\')">📸 Job Poster</button>'+
         '</div>')+
         '<span style="font-size:11px;color:#aaa">👁 '+(Math.floor(Math.random()*75)+15)+' viewed today</span>'+
         '</div></div></div>';
@@ -3718,8 +3718,8 @@ function renderCdTrack(el){
         '</div>';}).join("")+
         '</div>'+
         (app.status==="rejected"?'<span class="pill" style="background:var(--rl);color:var(--rd)">Not selected — keep going!</span>':"")+
-        (app.status==="hired"?'<div class="fw"><button class="btn gf sm" onclick="openShare(\'🎉\',\'I Got The Job! 🥳\',\''+app.jobTitle+' at '+app.company+' · via Hire Hub\')">🎊 Share Win</button><button class="btn sm pu" onclick="openShareCardModal(\''+app.company+'\',\''+app.jobTitle+'\',\'\',\'\')">📸 Make Poster</button><button class="btn ti sm" onclick="nt(\'🏢 Opening venue booking!\')">🎉 Celebrate</button></div>':"")+
-        (app.status==="shortlisted"?'<div class="fw"><button class="btn sm ol-go" onclick="openShare(\'⭐\',\'I Got Shortlisted!\',\''+app.jobTitle+' at '+app.company+' · '+app.fitScore+'% AI fit\')">📤 Share</button><button class="btn sm pu" onclick="openShareCardModal(\''+app.company+'\',\''+app.jobTitle+'\',\'\',\'\')">📸 Make Poster</button></div>':"")+
+        (app.status==="hired"?'<div class="fw"><button class="btn gf sm" onclick="openShare(\'🎉\',\'I Got The Job! 🥳\',\''+app.jobTitle+' at '+app.company+' · via Hire Hub\')">🎊 Share Win</button><button class="btn sm pu" onclick="openShareCardModal(\''+app.company+'\',\''+app.jobTitle+'\',\'\',\'\')">📸 Job Poster</button><button class="btn ti sm" onclick="nt(\'🏢 Opening venue booking!\')">🎉 Celebrate</button></div>':"")+
+        (app.status==="shortlisted"?'<div class="fw"><button class="btn sm ol-go" onclick="openShare(\'⭐\',\'I Got Shortlisted!\',\''+app.jobTitle+' at '+app.company+' · '+app.fitScore+'% AI fit\')">📤 Share</button><button class="btn sm pu" onclick="openShareCardModal(\''+app.company+'\',\''+app.jobTitle+'\',\'\',\'\')">📸 Job Poster</button></div>':"")+
         '</div>'+
         '<div class="fb" style="background:'+fb2+';width:46px;height:46px"><span style="font-weight:800;font-size:16px;color:'+fc2+';line-height:1">'+(app.fitScore||80)+'</span><span style="font-size:8px;font-weight:700;color:'+fc2+';letter-spacing:.05em;text-transform:uppercase">fit</span></div>'+
         '</div></div>';
@@ -4211,7 +4211,7 @@ function renderCoBrand(el) {
     '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:22px">'+
     [['🌐','Branded Career Page','Your domain, your colors, your logo'],
      ['📋','Embed on Website','Copy-paste widget — works on any site'],
-     ['📤','Branded Share Cards','Auto-uses your brand colors in cards'],
+     ['📤','Job Posters','Auto-uses your brand colors in posters'],
      ['🔗','Shareable Link','One link for all your open jobs'],
      ['📧','Branded Emails','Applications land in your inbox'],
      ['📊','Your Analytics','All data under your brand name']].map(function(f){
