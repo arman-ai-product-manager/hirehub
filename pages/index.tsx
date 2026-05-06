@@ -200,6 +200,7 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
         <div className="nav-links">
           <a href="/" className="hide-mob">Browse Jobs</a>
           <a href="/pricing" className="hide-mob">Pricing</a>
+          <a href="/resume/your-name" className="hide-mob">My Resume</a>
           <a href="/hirehub.html" className="hide-mob">Sign In</a>
           <a href="/hirehub.html" className="btn-post">Post a Job →</a>
         </div>
@@ -439,6 +440,7 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
             <a href="/">Find Jobs</a>
             <a href="/hirehub.html">Post Jobs</a>
             <a href="/hirehub.html">Company Dashboard</a>
+            <a href="/resume/your-name">My Resume Page</a>
             <a href="/hirehub.html">Candidate Profile</a>
             <a href="/sitemap.xml">Sitemap</a>
           </div>
