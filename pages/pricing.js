@@ -329,8 +329,8 @@ export default function Pricing() {
         <title>Pricing — HireHub360 | India's Smartest Hiring Platform</title>
         <meta name="description" content="Monthly plans from ₹999/mo. Pay-per-CV unlock. ATS Scanner. No hidden fees. 3,400+ companies trust HireHub360." />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>" />
-        <script src="https://sdk.cashfree.com/js/v3/cashfree.js" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <script src="https://checkout.razorpay.com/v1/checkout.js" />
       </Head>
 
       <style>{`

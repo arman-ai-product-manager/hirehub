@@ -38,7 +38,7 @@ export default function CareerPage({ company, jobs, params_slug }) {
         <meta name="twitter:description" content={`${jobs.length} open positions at ${name}. ${tagline}`} />
         <meta name="twitter:image" content={logo || 'https://hirehub360.in/og-default.png'} />
         <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <style>{`
           *{box-sizing:border-box;margin:0;padding:0}
           body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f7;color:#1d1d1f}

@@ -91,7 +91,7 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
         <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <link rel="canonical" href="https://hirehub360.in" />
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaWebsite) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaOrg) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaList) }} />
@@ -168,6 +168,20 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
         .fc-feats{display:flex;flex-direction:column;gap:10px;flex:1;min-width:200px}
         .fc-feat{display:flex;align-items:center;gap:10px;font-size:13px;color:#ccc}
         .fc-icon{width:28px;height:28px;background:rgba(255,107,0,.18);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+        /* 7 FEATURES SECTION */
+        .feat-sec{background:#0a0a0a;padding:48px 5vw;margin-bottom:0}
+        .feat-sec-head{text-align:center;margin-bottom:32px}
+        .feat-sec-head h2{font-size:clamp(22px,4vw,38px);font-weight:900;color:#fff;letter-spacing:-.04em;margin-bottom:8px}
+        .feat-sec-head p{color:#666;font-size:15px}
+        .feat7-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;max-width:1200px;margin:0 auto}
+        .feat7{background:#111;border:1px solid #222;border-radius:16px;padding:22px;transition:border-color .2s,transform .2s;text-decoration:none;display:block}
+        .feat7:hover{border-color:#ff6b00;transform:translateY(-2px)}
+        .feat7-top{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+        .feat7-ic{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+        .feat7-name{font-size:15px;font-weight:800;color:#fff;letter-spacing:-.02em}
+        .feat7-badge{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#666;margin-top:1px}
+        .feat7-desc{font-size:13px;color:#777;line-height:1.65}
+        @media(max-width:640px){.feat7-grid{grid-template-columns:1fr}.feat-sec{padding:36px 5vw}}
         /* TRUST */
         .trust{background:#fff;padding:36px 5vw;border-top:1px solid #e5e5ea;border-bottom:1px solid #e5e5ea;text-align:center;margin-bottom:0}
         .trust h2{font-size:clamp(20px,3vw,32px);font-weight:900;letter-spacing:-.04em;margin-bottom:8px}
@@ -199,7 +213,9 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
         <a href="/" className="logo">Hire<span>Hub</span><span style={{color:'#ff6b00',fontSize:'0.75em',fontWeight:900,verticalAlign:'super',marginLeft:1}}>360</span></a>
         <div className="nav-links">
           <a href="/" className="hide-mob">Browse Jobs</a>
+          <a href="/features" className="hide-mob">Features</a>
           <a href="/pricing" className="hide-mob">Pricing</a>
+          <a href="/resume/your-name" className="hide-mob">My Resume</a>
           <a href="/hirehub.html" className="hide-mob">Sign In</a>
           <a href="/hirehub.html" className="btn-post">Post a Job →</a>
         </div>
@@ -379,6 +395,42 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
         </div>
       </div>
 
+      {/* 7 WORLD-FIRST FEATURES */}
+      <div className="feat-sec">
+        <div className="feat-sec-head">
+          <div style={{display:'inline-block',background:'rgba(255,107,0,.15)',color:'#ff6b00',padding:'5px 16px',borderRadius:999,fontSize:11,fontWeight:700,textTransform:'uppercase',letterSpacing:'.08em',marginBottom:14,border:'1px solid rgba(255,107,0,.3)'}}>🚀 7 World-First Features</div>
+          <h2>No Platform Has Built <span style={{color:'#ff6b00'}}>Any of These</span></h2>
+          <p>We didn't copy LinkedIn. We didn't copy Naukri. Built for India's 500 million workers.</p>
+        </div>
+        <div className="feat7-grid">
+          {[
+            {icon:'⭐',color:'#ff6b00',name:'HireHub Score',badge:'Work Credit Score',desc:'India\'s first CIBIL-like work reputation system. Built from attendance, ratings & skill tests — travels with you everywhere.'},
+            {icon:'🤖',color:'#6366f1',name:'AI Salary Agent',badge:'AI Salary Negotiator',desc:'You set your desired salary. Our AI negotiates with the company on your behalf — real-time, data-backed, zero awkwardness.'},
+            {icon:'📡',color:'#9333ea',name:'LiveWork',badge:'Live Work Streaming',desc:'Freelancers stream their screen live while working. Clients watch in real time. Pay-per-minute billing ticks like a taxi meter.'},
+            {icon:'🔗',color:'#0891b2',name:'VerifiedWork',badge:'Blockchain Certificates',desc:'Every project earns a blockchain certificate that cannot be faked, altered, or deleted. Employers scan a QR to verify instantly.'},
+            {icon:'🔄',color:'#059669',name:'WorkerFirst',badge:'Reverse Hiring',desc:'Workers post their availability and rate. Companies browse and apply to them. Premium workers get 5+ company applications daily.'},
+            {icon:'⚡',color:'#dc2626',name:'InstantHire',badge:'1-Hour Hire',desc:'Post an emergency need. GPS-matched workers confirmed and on-site within 60 minutes. Swiggy delivery speed — for talent.'},
+            {icon:'🕶️',color:'#8b5cf6',name:'BlindHire',badge:'Dark Apply',desc:'Apply with skills + score only. Zero name, photo, or age shown until after shortlist. Pure merit. Zero bias. Every MNC\'s dream.'},
+          ].map(f => (
+            <a key={f.name} href="/features" className="feat7">
+              <div className="feat7-top">
+                <div className="feat7-ic" style={{background:f.color+'22',border:`1px solid ${f.color}44`}}>
+                  <span>{f.icon}</span>
+                </div>
+                <div>
+                  <div className="feat7-name">{f.name}</div>
+                  <div className="feat7-badge">{f.badge}</div>
+                </div>
+              </div>
+              <p className="feat7-desc">{f.desc}</p>
+            </a>
+          ))}
+        </div>
+        <div style={{textAlign:'center',marginTop:28}}>
+          <a href="/features" style={{display:'inline-block',background:'#ff6b00',color:'#fff',padding:'12px 32px',borderRadius:999,fontWeight:700,fontSize:14,textDecoration:'none'}}>Explore All 7 Features →</a>
+        </div>
+      </div>
+
       {/* VENUE SECTION */}
       <section className="section" style={{paddingTop:8}}>
         <div className="sh">
@@ -437,8 +489,10 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
           <div className="fc-col">
             <h4>HireHub360</h4>
             <a href="/">Find Jobs</a>
+            <a href="/features">Features</a>
             <a href="/hirehub.html">Post Jobs</a>
             <a href="/hirehub.html">Company Dashboard</a>
+            <a href="/resume/your-name">My Resume Page</a>
             <a href="/hirehub.html">Candidate Profile</a>
             <a href="/sitemap.xml">Sitemap</a>
           </div>

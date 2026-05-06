@@ -10,7 +10,7 @@ export default function BlogIndex({ posts }) {
         <meta name="description" content="Career tips, job search strategies, resume writing advice, hiring insights and more from HireHub360 — India's AI-powered job platform." />
         <meta name="robots" content="index,follow" />
         <link rel="canonical" href="https://hirehub360.in/blog" />
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
       </Head>
 
