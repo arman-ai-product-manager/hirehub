@@ -25,7 +25,7 @@ export default function BlogPost({ post }) {
         <meta property="og:description" content={post.excerpt || post.title} />
         <meta property="og:type" content="article" />
         {post.cover_image && <meta property="og:image" content={post.cover_image} />}
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
           '@context':'https://schema.org','@type':'BlogPosting',

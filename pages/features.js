@@ -134,7 +134,7 @@ export default function FeaturesPage() {
         <meta property="og:description" content="Work Credit Score. AI Salary Negotiator. Blind Hiring. Live Work Streaming. Blockchain certificates. All in one platform." />
         <meta name="robots" content="index,follow" />
         <link rel="canonical" href="https://hirehub360.in/features" />
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
       </Head>
 

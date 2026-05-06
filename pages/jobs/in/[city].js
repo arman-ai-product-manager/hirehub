@@ -125,7 +125,7 @@ export default function CityJobsPage({ city, cfg, jobs, totalCount }) {
         <meta property="og:url" content={canonicalUrl} />
         <meta name="robots" content="index,follow" />
         <link rel="canonical" href={canonicalUrl} />
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(localBizSchema) }} />

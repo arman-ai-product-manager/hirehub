@@ -70,7 +70,7 @@ export default function ResumePage({ candidate, shareUrl }) {
         <meta property="og:type" content="profile" />
         <meta name="robots" content="index,follow" />
         <link rel="canonical" href={shareUrl} />
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
       </Head>
