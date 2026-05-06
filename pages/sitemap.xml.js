@@ -14,6 +14,35 @@ const CITIES_MID = [
 ]
 const ALL_CITIES = [...CITIES_HIGH, ...CITIES_MID, 'bhopal','patna']
 
+// /hire/[slug] City×Skill pages — 21 skills × 10 cities = 210 pages
+const HIRE_SKILLS = [
+  'labour-contractor','construction-workers','warehouse-workers','security-guards',
+  'housekeeping-staff','delivery-boys','freelancer','graphic-designer','web-developer',
+  'ui-designer','video-editor','content-writer','digital-marketer','seo-expert',
+  'google-ads-specialist','social-media-manager','meta-ads-expert','data-analyst',
+  'power-bi-expert','data-scientist','business-analyst',
+]
+const HIRE_CITIES = [
+  'mumbai','pune','bangalore','delhi','hyderabad','chennai','ahmedabad','dubai','singapore','india',
+]
+
+// /compare/[slug] comparison pages
+const COMPARE_SLUGS = [
+  'hirehub360-vs-upwork',
+  'hirehub360-vs-fiverr',
+  'hirehub360-vs-naukri',
+  'hirehub360-vs-linkedin',
+]
+
+// /salary/[slug] rate pages
+const SALARY_SLUGS = [
+  'freelance-graphic-designer-rate-mumbai',
+  'data-analyst-salary-india',
+  'freelance-web-developer-rate-bangalore',
+  'seo-expert-rate-india',
+  'content-writer-rate-india',
+]
+
 const DEMO_JOB_SLUGS = [
   'senior-software-engineer-techcorp-india-bangalore',
   'product-manager-swiggy-mumbai',
@@ -122,11 +151,31 @@ export async function getServerSideProps({ res }) {
     url(`${base}/jobs/${slug}`, '2026-04-01', 'monthly', '0.70')
   ).join('\n')
 
+  // /hire/[skill]-[city] landing pages (priority 0.88)
+  const hireUrls = HIRE_SKILLS.flatMap(skill =>
+    HIRE_CITIES.map(city =>
+      url(`${base}/hire/${skill}-${city}`, today, 'weekly', '0.88')
+    )
+  ).join('\n')
+
+  // /compare/[slug] comparison pages (priority 0.82)
+  const compareUrls = COMPARE_SLUGS.map(slug =>
+    url(`${base}/compare/${slug}`, today, 'monthly', '0.82')
+  ).join('\n')
+
+  // /salary/[slug] rate pages (priority 0.85)
+  const salaryUrls = SALARY_SLUGS.map(slug =>
+    url(`${base}/salary/${slug}`, today, 'monthly', '0.85')
+  ).join('\n')
+
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
 ${staticUrls}
 ${cityHighUrls}
 ${cityMidUrls}
+${hireUrls}
+${compareUrls}
+${salaryUrls}
 ${blogUrls}
 ${dbJobUrls}
 ${demoJobUrls}

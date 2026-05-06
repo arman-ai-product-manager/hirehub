@@ -11,6 +11,22 @@
     {
       "path": "/api/cron/venue-blog?secret=hirehub-cron-2026&slot=b",
       "schedule": "0 10 * * *"
+    },
+    {
+      "path": "/api/cron/seo-blog?secret=hirehub-cron-2026&slot=a",
+      "schedule": "0 4 * * *"
+    },
+    {
+      "path": "/api/cron/seo-blog?secret=hirehub-cron-2026&slot=b",
+      "schedule": "0 7 * * *"
+    },
+    {
+      "path": "/api/cron/seo-blog?secret=hirehub-cron-2026&slot=c",
+      "schedule": "0 11 * * *"
+    },
+    {
+      "path": "/api/cron/seo-blog?secret=hirehub-cron-2026&slot=d",
+      "schedule": "0 15 * * *"
     }
   ]
 }
