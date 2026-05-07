@@ -1,5 +1,10 @@
 import Head from 'next/head'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { createClient } from '@supabase/supabase-js'
+
+const supabase = process.env.NEXT_PUBLIC_SUPABASE_URL
+  ? createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
+  : null
 
 // ─── PLAN DATA ────────────────────────────────────────────────────────────────
 const COMPANY_PLANS = [
@@ -178,45 +183,139 @@ export default function Pricing() {
   const [success, setSuccess] = useState('')
   const [error, setError]     = useState('')
   const [tab, setTab]         = useState('company') // 'company' | 'seeker'
+  const [userId, setUserId]   = useState(null)
+  const [userRole, setUserRole] = useState(null)
+  const [userEmail, setUserEmail] = useState('')
+  const [userName, setUserName]   = useState('')
+
+  useEffect(() => {
+    supabase?.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setUserId(session.user.id)
+        setUserEmail(session.user.email || '')
+        const meta = session.user.user_metadata || {}
+        setUserRole(meta.role || 'candidate')
+        setUserName(meta.name || meta.full_name || '')
+      }
+    })
+
+    // Handle return from Cashfree subscription mandate setup
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      if (params.get('sub_success') === '1') {
+        const plan   = params.get('plan')   || ''
+        const uId    = params.get('userId') || ''
+        const role   = params.get('role')   || ''
+        // Activate plan immediately (webhook also fires but this is instant)
+        if (uId && plan && role) {
+          fetch('/api/payment/verify-sub', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: uId, plan, role }),
+          }).catch(() => {})
+        }
+        const planLabel = plan.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+        setSuccess(`🎉 Auto-pay setup done! Your ${planLabel} plan is now active. You'll be charged ₹${plan==='growth'?999:plan==='scale'?2499:plan==='career_plus'?249:99}/month automatically.`)
+        // Clean URL
+        window.history.replaceState({}, '', '/pricing')
+      }
+    }
+  }, [])
+
+  // Monthly plans use Cashfree Subscription (auto-pay)
+  // Credit packs use one-time order
+  const SUBSCRIPTION_PLANS = ['growth', 'scale', 'pro_seeker', 'career_plus']
 
   async function handlePay(planId, amount, label) {
     if (!amount) {
-      // Enterprise contact
       window.open('https://wa.me/919820000000?text=Hi+I+want+Enterprise+pricing+for+HireHub360', '_blank')
       return
     }
-    if (amount === 0) return // free plan
+    if (amount === 0) return
+
+    if (!userId) {
+      setError('Please log in to HireHub360 first, then come back to this page to subscribe.')
+      return
+    }
+
     setLoading(planId)
     setError('')
+
+    // ── SUBSCRIPTION (monthly auto-pay) ───────────────────────────────────────
+    if (SUBSCRIPTION_PLANS.includes(planId)) {
+      try {
+        const res = await fetch('/api/payment/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            plan:          planId,
+            userId:        userId,
+            role:          userRole || 'candidate',
+            customerEmail: userEmail,
+            customerName:  userName,
+          }),
+        })
+        const data = await res.json()
+        if (!res.ok || !data.authLink) throw new Error(data.error || 'Could not create subscription')
+
+        // Redirect to Cashfree mandate setup page
+        window.location.href = data.authLink
+      } catch (err) {
+        setError(err.message || 'Could not start subscription. Please try again.')
+        setLoading('')
+      }
+      return
+    }
+
+    // ── ONE-TIME ORDER (CV credit packs) ──────────────────────────────────────
     try {
       const res = await fetch('/api/payment/order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount, currency: 'INR', receipt: `hire_${planId}_${Date.now()}` }),
+        body: JSON.stringify({
+          amount,
+          currency: 'INR',
+          receipt: `hire_${planId}_${Date.now()}`,
+          customerEmail: userEmail,
+          customerName:  userName,
+          notes: {
+            desc:   label,
+            userId: userId  || '',
+            role:   userRole || 'candidate',
+            email:  userEmail,
+            name:   userName,
+          }
+        }),
       })
       const data = await res.json()
-      if (!res.ok || !data.orderId) throw new Error(data.error || 'Could not create order')
-      if (typeof window === 'undefined' || !window.Razorpay) throw new Error('Razorpay not loaded')
-      const rzp = new window.Razorpay({
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-        amount: data.amount,
-        currency: data.currency,
-        name: 'HireHub360',
-        description: label,
-        order_id: data.orderId,
-        image: 'https://hirehub360.in/favicon.ico',
-        theme: { color: '#ff6b00' },
-        handler: () => {
-          setSuccess(`🎉 Payment successful! ${label} is now active.`)
-          setLoading('')
-        },
-        modal: { ondismiss: () => setLoading('') },
+      if (!res.ok || !data.paymentSessionId) throw new Error(data.error || 'Could not create order')
+
+      if (typeof window === 'undefined' || !window.Cashfree) throw new Error('Payment SDK not loaded. Please refresh.')
+      const cf = window.Cashfree({ mode: 'production' })
+      const result = await cf.checkout({
+        paymentSessionId: data.paymentSessionId,
+        redirectTarget: '_modal',
       })
-      rzp.on('payment.failed', (r) => {
-        setError('Payment failed: ' + (r.error?.description || 'Unknown error'))
-        setLoading('')
+
+      if (result.error) throw new Error(result.error.message || 'Payment failed')
+
+      const vRes = await fetch('/api/payment/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderId: data.orderId,
+          plan:    planId,
+          userId:  userId   || null,
+          role:    userRole  || null,
+        }),
       })
-      rzp.open()
+      const vData = await vRes.json()
+      if (vData.ok) {
+        setSuccess(`🎉 Payment successful! ${label} activated. Refresh the app to see changes.`)
+      } else {
+        setError('Payment done but activation pending. Refresh in 1 min or email support@hirehub360.in')
+      }
+      setLoading('')
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again.')
       setLoading('')
@@ -327,7 +426,7 @@ export default function Pricing() {
           <span>🏢 3,400+ companies</span>
           <span>👤 1.2L+ job seekers</span>
           <span>⚡ Avg hire in 8 days</span>
-          <span>🔒 Razorpay secured</span>
+          <span>🔒 Cashfree secured</span>
         </div>
       </div>
 
@@ -461,7 +560,7 @@ export default function Pricing() {
       </>}
 
       {/* TRUST STRIP */}
-      <div className="trust">🔒 Secured by Razorpay · All prices incl. 18% GST · Cancel anytime · No hidden fees</div>
+      <div className="trust">🔒 Secured by Cashfree · All prices incl. 18% GST · Cancel anytime · No hidden fees</div>
       <div className="guarantee">
         <strong>30-day money-back guarantee</strong> on all paid plans. If you don't hire in 30 days, we refund — no questions asked.
       </div>
