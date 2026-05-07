@@ -3485,7 +3485,8 @@ function _careerLink(br){
     +"&c="+encodeURIComponent(br2.color||"#ff6b00")
     +"&t="+encodeURIComponent(br2.tagline||"")
     +"&cta="+encodeURIComponent(br2.cta||"Apply Now")
-    +(br2.logo?"&logo="+encodeURIComponent(br2.logo):"");
+    +(br2.logo?"&logo="+encodeURIComponent(br2.logo):"")
+    +(S._uid?"&id="+S._uid:"");
   return "https://hirehub360.in/careers/"+slug+params;
 }
 

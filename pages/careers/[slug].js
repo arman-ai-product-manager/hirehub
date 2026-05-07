@@ -128,17 +128,25 @@ export async function getServerSideProps({ params, query }) {
     logo:    safeLogo,
   }
 
-  // Jobs from Supabase — match company_name to slug (flexible)
+  // Jobs from Supabase — prefer company_id lookup (exact), fall back to name match
   let jobs = []
   try {
-    const searchName = slug.replace(/-/g, ' ')
-    const { data, error } = await supabaseService
+    const companyId = query.id || null
+    let q = supabaseService
       .from('jobs')
       .select('id,title,location,salary_label,job_type,skills,company_name')
       .eq('status', 'active')
-      .or(`company_name.ilike.%${searchName}%,company_name.ilike.%${slug}%`)
       .order('created_at', { ascending: false })
       .limit(50)
+
+    if (companyId) {
+      q = q.eq('company_id', companyId)
+    } else {
+      const searchName = slug.replace(/-/g, ' ')
+      q = q.or(`company_name.ilike.%${searchName}%,company_name.ilike.%${slug}%`)
+    }
+
+    const { data, error } = await q
     if (error) console.error('careers DB error:', error)
     jobs = data || []
   } catch (e) { console.error('careers DB error:', e) }
