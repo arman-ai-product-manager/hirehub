@@ -2,10 +2,9 @@ import Head from 'next/head'
 import { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
+const supabase = process.env.NEXT_PUBLIC_SUPABASE_URL
+  ? createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
+  : null
 
 // ─── PLAN DATA ────────────────────────────────────────────────────────────────
 const COMPANY_PLANS = [
@@ -190,7 +189,7 @@ export default function Pricing() {
   const [userName, setUserName]   = useState('')
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase?.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         setUserId(session.user.id)
         setUserEmail(session.user.email || '')
