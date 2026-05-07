@@ -930,24 +930,28 @@ function openPricing(role){
 }
 
 // ── OPEN SHARE (TEXT) ─────────────────────────────────────────
-function openShare(icon,headline,sub){
+function openShare(icon,headline,sub,url){
+  var link=url||'https://hirehub360.in';
+  var txt=headline+'\n'+sub+'\n\n🔗 Apply here: '+link+'\n\n#HireHub360 #Hiring #Jobs';
+  window._shareText=txt;
+  var waUrl='https://wa.me/?text='+encodeURIComponent(txt);
+  var liUrl='https://www.linkedin.com/sharing/share-offsite/?url='+encodeURIComponent(link);
+  var twUrl='https://twitter.com/intent/tweet?text='+encodeURIComponent(headline+' '+sub+' 👉 '+link+' #Hiring');
   document.getElementById("m-share-c").innerHTML=
-    '<div style="background:linear-gradient(135deg,var(--ac),#ff9500);border-radius:18px;padding:26px 20px;text-align:center;margin-bottom:20px;position:relative;overflow:hidden">'+
+    '<div style="background:linear-gradient(135deg,var(--ac),#ff9500);border-radius:18px;padding:26px 20px;text-align:center;margin-bottom:16px;position:relative;overflow:hidden">'+
     '<div style="position:absolute;inset:0;opacity:.06;background-image:radial-gradient(circle,white 1px,transparent 1px);background-size:18px 18px"></div>'+
     '<div style="font-size:40px;margin-bottom:9px">'+icon+'</div>'+
     '<div style="font-weight:800;font-size:18px;color:#fff;margin-bottom:5px;line-height:1.2">'+headline+'</div>'+
     '<div style="font-size:13px;color:rgba(255,255,255,.8);margin-bottom:14px">'+sub+'</div>'+
-    '<div style="background:rgba(255,255,255,.25);border-radius:8px;padding:4px 13px;display:inline-block;font-size:12px;font-weight:700;color:#fff">Hire Hub · hirehub360.in</div></div>'+
-    '<p style="font-size:13px;color:var(--mu);text-align:center;margin-bottom:12px">Share to your network</p>';
-  var txt=headline+"\n"+sub+"\n\nhirehub360.in";
-  window._shareText=txt;
-  var waUrl='https://wa.me/?text='+encodeURIComponent(txt);
-  var liUrl='https://www.linkedin.com/sharing/share-offsite/?url='+encodeURIComponent('https://hirehub360.in');
+    '<div style="background:rgba(255,255,255,.25);border-radius:8px;padding:4px 13px;display:inline-block;font-size:12px;font-weight:700;color:#fff">HireHub360 · hirehub360.in</div></div>'+
+    '<div style="background:var(--bg);border:1px solid var(--ln);border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--ink2);line-height:1.7;word-break:break-all">'+
+    headline+'<br>'+sub+'<br><span style="color:var(--bl)">'+link+'</span></div>'+
+    '<p style="font-size:12px;color:var(--mu);text-align:center;margin-bottom:12px">Share to your network</p>';
   document.getElementById("m-share-p").innerHTML=
-    '<a href="'+waUrl+'" target="_blank" class="btn sm" style="background:transparent;border:1.5px solid #25D366;color:#25D366;text-decoration:none">📱 WhatsApp</a>'+
-    '<button class="btn sm" style="background:transparent;border:1.5px solid #E1306C;color:#E1306C" onclick="navigator.clipboard&&navigator.clipboard.writeText(window._shareText||\'hirehub360.in\').then(function(){nt(\'📸 Copied for Instagram!\')})">📸 Instagram</button>'+
-    '<a href="'+liUrl+'" target="_blank" class="btn sm" style="background:transparent;border:1.5px solid #0077B5;color:#0077B5;text-decoration:none">💼 LinkedIn</a>'+
-    '<button class="btn gh sm" onclick="navigator.clipboard&&navigator.clipboard.writeText(window._shareText||\'hirehub360.in\').then(function(){nt(\'🔗 Copied!\')})">🔗 Copy</button>';
+    '<a href="'+waUrl+'" target="_blank" class="btn sm" style="background:#25D366;color:#fff;border:none;text-decoration:none">📱 WhatsApp</a>'+
+    '<a href="'+liUrl+'" target="_blank" class="btn sm" style="background:#0077B5;color:#fff;border:none;text-decoration:none">💼 LinkedIn</a>'+
+    '<a href="'+twUrl+'" target="_blank" class="btn sm" style="background:#1DA1F2;color:#fff;border:none;text-decoration:none">🐦 Twitter/X</a>'+
+    '<button class="btn gh sm" onclick="navigator.clipboard&&navigator.clipboard.writeText(window._shareText).then(function(){nt(\'🔗 Copied to clipboard!\')})">🔗 Copy Text</button>';
   mOpen("m-share");
 }
 
@@ -1554,7 +1558,7 @@ function renderCoDash(el){
         '<div class="fw">'+pill("✅ Indexed","var(--gr)","var(--gl)")+' '+pill("👥 "+cnt+" applicants","var(--bl)","var(--bl2)")+(job.shide?' '+pill("🔒 Hidden","var(--go)","var(--gl2)"):"")+'</div></div>'+
         '<div class="fw">'+
         '<button class="btn gh sm" onclick="coTab(\'cands\')">Applicants</button>'+
-        '<button class="btn ol-bl sm" onclick="openShare(\'🚀\',\''+job.company+' is Hiring!\',\''+job.title+' · '+job.loc+'\')">📤 Share</button>'+
+        '<button class="btn ol-bl sm" onclick="openShare(\'🚀\',\''+job.company+' is Hiring! 🔥\',\''+job.title+' · 📍 '+job.loc+(job.shide?'':' · 💰 '+job.sal)+'\',\'https://hirehub360.in/jobs/\'+(job.slug||mkSlug(job.title)+\'-\'+mkSlug(job.company)+\'-\'+mkSlug(job.loc)))">📤 Share</button>'+
         '<button class="btn sm" style="background:var(--pu);border:none;color:#fff" onclick="openShareCardModal(\''+job.company+'\',\''+job.title+'\',\''+job.sal+'\',\''+job.loc+'\',\'https://hirehub360.in/jobs/\'+(job.slug||mkSlug(job.title)+\'-\'+mkSlug(job.company)+\'-\'+mkSlug(job.loc)))">🎨 Card</button>'+
         (S._role==='company'&&(job.companyId===S._uid||(S.co&&job.companyId===S.co.id))?
           '<button class="btn sm" style="background:transparent;border:1.5px solid var(--bl);color:var(--bl)" onclick="openEditJob(\''+job.id+'\')">✏️ Edit</button>'+
@@ -1740,7 +1744,7 @@ function doPostJob(){
         '<button class="btn sm" style="background:var(--gr);color:#fff;border:none" onclick="copySchema()">📋 Copy JSON-LD</button>'+
         '</div></div>'+
         '<div class="fw">'+
-        '<button class="btn gh sm" onclick="openShare(\'🚀\',\''+job.company+' is Hiring!\',\''+job.title+' · '+job.loc+'\');mClose(\'m-seo\')">📤 Share Post</button>'+
+        '<button class="btn gh sm" onclick="openShare(\'🚀\',\''+job.company+' is Hiring! 🔥\',\''+job.title+' · 📍 '+job.loc+(job.shide?'':' · 💰 '+job.sal)+'\',\'https://hirehub360.in/jobs/\'+(job.slug||mkSlug(job.title)+\'-\'+mkSlug(job.company)+\'-\'+mkSlug(job.loc)));mClose(\'m-seo\')">📤 Share Post</button>'+
         '<button class="btn sm pu" onclick="openShareCardModal(\''+job.company+'\',\''+job.title+'\',\''+job.sal+'\',\''+job.loc+'\',\'https://hirehub360.in/jobs/\'+(job.slug||mkSlug(job.title)+\'-\'+mkSlug(job.company)+\'-\'+mkSlug(job.loc)));mClose(\'m-seo\')">🎨 Card</button>'+
         '<button class="btn fi sm" onclick="mClose(\'m-seo\');loadCoData();coTab(\'dash\')">View Dashboard →</button>'+
         '</div>';
@@ -1773,7 +1777,7 @@ function renderCoCands(el){
         '<div style="font-size:12px;color:var(--mu);margin-bottom:7px">'+(app.role||"")+(app.loc?" · "+app.loc:"")+'</div>'+
         '<div class="fw" style="margin-bottom:9px"><span class="pill" style="background:'+stbg+';color:'+stc+'">'+stlb+'</span></div>'+
         (app.status!=="hired"&&app.status!=="rejected"?'<div class="fw"><button class="btn gh sm" onclick="updApp(\''+app.id+'\',\'viewed\')">Mark Viewed</button><button class="btn sm ol-go" onclick="updApp(\''+app.id+'\',\'shortlisted\')">⭐ Shortlist</button><button class="btn gf sm" onclick="updApp(\''+app.id+'\',\'hired\')">Mark Hired 🎉</button><button class="btn gh sm" onclick="updApp(\''+app.id+'\',\'rejected\')">Pass</button></div>':"")+
-        (app.status==="hired"?'<div class="fw"><button class="btn ti sm" onclick="coTab(\'venue\')">🎳 Book Celebration</button><button class="btn ol-gr sm" onclick="openShare(\'🎉\',\'We Made a Great Hire!\',\''+(app.candidateName||"")+(app.jobTitle?" joins as "+app.jobTitle:"")+'\')">📤 Share</button><button class="btn sm pu" onclick="openShareCardModal(\''+S.co.name+'\',\''+(app.jobTitle||"")+'\'  ,\'\',\'\')">🎨 Card</button></div>':"")+
+        (app.status==="hired"?'<div class="fw"><button class="btn ti sm" onclick="coTab(\'venue\')">🎳 Book Celebration</button><button class="btn ol-gr sm" onclick="openShare(\'🎉\',\''+S.co.name+' just made a great hire! 🌟\',\''+(app.candidateName||"Top Candidate")+' joins as '+(app.jobTitle||"Team Member")+'\',\'https://hirehub360.in/careers/\'+mkSlug(S.co.name))">📤 Share</button><button class="btn sm pu" onclick="openShareCardModal(\''+S.co.name+'\',\''+(app.jobTitle||"")+'\',\'\',\'\')">🎨 Card</button></div>':"")+
         '</div>'+fitBadge(app.fitScore||80,50)+'</div></div>';
     }).join(""));
 }
@@ -2737,7 +2741,7 @@ function rJL(){
         (job.skills&&job.skills.length?'<div class="fw" style="margin-bottom:9px">'+job.skills.slice(0,5).map(function(s){var m=S.cp&&S.cp.skills&&S.cp.skills.indexOf(s)>=0;return '<span style="padding:3px 9px;border-radius:6px;background:'+(m?"var(--gl)":"var(--bg)")+';border:1px solid '+(m?"rgba(52,199,89,.4)":"var(--ln)")+';font-size:11px;color:'+(m?"var(--gr)":"var(--mu)")+'">'+s+'</span>';}).join("")+'</div>':"")+
         (ap?'<div class="fw" style="align-items:center"><span class="pill" style="background:var(--gl);color:var(--gr)">✅ Applied — Tracking live</span>&nbsp;<button class="btn gh sm" onclick="cdGo(4)">View Status →</button></div>':
         '<div class="fw"><button class="btn fi sm" onclick="doApply(\''+job.id+'\')">1-Tap Apply →</button>'+
-        '<button class="btn gh sm" onclick="openShare(\'💼\',\''+job.title+' at '+job.company+'\',\''+job.loc+' · '+(job.shide?"Competitive":job.sal)+'\')">📤 Share</button>'+
+        '<button class="btn gh sm" onclick="openShare(\'💼\',\''+job.title+' at '+job.company+'\',\'📍 '+job.loc+' · 💰 '+(job.shide?"Competitive":job.sal)+'\',\'https://hirehub360.in/jobs/\'+(job.slug||mkSlug(job.title)+\'-\'+mkSlug(job.company)+\'-\'+mkSlug(job.loc)))">📤 Share</button>'+
         '<button class="btn sm pu" onclick="openShareCardModal(\''+job.company+'\',\''+job.title+'\',\''+(job.shide?"Competitive":job.sal)+'\',\''+job.loc+'\')">🎨 Card</button>'+
         '</div>')+
         '<span style="font-size:11px;color:#aaa">👁 '+(Math.floor(Math.random()*75)+15)+' viewed today</span>'+
@@ -2770,8 +2774,8 @@ function renderCdTrack(el){
         '</div>';}).join("")+
         '</div>'+
         (app.status==="rejected"?'<span class="pill" style="background:var(--rl);color:var(--rd)">Not selected — keep going!</span>':"")+
-        (app.status==="hired"?'<div class="fw"><button class="btn gf sm" onclick="openShare(\'🎉\',\'I Got The Job! 🥳\',\''+app.jobTitle+' at '+app.company+' · via Hire Hub\')">🎊 Share Win</button><button class="btn sm pu" onclick="openShareCardModal(\''+app.company+'\',\''+app.jobTitle+'\',\'\',\'\')">🎨 Make Card</button><button class="btn ti sm" onclick="nt(\'🎳 Opening venue booking!\')">🎳 Celebrate</button></div>':"")+
-        (app.status==="shortlisted"?'<div class="fw"><button class="btn sm ol-go" onclick="openShare(\'⭐\',\'I Got Shortlisted!\',\''+app.jobTitle+' at '+app.company+' · '+app.fitScore+'% AI fit\')">📤 Share</button><button class="btn sm pu" onclick="openShareCardModal(\''+app.company+'\',\''+app.jobTitle+'\',\'\',\'\')">🎨 Make Card</button></div>':"")+
+        (app.status==="hired"?'<div class="fw"><button class="btn gf sm" onclick="openShare(\'🎉\',\'Excited to join '+app.company+'! 🥳\',\'Starting as '+app.jobTitle+' · Found via HireHub360\',\'https://hirehub360.in\')">🎊 Share Win</button><button class="btn sm pu" onclick="openShareCardModal(\''+app.company+'\',\''+app.jobTitle+'\',\'\',\'\')">🎨 Make Card</button><button class="btn ti sm" onclick="nt(\'🎳 Opening venue booking!\')">🎳 Celebrate</button></div>':"")+
+        (app.status==="shortlisted"?'<div class="fw"><button class="btn sm ol-go" onclick="openShare(\'⭐\',\'Shortlisted at '+app.company+'!\',\''+app.jobTitle+' · AI fit score: '+app.fitScore+'% · via HireHub360\',\'https://hirehub360.in\')">📤 Share</button><button class="btn sm pu" onclick="openShareCardModal(\''+app.company+'\',\''+app.jobTitle+'\',\'\',\'\')">🎨 Make Card</button></div>':"")+
         '</div>'+
         '<div class="fb" style="background:'+fb2+';width:46px;height:46px"><span style="font-weight:800;font-size:16px;color:'+fc2+';line-height:1">'+(app.fitScore||80)+'</span><span style="font-size:8px;font-weight:700;color:'+fc2+';letter-spacing:.05em;text-transform:uppercase">fit</span></div>'+
         '</div></div>';
