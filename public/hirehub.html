@@ -496,14 +496,16 @@ function _dbPush(k,v){
         applied_at:v.appliedAt||new Date().toISOString(),
         updated_at:v.updatedAt||new Date().toISOString()}).then(function(){});
     } else if(k.indexOf("job:")===0&&k.indexOf("seo")<0&&v.id){
-      SB.from("jobs").upsert({id:v.id,company_id:S._uid,company_name:v.company||"",
+      fetch("/api/jobs/save",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+        id:v.id,company_id:S._uid,company_name:v.company||"",
         title:v.title||"",location:v.loc||"",salary_min:v.smin||null,salary_max:v.smax||null,
         salary_hidden:!!v.shide,salary_label:v.sal||null,currency:v.curr||"INR",
         experience:v.exp||null,job_type:v.type||"Full-time",sector:v.sec||null,
         skills:v.skills||[],description:v.desc||null,remote_policy:v.remote||"Any",
         visa_sponsor:!!v.visa,status:v.status||"active",
         slug:v.slug||(mkSlug(v.title)+"-"+mkSlug(v.company)+"-"+mkSlug(v.loc)),
-        created_at:v.createdAt||new Date().toISOString()}).then(function(){});
+        created_at:v.createdAt||new Date().toISOString()
+      })}).catch(function(){});
     }
   }catch(e){}
 }
@@ -3241,6 +3243,18 @@ function doDeleteJob() {
     }
   });
 
+  // Mark as closed in Supabase so it disappears from career page
+  if(job.id){
+    fetch("/api/jobs/save",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+      id:job.id,company_id:S._uid,company_name:job.company||"",title:job.title||"",
+      location:job.loc||"",salary_label:job.sal||null,salary_hidden:!!job.shide,
+      currency:job.curr||"INR",experience:job.exp||null,job_type:job.type||"Full-time",
+      sector:job.sec||null,skills:job.skills||[],description:job.desc||null,
+      remote_policy:job.remote||"Any",visa_sponsor:!!job.visa,status:"closed",
+      slug:job.slug||(mkSlug(job.title)+"-"+mkSlug(job.company)+"-"+mkSlug(job.loc)),
+      created_at:job.createdAt||new Date().toISOString()
+    })}).catch(function(){});
+  }
   _delJobId = null;
   loadCoData();
   mClose("m-del");
