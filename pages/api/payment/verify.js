@@ -29,13 +29,14 @@ export default async function handler(req, res) {
   // Optionally update user plan in DB if email is provided
   if (email && plan) {
     try {
-      await supabaseService.from('profiles').upsert({
+      const { error: dbErr } = await supabaseService.from('profiles').upsert({
         email,
         plan,
         plan_status: 'active',
         payment_id: razorpay_payment_id,
         plan_updated_at: new Date().toISOString(),
       }, { onConflict: 'email' })
+      if (dbErr) console.error('Profile upsert failed:', dbErr)
     } catch (err) {
       console.error('DB upsert error:', err)
       // Don't fail — payment is already verified

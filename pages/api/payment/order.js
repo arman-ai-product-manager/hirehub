@@ -3,7 +3,9 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
   const { amount, currency = 'INR', receipt, notes = {} } = req.body
-  if (!amount || amount < 1) return res.status(400).json({ error: 'amount required (in paise)' })
+  if (typeof amount !== 'number' || !Number.isFinite(amount) || amount < 100) {
+    return res.status(400).json({ error: 'amount required (number in paise, min 100 = ₹1)' })
+  }
 
   const auth = Buffer.from(
     `${process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID}:${process.env.RAZORPAY_KEY_SECRET}`

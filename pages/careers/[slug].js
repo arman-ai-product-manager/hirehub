@@ -132,15 +132,16 @@ export async function getServerSideProps({ params, query }) {
   let jobs = []
   try {
     const searchName = slug.replace(/-/g, ' ')
-    const { data } = await supabaseService
+    const { data, error } = await supabaseService
       .from('jobs')
       .select('id,title,location,salary_label,job_type,skills,company_name')
       .eq('status', 'active')
       .or(`company_name.ilike.%${searchName}%,company_name.ilike.%${slug}%`)
       .order('created_at', { ascending: false })
       .limit(50)
+    if (error) console.error('careers DB error:', error)
     jobs = data || []
-  } catch(e) {}
+  } catch (e) { console.error('careers DB error:', e) }
 
   // If no brand name in query and no jobs found, show 404
   if (!query.n && jobs.length === 0) {

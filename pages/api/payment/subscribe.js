@@ -5,9 +5,16 @@ export default async function handler(req, res) {
   const { plan, email, name } = req.body
   if (!plan || !email) return res.status(400).json({ error: 'plan and email required' })
 
+  const VALID_PLANS = ['pro', 'basic', 'scale']
+  if (!VALID_PLANS.includes(plan)) {
+    return res.status(400).json({ error: 'Invalid plan. Must be one of: ' + VALID_PLANS.join(', ') })
+  }
+
   const planId = plan === 'pro'
     ? process.env.RAZORPAY_PRO_PLAN_ID
-    : process.env.RAZORPAY_BASIC_PLAN_ID
+    : (plan === 'scale'
+        ? process.env.RAZORPAY_SCALE_PLAN_ID
+        : process.env.RAZORPAY_BASIC_PLAN_ID)
 
   if (!planId) return res.status(500).json({ error: 'Plan not configured' })
 

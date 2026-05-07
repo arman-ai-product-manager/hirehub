@@ -49,24 +49,39 @@ export default async function handler(req, res) {
   try {
     switch (event.event) {
       case 'subscription.activated':
-      case 'subscription.charged':
-        await supabaseService.from('profiles').upsert({
+      case 'subscription.charged': {
+        const { error: upErr } = await supabaseService.from('profiles').upsert({
           email,
           plan,
           plan_status: 'active',
           subscription_id: sub?.id,
           plan_updated_at: new Date().toISOString(),
         }, { onConflict: 'email' })
+        if (upErr) console.error('Webhook activate upsert failed:', upErr)
         break
+      }
 
-      case 'subscription.cancelled':
-      case 'subscription.completed':
-        await supabaseService.from('profiles').update({
+      case 'subscription.cancelled': {
+        const { error: cancelErr } = await supabaseService.from('profiles').update({
           plan: 'free',
           plan_status: 'cancelled',
           plan_updated_at: new Date().toISOString(),
         }).eq('email', email)
+        if (cancelErr) console.error('Webhook cancel update failed:', cancelErr)
         break
+      }
+
+      // subscription.completed = all billing cycles completed normally; mark
+      // as expired so plan ends but we don't conflate with user-cancelled
+      case 'subscription.completed': {
+        const { error: doneErr } = await supabaseService.from('profiles').update({
+          plan: 'free',
+          plan_status: 'expired',
+          plan_updated_at: new Date().toISOString(),
+        }).eq('email', email)
+        if (doneErr) console.error('Webhook complete update failed:', doneErr)
+        break
+      }
     }
   } catch (err) {
     console.error('Webhook DB error:', err)

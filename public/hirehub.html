@@ -1587,6 +1587,7 @@ function renderCoPost(el){
     '<div><label class="lbl">Experience *</label><input id="j-e" value="'+jf.exp+'" placeholder="3–6 years" oninput="S.jf.exp=this.value"/></div>'+
     '<div><label class="lbl">Work Type</label><select id="j-tp" onchange="S.jf.type=this.value">'+types.map(function(t){return '<option'+(jf.type===t?' selected':'')+'>'+t+'</option>';}).join("")+'</select></div>'+
     '</div>'+
+    '<div id="bench-result" style="font-size:12px;color:var(--mu);margin:-4px 0 12px;min-height:0"></div>'+
     '<div class="card" style="padding:13px 15px;margin-bottom:12px;background:var(--bg);border:1px solid var(--ln)">'+
     '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:'+(jf.shide?0:10)+'px">'+
     '<span class="lbl" style="margin-bottom:0">Salary *</span>'+
@@ -1601,6 +1602,21 @@ function renderCoPost(el){
     '<div class="g2" style="margin-bottom:12px">'+
     '<div><label class="lbl">Sector</label><select id="j-sc" onchange="S.jf.sec=this.value"><option value="">Select sector</option>'+secs.map(function(s){return '<option'+(jf.sec===s?' selected':'')+'>'+s+'</option>';}).join("")+'</select></div>'+
     '<div><label class="lbl">Skills (comma separated)</label><input id="j-sk" value="'+jf.skills+'" placeholder="React, Node.js, AWS" oninput="S.jf.skills=this.value"/></div>'+
+    '</div>'+
+    // Currency, remote policy, visa sponsorship, work authorisation
+    '<div class="g2" style="margin-bottom:12px">'+
+    '<div><label class="lbl">Currency</label><select id="j-curr" onchange="S.jf.curr=this.value">'+
+      Object.keys(CURRENCIES).map(function(k){return '<option value="'+k+'"'+((jf.curr||"INR")===k?' selected':'')+'>'+k+' ('+CURRENCIES[k].sym+')</option>';}).join("")+
+    '</select></div>'+
+    '<div><label class="lbl">Remote Policy</label><select id="j-remote" onchange="S.jf.remote=this.value">'+
+      ["Any","Remote","Hybrid","On-site"].map(function(r){return '<option'+((jf.remote||"Any")===r?' selected':'')+'>'+r+'</option>';}).join("")+
+    '</select></div>'+
+    '<div><label class="lbl">Visa Sponsorship</label><select id="j-visa" onchange="S.jf.visaType=this.value">'+
+      VISA_TYPES.map(function(v){return '<option'+(jf.visaType===v?' selected':'')+'>'+v+'</option>';}).join("")+
+    '</select></div>'+
+    '<div><label class="lbl">Work Authorisation</label><select id="j-wauth" onchange="S.jf.workAuth=this.value">'+
+      WORK_AUTH.map(function(w){return '<option'+(jf.workAuth===w?' selected':'')+'>'+w+'</option>';}).join("")+
+    '</select></div>'+
     '</div>'+
     '<div style="margin-bottom:18px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px"><label class="lbl">Job Description *</label><button class="btn ti sm" id="ai-jd" onclick="doGenJD()">🤖 AI Write JD</button></div>'+
     '<textarea id="j-d" rows="7" placeholder="Click AI Write JD above — or type manually." oninput="S.jf.desc=this.value">'+jf.desc+'</textarea></div>'+
@@ -2138,6 +2154,10 @@ function renderCdUpload(el){
       '</div>'+
       '<input type="file" id="cvf" accept=".pdf,.doc,.docx" style="display:none" onchange="cvFile(event)"/>'+
       '<div id="cv-ok" style="display:none;padding:8px 12px;background:var(--gl);border-radius:8px;font-size:13px;color:var(--gr);font-weight:600;margin-top:8px">✅ CV uploaded successfully</div>'+
+      '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">'+
+        '<button id="parse-btn" class="btn ti sm" onclick="doParseCV(false)">🤖 AI Auto-Fill from CV</button>'+
+        '<div id="parse-load" style="display:none;font-size:12px;color:var(--mu);align-self:center"><span class="spd"></span>&nbsp;Parsing CV…</div>'+
+      '</div>'+
     '</div>'+
     '<button class="btn fi fu" style="font-size:15px;padding:14px" onclick="saveManualProfile()">Save Profile & Continue →</button>'+
   '</div>';
@@ -2939,6 +2959,23 @@ function renderCoSEO(el) {
     '<pre style="background:var(--dim);color:#a8ff78;font-size:11px;padding:14px;border-radius:10px;overflow-x:auto;max-height:160px;line-height:1.6" id="schema-preview">'+escapeHtml(generateSchemaBlock(jobs))+'</pre>'+
     '</div>'+
 
+    // Integrations: Google Sheets + Jooble
+    '<div class="card" style="padding:20px 22px;margin-bottom:16px">'+
+    '<div style="font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--mu);text-transform:uppercase;margin-bottom:12px">🔌 INTEGRATIONS</div>'+
+    '<p style="font-size:13px;color:var(--mu);margin-bottom:14px">Optional: connect Google Sheets for auto-logging and Jooble for global jobs.</p>'+
+    '<div class="g2">'+
+    '<div>'+
+      '<label class="lbl">Google Sheets — Apps Script URL</label>'+
+      '<input id="gs-url-input" placeholder="https://script.google.com/macros/…" value="'+(escapeHtml(GS_URL||""))+'"/>'+
+      '<button class="btn ol sm" style="margin-top:8px" onclick="saveGSUrl()">Connect Sheets</button>'+
+    '</div>'+
+    '<div>'+
+      '<label class="lbl">Jooble API Key</label>'+
+      '<input id="jooble-key-input" type="password" placeholder="Your Jooble API key" value="'+(escapeHtml(JOOBLE_KEY||""))+'"/>'+
+      '<button class="btn ol sm" style="margin-top:8px" onclick="saveJoobleKey()">Save & Fetch Jobs</button>'+
+    '</div>'+
+    '</div></div>'+
+
     // Cross-post to platforms
     '<div class="card" style="padding:20px 22px;margin-bottom:16px">'+
     '<div style="font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--mu);text-transform:uppercase;margin-bottom:12px">📡 CROSS-POST YOUR JOBS</div>'+
@@ -3297,13 +3334,13 @@ function renderCoBrand(el) {
     '<div>'+
     '<label class="lbl">Your Branded Career Page Link</label>'+
     '<div style="display:flex;gap:8px">'+
-    '<input id="career-link-input" value="hirehub360.in/careers/'+mkSlug(br.name||"your-company")+'" readonly style="background:var(--bg);font-size:13px;color:var(--mu)"/>'+
+    '<input id="career-link-input" value="https://hirehub360.in/careers/'+mkSlug(br.name||"your-company")+'" readonly style="background:var(--bg);font-size:13px;color:var(--mu)"/>'+
     '<button class="btn fi sm" onclick="copyCareerLink()">Copy</button>'+
     '</div></div>'+
     '<div>'+
     '<label class="lbl">WhatsApp Share Text</label>'+
     '<div style="display:flex;gap:8px">'+
-    '<input id="wa-share-txt" value="We are hiring at '+(br.name||"our company")+'! View open positions — save this link and apply: hirehub360.in/careers/'+mkSlug(br.name||"your-company")+'" readonly style="background:var(--bg);font-size:12px;color:var(--mu)"/>'+
+    '<input id="wa-share-txt" value="We are hiring at '+(br.name||"our company")+'! View open positions — save this link and apply: https://hirehub360.in/careers/'+mkSlug(br.name||"your-company")+'" readonly style="background:var(--bg);font-size:12px;color:var(--mu)"/>'+
     '<button class="btn gf sm" onclick="copyWAText()">📱 Copy</button>'+
     '</div></div></div>'+
     '<button class="btn sm" style="background:transparent;border:1.5px solid var(--bl);color:var(--bl)" onclick="copyEmbedCode()">🔗 Copy Website Embed Code</button>'+
@@ -3420,7 +3457,7 @@ function saveBrand() {
   dbSet("co:brand", br);
   var slug = mkSlug(br.name);
   var link = _careerLink(br);
-  nt("✅ Brand saved! Career page: hirehub360.in/careers/"+slug);
+  nt("✅ Brand saved! Career page: https://hirehub360.in/careers/"+slug);
   coTab("brand");
 }
 function _careerLink(br){
