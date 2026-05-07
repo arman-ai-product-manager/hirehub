@@ -1,4 +1,4 @@
-import crypto from 'crypto'
+const crypto = require('crypto')
 const { supabaseService } = require('../../../lib/supabase')
 
 export const config = { api: { bodyParser: false } }
@@ -18,8 +18,13 @@ export default async function handler(req, res) {
   const rawBody = await getRawBody(req)
   const signature = req.headers['x-razorpay-signature']
 
+  if (!process.env.RAZORPAY_WEBHOOK_SECRET) {
+    console.error('RAZORPAY_WEBHOOK_SECRET not configured')
+    return res.status(500).end()
+  }
+
   // Verify webhook signature
-  const secret = process.env.RAZORPAY_WEBHOOK_SECRET || ''
+  const secret = process.env.RAZORPAY_WEBHOOK_SECRET
   const expected = crypto.createHmac('sha256', secret).update(rawBody).digest('hex')
   if (signature !== expected) {
     console.error('Webhook signature mismatch')

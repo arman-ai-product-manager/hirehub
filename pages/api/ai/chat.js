@@ -2,7 +2,9 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end()
 
   const { prompt, maxTokens } = req.body
-  if (!prompt) return res.status(400).json({ error: 'Missing prompt' })
+  if (!prompt || typeof prompt !== 'string') return res.status(400).json({ error: 'Missing prompt' })
+
+  const tokens = Math.min(Number(maxTokens) || 800, 2000)
 
   try {
     const r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -13,11 +15,17 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: 'llama-3.3-70b-versatile',
-        max_tokens: maxTokens || 800,
+        max_tokens: tokens,
         temperature: 0.5,
         messages: [{ role: 'user', content: prompt }]
       })
     })
+
+    if (!r.ok) {
+      const err = await r.text()
+      console.error('Groq API error:', r.status, err)
+      return res.status(502).json({ error: 'AI service error' })
+    }
 
     const data = await r.json()
     if (data.error) return res.status(500).json({ error: data.error.message })

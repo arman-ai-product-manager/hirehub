@@ -60,6 +60,8 @@ textarea{resize:vertical}
 /* login page needs flex to center the card — ID selector beats .pg.on */
 #pg-login.on{display:flex;align-items:center;justify-content:center}
 #pg-login.pg.on{display:flex}
+/* chat page needs flex column for sticky input bar */
+#pg-chat.on{display:flex;flex-direction:column}
 /* nav */
 .nav{background:rgba(245,245,247,.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--ln);padding:0 28px;display:flex;justify-content:space-between;align-items:center;height:52px;position:sticky;top:0;z-index:200;gap:10px}
 .logo{font-weight:800;font-size:20px;letter-spacing:-.05em;color:var(--ink)}
@@ -423,9 +425,9 @@ body{-webkit-text-size-adjust:100%}
     <!-- Social Sharing -->
     <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
       <button onclick="shareCardNow()" class="btn sm fu" style="background:#25D366;color:#fff;border:none;flex:1">📲 Share</button>
-      <a id="sc-wa-link" href="#" target="_blank" onclick="(function(){var co=(document.getElementById('sc-co')||{}).value||'Company';var ttl=(document.getElementById('sc-title')||{}).value||'Open Position';var sal=(document.getElementById('sc-sal')||{}).value||'';var loc=(document.getElementById('sc-loc')||{}).value||'';var t=encodeURIComponent('We\'re Hiring! 🚀 '+ttl+' at '+co+(sal?' · 💰 '+sal:'')+(loc?' · 📍 '+loc:'')+' · Apply: '+window.location.href);this.href='https://wa.me/?text='+t;})()" class="btn sm" style="background:#25D366;color:#fff;border:none;flex:1;display:inline-flex;align-items:center;justify-content:center;text-decoration:none">WhatsApp</a>
-      <a id="sc-li-link" href="#" target="_blank" onclick="this.href='https://www.linkedin.com/sharing/share-offsite/?url='+encodeURIComponent(window.location.href)" class="btn sm ol-bl" style="flex:1;display:inline-flex;align-items:center;justify-content:center;text-decoration:none">LinkedIn</a>
-      <a id="sc-tw-link" href="#" target="_blank" onclick="(function(){var co=(document.getElementById('sc-co')||{}).value||'Company';var ttl=(document.getElementById('sc-title')||{}).value||'Open Position';var sal=(document.getElementById('sc-sal')||{}).value||'';var loc=(document.getElementById('sc-loc')||{}).value||'';var t=encodeURIComponent('We\'re Hiring! 🚀 '+ttl+' at '+co+(sal?' · 💰 '+sal:'')+(loc?' · 📍 '+loc:'')+' · Apply: '+window.location.href+' via @HireHub');this.href='https://twitter.com/intent/tweet?text='+t;})()" class="btn sm gh" style="flex:1;display:inline-flex;align-items:center;justify-content:center;text-decoration:none">Twitter/X</a>
+      <a id="sc-wa-link" href="#" target="_blank" onclick="(function(){var co=(document.getElementById('sc-co')||{}).value||'Company';var ttl=(document.getElementById('sc-title')||{}).value||'Open Position';var sal=(document.getElementById('sc-sal')||{}).value||'';var loc=(document.getElementById('sc-loc')||{}).value||'';var url=G_SHARE_URL||'https://hirehub360.in/hirehub.html';var t=encodeURIComponent('We\'re Hiring! 🚀 '+ttl+' at '+co+(sal?' · 💰 '+sal:'')+(loc?' · 📍 '+loc:'')+' · Apply: '+url);this.href='https://wa.me/?text='+t;})()" class="btn sm" style="background:#25D366;color:#fff;border:none;flex:1;display:inline-flex;align-items:center;justify-content:center;text-decoration:none">WhatsApp</a>
+      <a id="sc-li-link" href="#" target="_blank" onclick="(function(){var url=G_SHARE_URL||'https://hirehub360.in/hirehub.html';this.href='https://www.linkedin.com/sharing/share-offsite/?url='+encodeURIComponent(url);})()" class="btn sm ol-bl" style="flex:1;display:inline-flex;align-items:center;justify-content:center;text-decoration:none">LinkedIn</a>
+      <a id="sc-tw-link" href="#" target="_blank" onclick="(function(){var co=(document.getElementById('sc-co')||{}).value||'Company';var ttl=(document.getElementById('sc-title')||{}).value||'Open Position';var sal=(document.getElementById('sc-sal')||{}).value||'';var loc=(document.getElementById('sc-loc')||{}).value||'';var url=G_SHARE_URL||'https://hirehub360.in/hirehub.html';var t=encodeURIComponent('We\'re Hiring! 🚀 '+ttl+' at '+co+(sal?' · 💰 '+sal:'')+(loc?' · 📍 '+loc:'')+' · Apply: '+url+' via @HireHub');this.href='https://twitter.com/intent/tweet?text='+t;})()" class="btn sm gh" style="flex:1;display:inline-flex;align-items:center;justify-content:center;text-decoration:none">Twitter/X</a>
     </div>
   </div>
 </div>
@@ -776,8 +778,8 @@ function pill(txt,c,bg){return '<span class="pill" style="background:'+bg+';colo
 // ── RAZORPAY CHECKOUT ─────────────────────────────────────────
 function rzpPay(opts){
   // opts: {amount (paise), desc, name, email, onSuccess}
-  var email = (S.co&&S.co.email)||(S.cd&&S.cd.email)||'';
-  var uname = (S.co&&S.co.name)||(S.cd&&S.cd.name)||'User';
+  var email = (S.co&&S.co.email)||(S.cp&&S.cp.email)||'';
+  var uname = (S.co&&S.co.name)||(S.cp&&S.cp.name)||'User';
   fetch('/api/payment/order',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
@@ -803,8 +805,8 @@ function rzpPay(opts){
 }
 
 function rzpSubscribe(planType, label, monthlyAmount){
-  var email=(S.co&&S.co.email)||(S.cd&&S.cd.email)||'';
-  var uname=(S.co&&S.co.name)||(S.cd&&S.cd.name)||'User';
+  var email=(S.co&&S.co.email)||(S.cp&&S.cp.email)||'';
+  var uname=(S.co&&S.co.name)||(S.cp&&S.cp.name)||'User';
   fetch('/api/payment/subscribe',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
@@ -812,7 +814,7 @@ function rzpSubscribe(planType, label, monthlyAmount){
   }).then(function(r){return r.json();}).then(function(d){
     if(d.error){nt('⚠️ '+d.error);return;}
     var rzp = new Razorpay({
-      key: 'rzp_live_placeholder',
+      key: 'rzp_test_SaBKq7P51Zw8XM', // swap to live key when go-live
       subscription_id: d.subscriptionId,
       name: 'HireHub360',
       description: label+' — Monthly',
@@ -822,7 +824,7 @@ function rzpSubscribe(planType, label, monthlyAmount){
         nt('✅ Subscribed to '+label+'!');
         // Update local plan
         if(S.co){S.co.plan='premium';dbSet('co:profile',S.co);}
-        if(S.cd){S.cd.plan='premium';dbSet('cd:profile',S.cd);}
+        if(S.cp){S.cp.plan='premium';dbSet('cd:profile',S.cp);}
         mClose('m-price');
         nt('🎉 Welcome to '+label+'! Your features are now active.');
       }
@@ -875,7 +877,7 @@ function openPricing(role){
   ?'<div style="font-size:11px;font-weight:700;color:#6e6e73;text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px">👤 FOR JOB SEEKERS</div>'+
   '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(195px,1fr));gap:12px;margin-bottom:10px">'+
     pCard({name:"Free",price:"₹0",period:"Forever free",isCurrent:true,features:["Browse all jobs","Basic profile & CV","3 applications/day","1 free ATS scan"]})+
-    pCard({name:"Pro Seeker",price:"₹99",period:"/month · Cancel anytime",badge:"🔥 Most Popular",highlight:true,anchor:"₹299/mo",social:"18,400+ active seekers",scarcity:"Early adopter price ends Apr 30",features:["Unlimited applications","20 ATS scans/month","Priority in recruiter search","AI CV builder (unlimited)","Salary negotiation guide","Direct HR contact unlock"],cta:"Start for ₹1 →",ctaFn:"rzpPay({amount:100,desc:'Pro Seeker Trial',onSuccess:function(){if(S.cd){S.cd.plan='pro';dbSet('cd:profile',S.cd);}mClose('m-price');nt('🎉 Pro activated!');}})" })+
+    pCard({name:"Pro Seeker",price:"₹99",period:"/month · Cancel anytime",badge:"🔥 Most Popular",highlight:true,anchor:"₹299/mo",social:"18,400+ active seekers",scarcity:"Early adopter price ends Apr 30",features:["Unlimited applications","20 ATS scans/month","Priority in recruiter search","AI CV builder (unlimited)","Salary negotiation guide","Direct HR contact unlock"],cta:"Start for ₹1 →",ctaFn:"rzpPay({amount:100,desc:'Pro Seeker Trial',onSuccess:function(){if(S.cp){S.cp.plan='pro';dbSet('cd:profile',S.cp);}mClose('m-price');nt('🎉 Pro activated!');}})" })+
     pCard({name:"Career Plus",price:"₹249",period:"/month · Cancel anytime",features:["Everything in Pro","1:1 career coaching","Resume review by expert","Referral network access","Interview prep sessions","Featured profile badge"],cta:"Start Free Trial →",ctaFn:"rzpSubscribe('pro','Career Plus',249)"})+
   '</div>'+
   // ATS add-on for seekers
@@ -937,10 +939,12 @@ function openShare(icon,headline,sub){
     '<p style="font-size:13px;color:var(--mu);text-align:center;margin-bottom:12px">Share to your network</p>';
   var txt=headline+"\n"+sub+"\n\nhirehub360.in";
   window._shareText=txt;
+  var waUrl='https://wa.me/?text='+encodeURIComponent(txt);
+  var liUrl='https://www.linkedin.com/sharing/share-offsite/?url='+encodeURIComponent('https://hirehub360.in');
   document.getElementById("m-share-p").innerHTML=
-    [["📱 WhatsApp","#25D366"],["📸 Instagram","#E1306C"],["💼 LinkedIn","#0077B5"]].map(function(x){
-      return '<button class="btn sm" style="background:transparent;border:1.5px solid '+x[1]+';color:'+x[1]+'" onclick="navigator.clipboard&&navigator.clipboard.writeText(window._shareText||\'hirehub360.in\').then(function(){nt(\'🔗 Copied!\')})">'+x[0]+'</button>';
-    }).join('')+
+    '<a href="'+waUrl+'" target="_blank" class="btn sm" style="background:transparent;border:1.5px solid #25D366;color:#25D366;text-decoration:none">📱 WhatsApp</a>'+
+    '<button class="btn sm" style="background:transparent;border:1.5px solid #E1306C;color:#E1306C" onclick="navigator.clipboard&&navigator.clipboard.writeText(window._shareText||\'hirehub360.in\').then(function(){nt(\'📸 Copied for Instagram!\')})">📸 Instagram</button>'+
+    '<a href="'+liUrl+'" target="_blank" class="btn sm" style="background:transparent;border:1.5px solid #0077B5;color:#0077B5;text-decoration:none">💼 LinkedIn</a>'+
     '<button class="btn gh sm" onclick="navigator.clipboard&&navigator.clipboard.writeText(window._shareText||\'hirehub360.in\').then(function(){nt(\'🔗 Copied!\')})">🔗 Copy</button>';
   mOpen("m-share");
 }
@@ -950,6 +954,7 @@ function openShare(icon,headline,sub){
 // ─────────────────────────────────────────────────────────────
 var G_FMT="ig";
 var G_THEME="saffron";
+var G_SHARE_URL="https://hirehub360.in/hirehub.html";
 var THEMES={
   saffron:{g1:"#ff6b00",g2:"#ff9500",dot:"rgba(255,255,255,.08)",txt:"#ffffff",sub:"rgba(255,255,255,.78)",badge:"rgba(255,255,255,.18)",line:"rgba(255,255,255,.22)"},
   dark:   {g1:"#1c1c1e",g2:"#2c2c2e",dot:"rgba(255,255,255,.05)",txt:"#f5f5f7",sub:"rgba(245,245,247,.62)",badge:"rgba(255,255,255,.1)",line:"rgba(255,255,255,.14)"},
@@ -978,11 +983,12 @@ function setTheme(t){
   renderCard();
 }
 
-function openShareCardModal(company,title,sal,loc){
+function openShareCardModal(company,title,sal,loc,url){
   var ei=document.getElementById("sc-co");    if(ei)ei.value=company||"";
   var ti=document.getElementById("sc-title"); if(ti)ti.value=title||"";
   var si=document.getElementById("sc-sal");   if(si)si.value=sal||"";
   var li=document.getElementById("sc-loc");   if(li)li.value=loc||"";
+  G_SHARE_URL = url || 'https://hirehub360.in/hirehub.html';
   mOpen("m-card");
   setTimeout(renderCard,80);
 }
@@ -1178,8 +1184,9 @@ function shareCardNow(){
   var ttl= (document.getElementById("sc-title")||{}).value||"Open Position";
   var sal= (document.getElementById("sc-sal")  ||{}).value||"";
   var loc= (document.getElementById("sc-loc")  ||{}).value||"";
-  var text="We're Hiring! 🚀 "+ttl+" at "+co+(sal?" · 💰 "+sal:"")+(loc?" · 📍 "+loc:"")+" · Apply: "+window.location.href;
-  shareViaWebShare("Hiring: "+ttl+" at "+co, text, window.location.href);
+  var url= G_SHARE_URL||"https://hirehub360.in/hirehub.html";
+  var text="We're Hiring! 🚀 "+ttl+" at "+co+(sal?" · 💰 "+sal:"")+(loc?" · 📍 "+loc:"")+" · Apply: "+url;
+  shareViaWebShare("Hiring: "+ttl+" at "+co, text, url);
 }
 
 // ═══ COMPANY PORTAL ═══════════════════════════════════════════
@@ -1546,7 +1553,7 @@ function renderCoDash(el){
         '<div class="fw">'+
         '<button class="btn gh sm" onclick="coTab(\'cands\')">Applicants</button>'+
         '<button class="btn ol-bl sm" onclick="openShare(\'🚀\',\''+job.company+' is Hiring!\',\''+job.title+' · '+job.loc+'\')">📤 Share</button>'+
-        '<button class="btn sm" style="background:var(--pu);border:none;color:#fff" onclick="openShareCardModal(\''+job.company+'\',\''+job.title+'\',\''+job.sal+'\',\''+job.loc+'\')">🎨 Card</button>'+
+        '<button class="btn sm" style="background:var(--pu);border:none;color:#fff" onclick="openShareCardModal(\''+job.company+'\',\''+job.title+'\',\''+job.sal+'\',\''+job.loc+'\',\'https://hirehub360.in/jobs/\'+(job.slug||mkSlug(job.title)+\'-\'+mkSlug(job.company)+\'-\'+mkSlug(job.loc)))">🎨 Card</button>'+
         (S._role==='company'&&(job.companyId===S._uid||(S.co&&job.companyId===S.co.id))?
           '<button class="btn sm" style="background:transparent;border:1.5px solid var(--bl);color:var(--bl)" onclick="openEditJob(\''+job.id+'\')">✏️ Edit</button>'+
           '<button class="btn sm" style="background:transparent;border:1.5px solid var(--rd);color:var(--rd)" onclick="confirmDelJob(\''+job.id+'\',\''+job.title+'\')">🗑 Remove</button>':"")+
@@ -1716,7 +1723,7 @@ function doPostJob(){
         '</div></div>'+
         '<div class="fw">'+
         '<button class="btn gh sm" onclick="openShare(\'🚀\',\''+job.company+' is Hiring!\',\''+job.title+' · '+job.loc+'\');mClose(\'m-seo\')">📤 Share Post</button>'+
-        '<button class="btn sm pu" onclick="openShareCardModal(\''+job.company+'\',\''+job.title+'\',\''+job.sal+'\',\''+job.loc+'\');mClose(\'m-seo\')">🎨 Card</button>'+
+        '<button class="btn sm pu" onclick="openShareCardModal(\''+job.company+'\',\''+job.title+'\',\''+job.sal+'\',\''+job.loc+'\',\'https://hirehub360.in/jobs/\'+(job.slug||mkSlug(job.title)+\'-\'+mkSlug(job.company)+\'-\'+mkSlug(job.loc)));mClose(\'m-seo\')">🎨 Card</button>'+
         '<button class="btn fi sm" onclick="mClose(\'m-seo\');loadCoData();coTab(\'dash\')">View Dashboard →</button>'+
         '</div>';
       mOpen("m-seo");
@@ -1975,7 +1982,7 @@ function fetchNCSJobs() {
           vacancies: parseInt(r.vacancies)||1,
           curr: "INR"
         };
-      }).filter(function(j){ return j.title && j.title !== "Job Opening" || j.company !== "Government / PSU"; });
+      }).filter(function(j){ return j.title && (j.title !== "Job Opening" || j.company !== "Government / PSU"); });
       if(ncsJobs.length > 0) {
         // Cache for 30 min
         try{ localStorage.setItem("_ncs_cache", JSON.stringify({ts:Date.now(),jobs:ncsJobs})); }catch(e){}
@@ -2247,7 +2254,8 @@ function saveCdProfileLinks(){
   dbSet('cd:profile',S.cp);
 }
 function shareProfileLink(){
-  var link=window.location.origin+'/profile/'+(S._uid||'me');
+  var slug = (S.cp&&S.cp.name) ? mkSlug(S.cp.name) : (S._uid||'me');
+  var link = 'https://hirehub360.in/resume/'+slug;
   if(navigator.clipboard){navigator.clipboard.writeText(link).then(function(){nt('🔗 Profile link copied! Share with HR');});}
   else{nt('🔗 Profile link: '+link);}
 }
@@ -3183,16 +3191,16 @@ function doDeleteJob() {
   var job = dbGet("job:" + _delJobId);
   if (!job || job.companyId !== S.co.id) { nt("⚠️ Permission denied"); return; }
 
-  // Remove job
-  try { localStorage.removeItem("job:" + _delJobId); } catch(e){}
+  // Remove job — keys are stored with _uk() prefix (shared keys use "sh_" prefix)
+  try { localStorage.removeItem(_uk("job:" + _delJobId)); } catch(e){}
   // Remove its SEO data
-  try { localStorage.removeItem("job:seo:" + _delJobId); } catch(e){}
+  try { localStorage.removeItem(_uk("job:seo:" + _delJobId)); } catch(e){}
   // Remove all applications for this job
   var ak = dbList("app:");
   ak.forEach(function(k) {
     var app = dbGet(k);
     if (app && app.jobId === _delJobId) {
-      try { localStorage.removeItem(k); } catch(e){}
+      try { localStorage.removeItem(_uk(k)); } catch(e){}
     }
   });
 
@@ -3556,8 +3564,7 @@ function gsLog(type,data){
   fetch(GS_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).catch(function(){});}catch(e){}
 }
 function setGSUrl(url){GS_URL=url;try{localStorage.setItem('anon_settings:gs_url',JSON.stringify(url));}catch(e){}}
-function saveGSUrl(){var url=(document.getElementById('gs-url-input')||{}).value||'';if(!url){nt('⚠️ Paste your Apps Script URL');return;}setGSUrl(url);nt('✅ Google Sheets connected!');coTab('seo');}
-function saveJoobleKey(){var key=(document.getElementById('jooble-key-input')||{}).value||'';if(!key){nt('⚠️ Enter Jooble API key');return;}dbSet('settings:jooble_key',key);nt('✅ Jooble key saved!');}
+// saveGSUrl and saveJoobleKey are defined above with full implementations
 
 // ═══ MISSING HELPERS ══════════════════════════════════════════
 function fitBg(s){return s>=80?'var(--gl)':s>=60?'var(--gl2)':'var(--rl)';}
@@ -3820,7 +3827,7 @@ function finishTest(){
     '<div id="test-result-btns" class="fw" style="justify-content:center"></div></div>'+
     '<div class="card" style="padding:16px">'+currentTest.questions.map(function(q,i){var ua=currentTest.answers[i],ok=ua===q.ans;return '<div style="padding:10px 0;border-bottom:1px solid var(--ln)"><div style="font-size:13px;font-weight:600;margin-bottom:4px">'+(i+1)+'. '+q.q+'</div><div style="font-size:12px;color:'+(ok?"var(--gr)":"var(--rd)")+'">'+(ok?"✅":"❌")+' '+q.opts[ua]+'</div>'+(!ok?'<div style="font-size:12px;color:var(--gr)">✅ '+q.opts[q.ans]+'</div>':'')+'</div>';}).join("")+'</div>';
   var rb=document.getElementById("test-result-btns");
-  if(rb){[["← Back",function(){renderCdInterview(document.getElementById("cd-body"));}],["Retry",function(){startSelfTest(currentTest.sector);}]].forEach(function(b){var btn=document.createElement("button");btn.className="btn sm";btn.textContent=b[0];btn.style.cssText=b[0]==="← Back"?"background:var(--fi);color:#fff;border:none":"background:transparent;border:1.5px solid var(--ln);color:var(--mu)";btn.onclick=b[1];rb.appendChild(btn);});}
+  if(rb){[["← Back",function(){renderCdInterview(document.getElementById("cd-body"));}],["Retry",function(){startSelfTest(currentTest.sector);}]].forEach(function(b){var btn=document.createElement("button");btn.className="btn sm";btn.textContent=b[0];btn.style.cssText=b[0]==="← Back"?"background:var(--ac);color:#fff;border:none":"background:transparent;border:1.5px solid var(--ln);color:var(--mu)";btn.onclick=b[1];rb.appendChild(btn);});}
 }
 
 

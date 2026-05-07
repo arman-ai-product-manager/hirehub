@@ -277,7 +277,7 @@ export default function ComparePage({ data, slug }) {
             <h2 style={{ fontSize: 24, fontWeight: 800, marginBottom: 12 }}>Try HireHub360 Free</h2>
             <p style={{ color: '#aaa', marginBottom: 24, fontSize: 15 }}>Post your first job free. Find freelancers in under 4 hours. No credit card required.</p>
             <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-              <a href="/post-job" style={{ background: orange, color: '#fff', padding: '14px 32px', borderRadius: 8, fontWeight: 700, textDecoration: 'none', fontSize: 15 }}>Post a Job Free →</a>
+              <a href="/hirehub.html" style={{ background: orange, color: '#fff', padding: '14px 32px', borderRadius: 8, fontWeight: 700, textDecoration: 'none', fontSize: 15 }}>Post a Job Free →</a>
               <a href="/" style={{ background: '#1a1a1a', color: '#ccc', padding: '14px 32px', borderRadius: 8, fontWeight: 600, textDecoration: 'none', fontSize: 15, border: `1px solid ${border}` }}>Browse Freelancers</a>
             </div>
           </div>

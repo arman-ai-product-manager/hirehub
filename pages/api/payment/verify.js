@@ -1,4 +1,4 @@
-import crypto from 'crypto'
+const crypto = require('crypto')
 const { supabaseService } = require('../../../lib/supabase')
 
 // Verifies a completed Razorpay one-time payment and activates the plan
@@ -11,8 +11,13 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Missing payment fields' })
   }
 
+  if (!process.env.RAZORPAY_KEY_SECRET) {
+    console.error('RAZORPAY_KEY_SECRET not configured')
+    return res.status(500).json({ error: 'Payment not configured' })
+  }
+
   // Verify HMAC signature
-  const secret = process.env.RAZORPAY_KEY_SECRET || ''
+  const secret = process.env.RAZORPAY_KEY_SECRET
   const body   = razorpay_order_id + '|' + razorpay_payment_id
   const expected = crypto.createHmac('sha256', secret).update(body).digest('hex')
 

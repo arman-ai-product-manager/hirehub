@@ -1,6 +1,6 @@
 import Head from 'next/head'
 import { useState } from 'react'
-const { supabaseService } = require('../../lib/supabase')
+import { supabaseService } from '../../lib/supabase'
 
 function mkSlug(s) {
   return (s || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
