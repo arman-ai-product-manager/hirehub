@@ -101,9 +101,9 @@ textarea{resize:vertical}
 .sp{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:SP .7s linear infinite;vertical-align:middle}
 .spd{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,107,0,.2);border-top-color:var(--ac);border-radius:50%;animation:SP .7s linear infinite;vertical-align:middle}
 /* modal */
-.mbg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:700;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(10px);overflow-y:auto}
+.mbg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:700;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(10px);overflow-y:auto;overscroll-behavior:contain}
 .mbg.on{display:flex}
-.mbox{background:#fff;border-radius:24px;padding:30px;max-width:460px;width:100%;box-shadow:0 24px 80px rgba(0,0,0,.2);max-height:90vh;overflow-y:auto;animation:FU .3s ease both}
+.mbox{background:#fff;border-radius:24px;padding:30px;max-width:460px;width:100%;box-shadow:0 24px 80px rgba(0,0,0,.2);max-height:90vh;overflow-y:auto;overscroll-behavior:contain;animation:FU .3s ease both}
 /* notification */
 .notif{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:var(--dim);color:#fff;padding:11px 22px;border-radius:999px;font-size:14px;font-weight:600;z-index:999;box-shadow:0 8px 24px rgba(0,0,0,.25);white-space:nowrap;display:none;animation:FU .3s ease}
 /* tabs */
@@ -310,7 +310,7 @@ body{-webkit-text-size-adjust:100%}
 <div id="pg-co" class="pg">
   <nav class="nav">
     <div class="logo">Hire<span>Hub</span><span style="color:#ff6b00;font-size:.65em;font-weight:900;vertical-align:super;margin-left:1px">360</span></div>
-    <div style="display:flex;gap:3px;align-items:center;overflow-x:auto">
+    <div class="co-tab-strip" style="display:flex;gap:3px;align-items:center;overflow-x:auto;touch-action:pan-x;overscroll-behavior-x:contain">
       <button class="tab-btn on" id="ct-dash" onclick="coTab('dash')">🏠 Dashboard</button>
       <button class="tab-btn" id="ct-post" onclick="coTab('post')">➕ Post Job</button>
       <button class="tab-btn" id="ct-cands" onclick="coTab('cands')">👥 Applicants</button>
@@ -2100,7 +2100,7 @@ function renderCd(){
 function renderStepBar(){
   var el=document.getElementById("cd-bar");if(!el)return;
   var STEPS=["Choose Path","Upload CV","Profile","Browse Jobs","Track Apps"];
-  el.innerHTML='<div style="display:flex;align-items:center;overflow-x:auto;padding:12px 18px 0;max-width:780px;margin:0 auto;width:100%">'+
+  el.innerHTML='<div style="display:flex;align-items:center;overflow-x:auto;touch-action:pan-x;overscroll-behavior-x:contain;padding:12px 18px 0;max-width:780px;margin:0 auto;width:100%">'+
     STEPS.map(function(s,i){var done=i<S.cdStep,active=i===S.cdStep;
       return '<div style="display:flex;align-items:center"><div style="display:flex;flex-direction:column;align-items:center;gap:4px;cursor:'+(done?"pointer":"default")+'"'+(done?' onclick="cdGo('+i+')"':'')+'>'+
         '<div class="sdot" style="background:'+(done?"var(--gr)":active?"var(--ac)":"#f0f0f5")+';border:2px solid '+(done?"var(--gr)":active?"var(--ac)":"var(--ln)")+';color:'+(done||active?"#fff":"var(--fa)")+'">'+(done?"✓":i+1)+'</div>'+
