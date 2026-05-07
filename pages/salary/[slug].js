@@ -369,7 +369,7 @@ export default function SalaryPage({ data, slug }) {
             <h2 style={{ fontSize: 22, fontWeight: 800, marginBottom: 12 }}>Hire a Vetted {data.skill} Today</h2>
             <p style={{ color: '#aaa', marginBottom: 24, fontSize: 15 }}>All HireHub360 freelancers are skill-verified. Post free. Hire in under 4 hours.</p>
             <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-              <a href="/post-job" style={{ background: orange, color: '#fff', padding: '14px 32px', borderRadius: 8, fontWeight: 700, textDecoration: 'none', fontSize: 15 }}>Post Requirement Free →</a>
+              <a href="/hirehub.html" style={{ background: orange, color: '#fff', padding: '14px 32px', borderRadius: 8, fontWeight: 700, textDecoration: 'none', fontSize: 15 }}>Post Requirement Free →</a>
               <a href="/" style={{ background: '#1a1a1a', color: '#ccc', padding: '14px 32px', borderRadius: 8, fontWeight: 600, textDecoration: 'none', fontSize: 15, border: `1px solid ${border}` }}>Browse {data.skill}s</a>
             </div>
           </div>

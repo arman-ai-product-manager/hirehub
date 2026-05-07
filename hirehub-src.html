@@ -172,7 +172,7 @@ body{-webkit-text-size-adjust:100%}
 *{-webkit-tap-highlight-color:transparent}
 
 /* ── COMPANY MOBILE DRAWER ── */
-.co-tab-bar{display:flex;gap:3px;align-items:center;overflow-x:auto}
+.co-tab-bar{display:flex;gap:3px;align-items:center;overflow-x:auto;touch-action:pan-x;overscroll-behavior-x:contain}
 .co-nav-burger{display:none;align-items:center;gap:8px}
 .co-drawer-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
 .co-drawer-bg.open{display:block}
@@ -594,14 +594,16 @@ function _dbPush(k,v){
         applied_at:v.appliedAt||new Date().toISOString(),
         updated_at:v.updatedAt||new Date().toISOString()}).then(function(){});
     } else if(k.indexOf("job:")===0&&k.indexOf("seo")<0&&v.id){
-      SB.from("jobs").upsert({id:v.id,company_id:S._uid,company_name:v.company||"",
+      fetch("/api/jobs/save",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+        id:v.id,company_id:S._uid,company_name:v.company||"",
         title:v.title||"",location:v.loc||"",salary_min:v.smin||null,salary_max:v.smax||null,
         salary_hidden:!!v.shide,salary_label:v.sal||null,currency:v.curr||"INR",
         experience:v.exp||null,job_type:v.type||"Full-time",sector:v.sec||null,
         skills:v.skills||[],description:v.desc||null,remote_policy:v.remote||"Any",
         visa_sponsor:!!v.visa,status:v.status||"active",
         slug:v.slug||(mkSlug(v.title)+"-"+mkSlug(v.company)+"-"+mkSlug(v.loc)),
-        created_at:v.createdAt||new Date().toISOString()}).then(function(){});
+        created_at:v.createdAt||new Date().toISOString()
+      })}).catch(function(){});
     }
   }catch(e){}
 }
@@ -2903,7 +2905,7 @@ function renderCd(){
 function renderStepBar(){
   var el=document.getElementById("cd-bar");if(!el)return;
   var STEPS=["Choose Path","Upload CV","Profile","Browse Jobs","Track Apps"];
-  el.innerHTML='<div style="display:flex;align-items:center;overflow-x:auto;padding:12px 18px 0;max-width:780px;margin:0 auto;width:100%">'+
+  el.innerHTML='<div style="display:flex;align-items:center;overflow-x:auto;touch-action:pan-x;overscroll-behavior-x:contain;padding:12px 18px 0;max-width:780px;margin:0 auto;width:100%">'+
     STEPS.map(function(s,i){var done=i<S.cdStep,active=i===S.cdStep;
       return '<div style="display:flex;align-items:center"><div style="display:flex;flex-direction:column;align-items:center;gap:4px;cursor:'+(done?"pointer":"default")+'"'+(done?' onclick="cdGo('+i+')"':'')+'>'+
         '<div class="sdot" style="background:'+(done?"var(--gr)":active?"var(--ac)":"#f0f0f5")+';border:2px solid '+(done?"var(--gr)":active?"var(--ac)":"var(--ln)")+';color:'+(done||active?"#fff":"var(--fa)")+'">'+(done?"✓":i+1)+'</div>'+

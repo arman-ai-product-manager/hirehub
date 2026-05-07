@@ -120,13 +120,21 @@ function slugToName(slug) {
 export async function getServerSideProps({ params, query }) {
   const slug = params.slug
 
+  // Validate color is a safe CSS hex value to prevent CSS injection
+  const rawColor = query.c ? decodeURIComponent(query.c) : '#ff6b00'
+  const safeColor = /^#[0-9a-fA-F]{3,6}$/.test(rawColor) ? rawColor : '#ff6b00'
+
+  // Validate logo URL must be https to prevent javascript: injection
+  const rawLogo = query.logo ? decodeURIComponent(query.logo) : null
+  const safeLogo = rawLogo && rawLogo.startsWith('https://') ? rawLogo : null
+
   // Brand data from URL query params (set by saveBrand in app)
   const company = {
     name:    decodeURIComponent(query.n || slugToName(slug)),
-    color:   decodeURIComponent(query.c || '#ff6b00'),
+    color:   safeColor,
     tagline: decodeURIComponent(query.t || 'We are hiring great people!'),
     cta:     decodeURIComponent(query.cta || 'Apply Now'),
-    logo:    query.logo ? decodeURIComponent(query.logo) : null,
+    logo:    safeLogo,
   }
 
   // Jobs from Supabase — prefer exact company_id match (when ?id= param present), else fuzzy name
@@ -147,9 +155,10 @@ export async function getServerSideProps({ params, query }) {
       q = q.or(`company_name.ilike.%${searchName}%,company_name.ilike.%${slug}%`)
     }
 
-    const { data } = await q
+    const { data, error } = await q
+    if (error) console.error('careers DB error:', error)
     jobs = data || []
-  } catch(e) {}
+  } catch (e) { console.error('careers DB error:', e) }
 
   // If no brand name in query and no jobs found, show 404
   if (!query.n && jobs.length === 0) {

@@ -1,6 +1,6 @@
 import Head from 'next/head'
 import { useState } from 'react'
-const { supabaseService } = require('../../lib/supabase')
+import { supabaseService } from '../../lib/supabase'
 
 function mkSlug(s) {
   return (s || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
@@ -39,6 +39,7 @@ export default function ResumePage({ candidate, shareUrl }) {
   const [copied, setCopied] = useState(false)
 
   const c = candidate
+  const firstName = (c.name || 'Candidate').split(' ')[0]
 
   function handleShare() {
     const url = typeof window !== 'undefined' ? window.location.href : shareUrl
@@ -68,6 +69,9 @@ export default function ResumePage({ candidate, shareUrl }) {
         <meta property="og:title" content={`${c.name} · ${c.title}`} />
         <meta property="og:description" content={c.about?.slice(0, 160)} />
         <meta property="og:type" content="profile" />
+        <meta property="og:image" content="https://hirehub360.in/favicon.svg" />
+        <meta property="og:url" content={shareUrl} />
+        <meta name="twitter:card" content="summary" />
         <meta name="robots" content="index,follow" />
         <link rel="canonical" href={shareUrl} />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -166,7 +170,7 @@ export default function ResumePage({ candidate, shareUrl }) {
           </div>
           <div className="hero-actions">
             <button className="btn primary" onClick={() => setContactOpen(true)}>
-              📬 Hire {c.name.split(' ')[0]}
+              📬 Hire {firstName}
             </button>
             <button className="btn ghost" onClick={handleShare}>
               {copied ? '✅ Copied!' : '📤 Share Profile'}
@@ -186,8 +190,8 @@ export default function ResumePage({ candidate, shareUrl }) {
         {/* HIRE BANNER */}
         <div className="hire-banner">
           <div>
-            <h3>Looking to hire {c.name.split(' ')[0]}?</h3>
-            <p>Post a job on HireHub360 and reach 10,000+ verified candidates like {c.name.split(' ')[0]}.</p>
+            <h3>Looking to hire {firstName}?</h3>
+            <p>Post a job on HireHub360 and reach 10,000+ verified candidates like {firstName}.</p>
           </div>
           <button className="btn primary" onClick={() => setContactOpen(true)}>Contact Candidate →</button>
         </div>
@@ -261,7 +265,7 @@ export default function ResumePage({ candidate, shareUrl }) {
           <div className="modal" onClick={e => e.stopPropagation()}>
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:20}}>
               <div>
-                <div style={{fontWeight:800,fontSize:18,letterSpacing:'-.03em',marginBottom:4}}>Contact {c.name.split(' ')[0]}</div>
+                <div style={{fontWeight:800,fontSize:18,letterSpacing:'-.03em',marginBottom:4}}>Contact {firstName}</div>
                 <div style={{fontSize:13,color:'#6e6e73'}}>{c.title} · {c.location}</div>
               </div>
               <button onClick={() => setContactOpen(false)} style={{background:'none',border:'none',fontSize:24,cursor:'pointer',color:'#aaa',marginTop:-4}}>×</button>
@@ -318,7 +322,7 @@ export async function getServerSideProps({ params, query, req }) {
         education: Array.isArray(data.education) ? data.education : [],
       }
     }
-  } catch (_) {}
+  } catch (e) { console.error('resume page DB error:', e) }
 
   // Fall back: build from URL query params (name passed in via ?n=)
   if (!candidate) {

@@ -151,7 +151,6 @@ export default function HirePage({ skill, city, canonical }) {
     areaServed: city.name,
     serviceType: skill.name,
     priceRange: skill.rate,
-    telephone: '+91-XXXXXXXXXX',
     address: { '@type': 'PostalAddress', addressCountry: 'IN', addressRegion: city.state },
   }
 
@@ -445,15 +444,19 @@ export default function HirePage({ skill, city, canonical }) {
   )
 }
 
-export async function getServerSideProps({ params, req }) {
+export async function getServerSideProps({ params }) {
   const slug = params.slug
   const match = parseSlug(slug)
 
   if (!match) return { notFound: true }
 
-  const host = req.headers.host || 'hirehub360.in'
-  const proto = host.includes('localhost') ? 'http' : 'https'
-  const canonical = `${proto}://${host}/hire/${slug}`
+  // Guard: cluster must exist in CLUSTER_DATA and FAQS to avoid render crashes
+  if (!CLUSTER_DATA[match.skill.cluster] || !FAQS[match.skill.cluster]) {
+    return { notFound: true }
+  }
+
+  // Hard-code production canonical to prevent Host-header spoofing affecting SEO
+  const canonical = `https://hirehub360.in/hire/${slug}`
 
   return {
     props: {
