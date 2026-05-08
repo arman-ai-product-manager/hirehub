@@ -95,7 +95,7 @@ export async function getServerSideProps({ res }) {
 
   const [{ data: jobs }, { data: blogs }] = await Promise.all([
     supabaseService.from('jobs').select('id,title,company_name,location,created_at').eq('status','active').limit(10000),
-    supabaseService.from('blogs').select('slug,created_at,updated_at').eq('published',true).limit(1000)
+    supabaseService.from('blogs').select('slug,lang,created_at,updated_at').eq('published',true).limit(2000)
   ])
 
   // Static pages
@@ -133,10 +133,19 @@ export async function getServerSideProps({ res }) {
       )
     ).join('\n')
 
-  // Blog pages
-  const blogUrls = (blogs || []).map(b => {
+  // Blog pages — English and multilingual
+  const enBlogs = (blogs || []).filter(b => !b.lang || b.lang === 'en')
+  const langBlogs = (blogs || []).filter(b => b.lang && b.lang !== 'en')
+
+  const blogUrls = enBlogs.map(b => {
     const date = (b.updated_at || b.created_at || today).split('T')[0]
     return url(`${base}/blog/${b.slug}`, date, 'weekly', '0.85')
+  }).join('\n')
+
+  const langBlogUrls = langBlogs.map(b => {
+    const date = (b.updated_at || b.created_at || today).split('T')[0]
+    const baseSlug = b.slug.replace(/^[a-z]{2}-/, '')
+    return url(`${base}/blog/${b.lang}/${baseSlug}`, date, 'weekly', '0.80')
   }).join('\n')
 
   // DB job pages
@@ -177,6 +186,7 @@ ${hireUrls}
 ${compareUrls}
 ${salaryUrls}
 ${blogUrls}
+${langBlogUrls}
 ${dbJobUrls}
 ${demoJobUrls}
 ${kwCityHigh}
