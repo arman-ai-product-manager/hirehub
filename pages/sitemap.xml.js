@@ -106,6 +106,7 @@ export async function getServerSideProps({ res }) {
     url(`${base}/blog`,                     today,   'daily',   '0.90'),
     url(`${base}/hirehub.html`,             today,   'daily',   '0.80'),
     url(`${base}/salary-intelligence`,      today,   'weekly',  '0.88'),
+    url(`${base}/resume-builder`,           today,   'weekly',  '0.90'),
   ].join('\n')
 
   // City landing pages
