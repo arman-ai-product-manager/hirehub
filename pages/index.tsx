@@ -487,13 +487,29 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
             ))}
           </div>
           <div className="fc-col">
-            <h4>HireHub360</h4>
-            <a href="/">Find Jobs</a>
-            <a href="/features">Features</a>
-            <a href="/hirehub.html">Post Jobs</a>
+            <h4>For Recruiters</h4>
+            <a href="/hirehub.html">Post Jobs Free</a>
+            <a href="/ats">Recruiter ATS</a>
+            <a href="/ai-scoring">AI Candidate Scoring</a>
+            <a href="/payroll">Payroll Software</a>
             <a href="/hirehub.html">Company Dashboard</a>
+          </div>
+          <div className="fc-col">
+            <h4>For Workers</h4>
+            <a href="/resume-builder">AI Resume Builder</a>
+            <a href="/upskilling">Free Courses</a>
+            <a href="/worker-loans">Salary Advance</a>
+            <a href="/worker-insurance">Worker Insurance</a>
             <a href="/resume/your-name">My Resume Page</a>
-            <a href="/hirehub.html">Candidate Profile</a>
+          </div>
+          <div className="fc-col">
+            <h4>Intelligence</h4>
+            <a href="/salary-intelligence">Salary Data</a>
+            <a href="/skill-intelligence">Skill Trends</a>
+            <a href="/workforce-heatmap">Hiring Heatmap</a>
+            <a href="/features">7 AI Features</a>
+            <a href="/pricing">Pricing</a>
+            <a href="/blog">Blog</a>
             <a href="/sitemap.xml">Sitemap</a>
           </div>
         </div>
