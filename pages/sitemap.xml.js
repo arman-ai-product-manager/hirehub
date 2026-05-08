@@ -110,6 +110,11 @@ export async function getServerSideProps({ res }) {
     url(`${base}/upskilling`,               today,   'weekly',  '0.88'),
     url(`${base}/skill-intelligence`,       today,   'weekly',  '0.88'),
     url(`${base}/workforce-heatmap`,        today,   'weekly',  '0.87'),
+    url(`${base}/ats`,                      today,   'weekly',  '0.85'),
+    url(`${base}/ai-scoring`,               today,   'weekly',  '0.85'),
+    url(`${base}/worker-loans`,             today,   'weekly',  '0.86'),
+    url(`${base}/payroll`,                  today,   'weekly',  '0.86'),
+    url(`${base}/worker-insurance`,         today,   'weekly',  '0.86'),
   ].join('\n')
 
   // City landing pages
