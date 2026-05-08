@@ -203,6 +203,13 @@ export default function JobPage({ job }) {
             <input className="inp-m" type="email" placeholder="you@email.com" />
             <input className="inp-m" type="password" placeholder="Password" />
 
+            <a href={`/whatsapp-apply/${mkSlug(job.title)}-${mkSlug(job.company_name)}-${mkSlug(job.location)}`}
+              style={{display:'flex',alignItems:'center',justifyContent:'center',gap:10,
+              width:'100%',padding:'14px',background:'#25D366',borderRadius:12,
+              fontWeight:700,fontSize:16,textDecoration:'none',color:'#fff',marginBottom:8}}>
+              <span>💬</span> Apply on WhatsApp
+            </a>
+
             <div style={{ display: 'flex', gap: 8 }}>
               <a href="/hirehub.html" style={{ flex: 1, background: '#ff6b00', color: '#fff', padding: '12px', borderRadius: 10, textAlign: 'center', fontWeight: 700, fontSize: 15 }}>
                 Sign In & Apply
