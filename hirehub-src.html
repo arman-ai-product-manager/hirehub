@@ -5238,5 +5238,56 @@ var _oGC=goCompany;goCompany=function(){_oGC();showBotNav("company");};
 var _oGCd=goCandidate;goCandidate=function(){_oGCd();showBotNav("candidate");};
 </script>
 
+<!-- Support Chat Widget -->
+<div id="sup-btn" onclick="document.getElementById('sup-panel').style.display=document.getElementById('sup-panel').style.display==='flex'?'none':'flex';this.textContent=document.getElementById('sup-panel').style.display==='flex'?'✕':'💬'" style="position:fixed;bottom:24px;right:24px;z-index:9999;width:56px;height:56px;border-radius:50%;background:#ff6b00;border:none;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,0.25);display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;transition:background 0.2s">💬</div>
+<div id="sup-panel" style="display:none;position:fixed;bottom:92px;right:24px;z-index:9998;width:320px;max-height:80vh;background:#fff;border-radius:16px;box-shadow:0 8px 40px rgba(0,0,0,0.18);flex-direction:column;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,sans-serif">
+  <div style="background:#ff6b00;padding:16px 20px">
+    <div style="color:#fff;font-weight:800;font-size:16px">HireHub360 Support</div>
+    <div style="color:rgba(255,255,255,0.85);font-size:12px;margin-top:2px">🟢 Online · Usually replies in 5 min</div>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:16px">
+    <div style="background:#f5f5f7;border-radius:12px 12px 12px 0;padding:10px 14px;font-size:13px;color:#1d1d1f;line-height:1.5;margin-bottom:14px">Namaste! 👋 Main HireHub360 Support hu. Kaise help karun?</div>
+    <div style="font-size:12px;color:#888;font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em">Common Questions</div>
+    <div id="sup-faqs"></div>
+    <div style="margin-top:16px;font-size:12px;color:#888;font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em">Kuch aur poochna hai?</div>
+    <textarea id="sup-msg" placeholder="Apna sawaal likho..." rows="2" style="width:100%;border:1px solid #e5e5ea;border-radius:10px;padding:8px 12px;font-size:13px;resize:none;font-family:inherit;color:#1d1d1f;outline:none;box-sizing:border-box"></textarea>
+  </div>
+  <div style="padding:12px 16px;border-top:1px solid #f0f0f0;display:flex;flex-direction:column;gap:8px">
+    <a id="sup-wa" href="https://wa.me/919999999999?text=Hi%20HireHub360%20Support%2C%20mujhe%20help%20chahiye." target="_blank" onclick="var m=document.getElementById('sup-msg').value;if(m)this.href='https://wa.me/919999999999?text='+encodeURIComponent('Hi HireHub360 Support, mujhe help chahiye: '+m)" style="background:#25D366;color:#fff;padding:10px 16px;border-radius:10px;text-decoration:none;font-weight:700;font-size:13px;text-align:center;display:block">💬 WhatsApp pe Chat Karo</a>
+    <a href="mailto:support@hirehub360.in" style="color:#ff6b00;font-size:12px;text-align:center;text-decoration:none;font-weight:600">✉️ Email: support@hirehub360.in</a>
+  </div>
+</div>
+<script>
+(function(){
+  var FAQS=[
+    {q:'Job post kaise karu?',a:'App open karo → "Post Job" button dabao → form fill karo → Submit. Job 2 min me live ho jati hai.'},
+    {q:'Career page kaam nahi kar raha',a:'App me Brand Kit → "Save Brand Settings" click karo → naya link copy karo. Link ab chhota hoga aur jobs dikhenge.'},
+    {q:'Apply kaise karu?',a:'Kisi bhi job pe "Apply Now" dabao → phone number dalo → OTP verify karo. WhatsApp apply ke liye green button use karo.'},
+    {q:'Mera account kaise banaye?',a:'hirehub360.in/hirehub.html kholo → apna phone/email daalo → OTP enter karo. Account automatically ban jata hai.'},
+    {q:'Resume kaise banaye?',a:'hirehub360.in/resume-builder pe jao → apni details bharo → AI resume generate karega → PDF download karo.'},
+    {q:'Pricing plans kya hain?',a:'hirehub360.in/pricing pe full details hain. Free plan me unlimited job apply, paid plans me job post + CV unlock milta hai.'},
+  ];
+  var container=document.getElementById('sup-faqs');
+  var active=-1;
+  FAQS.forEach(function(faq,i){
+    var wrap=document.createElement('div');wrap.style.marginBottom='8px';
+    var btn=document.createElement('button');
+    btn.style.cssText='width:100%;text-align:left;background:#f5f5f7;border:1px solid #e5e5ea;border-radius:10px;padding:8px 12px;cursor:pointer;font-size:12px;font-weight:600;color:#1d1d1f;line-height:1.4';
+    btn.textContent='▶ '+faq.q;
+    var ans=document.createElement('div');
+    ans.style.cssText='display:none;background:#fff8f4;border:1px solid #ffe0c8;border-top:none;border-radius:0 0 10px 10px;padding:10px 12px;font-size:12px;color:#444;line-height:1.6';
+    ans.textContent=faq.a;
+    btn.onclick=function(){
+      if(active===i){active=-1;ans.style.display='none';btn.style.background='#f5f5f7';btn.style.border='1px solid #e5e5ea';btn.textContent='▶ '+faq.q;}
+      else{
+        if(active>=0){var prev=container.children[active];prev.querySelector('div').style.display='none';var pb=prev.querySelector('button');pb.style.background='#f5f5f7';pb.style.border='1px solid #e5e5ea';pb.textContent='▶ '+FAQS[active].q;}
+        active=i;ans.style.display='block';btn.style.background='#fff3e8';btn.style.border='1px solid #ff6b00';btn.textContent='▼ '+faq.q;
+      }
+    };
+    wrap.appendChild(btn);wrap.appendChild(ans);container.appendChild(wrap);
+  });
+})();
+</script>
+
 </body>
 </html><!-- force redeploy Sun Apr 12 19:44:05 IST 2026 -->
