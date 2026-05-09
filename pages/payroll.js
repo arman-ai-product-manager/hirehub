@@ -203,12 +203,45 @@ export default function Payroll() {
         </div>
       </div>
 
+      {/* FAQ */}
+      <div style={{ maxWidth: 800, margin: '0 auto', padding: '48px 24px' }}>
+        <h2 style={{ fontSize: 24, fontWeight: 800, marginBottom: 24, letterSpacing: '-.02em', textAlign: 'center' }}>Frequently Asked Questions</h2>
+        {[
+          { q: 'Is HireHub360 Payroll PF/ESI/TDS compliant?', a: 'Yes — fully compliant with EPFO, ESIC, and Income Tax Department filing formats. We auto-generate Form 16, Form 24Q, ECR (Electronic Challan-cum-Return), and ESI returns. Our compliance engine is updated within 48 hours of any government circular.' },
+          { q: 'How is my employee data protected?', a: 'All data is encrypted at rest (AES-256) and in transit (TLS 1.3). Servers hosted in India (Mumbai region) for data residency compliance. We are SOC 2 Type II audit-ready and follow ISO 27001 controls.' },
+          { q: 'Can I migrate from existing payroll software?', a: 'Yes — we support imports from Tally, QuickBooks, GreytHR, Zoho Payroll, and Excel templates. Our success team handles migration free of charge for paid plans (typical migration takes 3–5 working days).' },
+          { q: 'What about GST on plan pricing?', a: 'All prices shown exclude 18% GST. GST invoices are issued automatically with your GSTIN on file.' },
+          { q: 'What happens after the 3-month free trial?', a: 'You will be reminded 7 days before trial ends. No automatic charge — you must explicitly choose a plan and add payment. If you do not, your account moves to read-only mode (data preserved for 90 days).' },
+          { q: 'Do you support contract workers and gig staff?', a: 'Yes — process payroll for full-time, part-time, contractors (with TDS u/s 194J/194C), and gig workers. Each category gets correct compliance treatment.' },
+        ].map((f, i) => (
+          <details key={i} style={{ background: '#fff', borderRadius: 12, padding: '14px 18px', marginBottom: 8, border: '1px solid #e5e5ea' }}>
+            <summary style={{ fontWeight: 700, fontSize: 15, cursor: 'pointer', color: '#1d1d1f', listStyle: 'none' }}>
+              {f.q}
+            </summary>
+            <p style={{ fontSize: 14, color: '#3d3d3f', lineHeight: 1.7, marginTop: 10 }}>{f.a}</p>
+          </details>
+        ))}
+
+        {/* Trust badges */}
+        <div style={{ marginTop: 32, padding: '24px 20px', background: '#fff', borderRadius: 12, border: '1px solid #e5e5ea', textAlign: 'center' }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: '#6e6e73', textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: 14 }}>Compliance & Security</div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 18, justifyContent: 'center', alignItems: 'center', fontSize: 13, fontWeight: 600 }}>
+            <span>🛡️ EPFO ECR Format</span>
+            <span>📋 ESIC Compliant</span>
+            <span>📊 Form 16 Auto-Gen</span>
+            <span>🔐 AES-256 Encryption</span>
+            <span>🇮🇳 India Data Residency</span>
+            <span>⚡ ISO 27001 Aligned</span>
+          </div>
+        </div>
+      </div>
+
       {/* CTA BANNER */}
       <div className="cta-banner">
         <h2>Ready to Automate Payroll?</h2>
         <p>Join thousands of Indian businesses running payroll on autopilot.</p>
         <a href="/hirehub.html" className="btn-cta-orange">Start Free Trial — First 3 Months Free →</a>
-        <p style={{ fontSize: 12, color: '#555', marginTop: 12 }}>No credit card required · Setup in 15 minutes</p>
+        <p style={{ fontSize: 12, color: '#555', marginTop: 12 }}>No credit card required · Setup in 15 minutes · GST extra at 18%</p>
       </div>
 
       <footer>

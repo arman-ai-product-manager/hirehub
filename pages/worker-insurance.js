@@ -1,4 +1,5 @@
 import Head from 'next/head'
+import InterestForm from '../components/InterestForm'
 
 const PLANS = [
   {
@@ -261,9 +262,11 @@ export default function WorkerInsurance() {
       {/* CTA */}
       <div className="cta-section">
         <h2>Protect Every Worker Today</h2>
-        <p>₹149/month. No medical test. Coverage starts immediately. Register your interest now.</p>
+        <p>₹149/month*. Coverage starts immediately on activation.</p>
+        <p style={{ fontSize: 11, color: '#888', marginTop: -8, marginBottom: 16 }}>*Premium varies by age, occupation, and coverage chosen.</p>
         <a href="/hirehub.html" className="btn-cta-orange">Get Covered Today →</a>
-        <p style={{ fontSize: 12, color: '#555', marginTop: 12 }}>Coming soon — register your interest now</p>
+        <p style={{ fontSize: 12, color: '#555', margin: '12px 0 24px' }}>Coming soon — register below to be first in line</p>
+        <InterestForm product="worker_insurance" productLabel="Worker Insurance" accent="#ff6b00" />
       </div>
 
       {/* DISCLAIMER */}

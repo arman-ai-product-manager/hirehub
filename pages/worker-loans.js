@@ -1,4 +1,5 @@
 import Head from 'next/head'
+import InterestForm from '../components/InterestForm'
 
 const LOAN_PRODUCTS = [
   { name: 'Salary Advance', amount: '₹2,000–₹25,000', tenure: '30 days', interest: '2%/month', for: 'All workers' },
@@ -227,7 +228,8 @@ export default function WorkerLoans() {
           <div className="elig-chip">✅ Active employment</div>
         </div>
         <a href="/hirehub.html" className="btn-cta-light">Apply for Salary Advance →</a>
-        <p style={{ fontSize: 12, color: '#666', marginTop: 12 }}>Coming soon — register your interest now</p>
+        <p style={{ fontSize: 12, color: '#666', marginTop: 12, marginBottom: 24 }}>Coming soon — register below to be first in line</p>
+        <InterestForm product="worker_loans" productLabel="Salary Advance" accent="#ff6b00" />
       </div>
 
       {/* DISCLAIMER */}
