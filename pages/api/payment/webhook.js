@@ -24,20 +24,25 @@ export default async function handler(req, res) {
   const rawBody  = await getRawBody(req)
   const bodyStr  = rawBody.toString()
 
-  // Verify Cashfree webhook signature
-  // Note: Cashfree uses a SEPARATE webhook secret (not the API secret key)
-  // Get it from: Cashfree Dashboard → Developers → Webhooks → Secret Key
+  // Verify Cashfree webhook signature — MANDATORY in production
+  // Get secret from: Cashfree Dashboard → Developers → Webhooks → Secret Key
   const timestamp = req.headers['x-webhook-timestamp'] || ''
   const signature = req.headers['x-webhook-signature'] || ''
   const secret    = process.env.CASHFREE_WEBHOOK_SECRET || process.env.CASHFREE_SECRET_KEY || ''
 
-  if (signature && timestamp && secret) {
+  if (process.env.NODE_ENV === 'production') {
+    if (!secret) {
+      console.error('Cashfree webhook: CASHFREE_WEBHOOK_SECRET not configured')
+      return res.status(500).json({ error: 'Webhook secret not configured' })
+    }
+    if (!signature || !timestamp) {
+      return res.status(400).json({ error: 'Missing signature headers' })
+    }
     const signedPayload = timestamp + bodyStr
     const expected = crypto.createHmac('sha256', secret).update(signedPayload).digest('base64')
     if (signature !== expected) {
-      console.error('Cashfree webhook signature mismatch — check CASHFREE_WEBHOOK_SECRET env var')
-      // Don't reject — process anyway to avoid missing payments, but log the mismatch
-      // return res.status(400).json({ error: 'Invalid signature' })
+      console.error('Cashfree webhook signature mismatch — rejecting')
+      return res.status(401).json({ error: 'Invalid signature' })
     }
   }
 

@@ -10,6 +10,26 @@ function slugToName(slug) {
   return slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
 }
 
+// Strip HTML tags and dangerous characters from URL-supplied params before they
+// hit the page. Prevents XSS injection via meta tags and rendered text.
+function sanitize(s, max = 300) {
+  if (typeof s !== 'string') return ''
+  return s
+    .replace(/<[^>]*>/g, '')           // strip HTML tags
+    .replace(/[<>"'`\\]/g, '')         // strip remaining HTML/JS dangerous chars
+    .replace(/javascript:/gi, '')      // strip JS protocol
+    .replace(/on\w+\s*=/gi, '')        // strip event handlers
+    .trim()
+    .slice(0, max)
+}
+
+function sanitizeUrl(s) {
+  const cleaned = sanitize(s, 500)
+  if (!cleaned) return null
+  // Only allow https:// URLs to prevent javascript: and data: URI attacks
+  return /^https:\/\//.test(cleaned) ? cleaned : null
+}
+
 // Demo candidate shown when no DB record found
 const DEMO_CANDIDATE = {
   name: 'Priya Sharma',
@@ -76,7 +96,6 @@ export default function ResumePage({ candidate, shareUrl }) {
         <link rel="canonical" href={shareUrl} />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
-        <meta name="viewport" content="width=device-width,initial-scale=1" />
       </Head>
 
       <style>{`
@@ -301,7 +320,11 @@ export default function ResumePage({ candidate, shareUrl }) {
 }
 
 export async function getServerSideProps({ params, query, req }) {
-  const slug = params.slug
+  // Validate slug — only allow lowercase alphanumeric and hyphens
+  const rawSlug = params.slug || ''
+  const slug = /^[a-z0-9-]+$/.test(rawSlug) ? rawSlug : ''
+  if (!slug) return { notFound: true }
+
   const host = req.headers.host || 'hirehub360.in'
   const proto = host.includes('localhost') ? 'http' : 'https'
   const shareUrl = `${proto}://${host}/resume/${slug}`
@@ -324,12 +347,14 @@ export async function getServerSideProps({ params, query, req }) {
     }
   } catch (e) { console.error('resume page DB error:', e) }
 
-  // Fall back: build from URL query params (name passed in via ?n=)
+  // Fall back: build from URL query params (sanitized to prevent XSS)
   if (!candidate) {
-    const name = query.n ? decodeURIComponent(query.n) : slugToName(slug)
-    const title = query.t ? decodeURIComponent(query.t) : DEMO_CANDIDATE.title
-    const location = query.loc ? decodeURIComponent(query.loc) : DEMO_CANDIDATE.location
-    const skills = query.skills ? decodeURIComponent(query.skills).split(',').map(s => s.trim()) : DEMO_CANDIDATE.skills
+    const name = query.n ? sanitize(decodeURIComponent(query.n), 100) : slugToName(slug)
+    const title = query.t ? sanitize(decodeURIComponent(query.t), 100) : DEMO_CANDIDATE.title
+    const location = query.loc ? sanitize(decodeURIComponent(query.loc), 100) : DEMO_CANDIDATE.location
+    const skills = query.skills
+      ? sanitize(decodeURIComponent(query.skills), 500).split(',').map(s => s.trim()).filter(Boolean).slice(0, 20)
+      : DEMO_CANDIDATE.skills
     // If the name wasn't in the URL and there's no DB record, show demo content
     const isDemo = !query.n
     candidate = isDemo ? { ...DEMO_CANDIDATE } : {
@@ -338,12 +363,12 @@ export async function getServerSideProps({ params, query, req }) {
       title,
       location,
       skills,
-      about: query.about ? decodeURIComponent(query.about) : DEMO_CANDIDATE.about,
-      availability: query.avail ? decodeURIComponent(query.avail) : DEMO_CANDIDATE.availability,
-      salary_expectation: query.sal ? decodeURIComponent(query.sal) : DEMO_CANDIDATE.salary_expectation,
-      open_to: query.open_to ? decodeURIComponent(query.open_to) : DEMO_CANDIDATE.open_to,
-      linkedin: query.li ? decodeURIComponent(query.li) : null,
-      github: query.gh ? decodeURIComponent(query.gh) : null,
+      about: query.about ? sanitize(decodeURIComponent(query.about), 800) : DEMO_CANDIDATE.about,
+      availability: query.avail ? sanitize(decodeURIComponent(query.avail), 80) : DEMO_CANDIDATE.availability,
+      salary_expectation: query.sal ? sanitize(decodeURIComponent(query.sal), 60) : DEMO_CANDIDATE.salary_expectation,
+      open_to: query.open_to ? sanitize(decodeURIComponent(query.open_to), 200) : DEMO_CANDIDATE.open_to,
+      linkedin: query.li ? sanitizeUrl(decodeURIComponent(query.li)) : null,
+      github: query.gh ? sanitizeUrl(decodeURIComponent(query.gh)) : null,
     }
   }
 

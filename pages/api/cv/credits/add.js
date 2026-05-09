@@ -21,7 +21,7 @@ export default async function handler(req, res) {
 
   const { amount } = req.body || {}
   const creditsToAdd = parseInt(amount, 10)
-  if (!creditsToAdd || creditsToAdd < 1 || creditsToAdd > 10000)
+  if (!Number.isFinite(creditsToAdd) || creditsToAdd < 1 || creditsToAdd > 10000)
     return res.status(400).json({ error: 'Invalid amount' })
 
   try {

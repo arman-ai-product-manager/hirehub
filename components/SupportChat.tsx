@@ -9,7 +9,9 @@ const FAQS = [
   { q: 'Pricing plans kya hain?', a: 'hirehub360.in/pricing pe full details hain. Free plan me unlimited job apply, paid plans me job post + CV unlock milta hai.' },
 ]
 
-const WA_NUMBER = process.env.NEXT_PUBLIC_SUPPORT_WA || '919999999999'
+// Default to Enterprise WhatsApp number from pricing page so support is reachable
+// even before NEXT_PUBLIC_SUPPORT_WA is configured.
+const WA_NUMBER = process.env.NEXT_PUBLIC_SUPPORT_WA || '919820000000'
 
 export default function SupportChat() {
   const [open, setOpen] = useState(false)
