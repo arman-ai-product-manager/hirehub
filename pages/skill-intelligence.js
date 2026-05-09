@@ -458,8 +458,13 @@ export default function SkillIntelligence() {
         <a href="/" className="logo" style={{ display: 'inline-block', marginBottom: 12 }}>
           HireHub<span style={{ color: '#ff6b00' }}>Hub</span><sup style={{ color: '#ff6b00', fontSize: 11 }}>360</sup>
         </a>
-        <p style={{ fontSize: 12, color: '#444', marginTop: 8 }}>
-          © 2026 HireHub360. Skill data sourced from live job postings across India.{' '}
+        <p style={{ fontSize: 11, color: '#555', marginTop: 8, maxWidth: 720, marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.7 }}>
+          <strong style={{ color: '#777' }}>Data sources:</strong> Live job postings on HireHub360 + partner platforms (last 90 days),
+          NASSCOM strategic reviews, India Skills Report, NSDC sector studies. Demand scores are normalised against listing volume —
+          numeric "fire" indicators map to: 1🔥 = emerging, 3🔥 = strong, 5🔥 = critical (top 10% of demand). Outcomes vary by individual.
+        </p>
+        <p style={{ fontSize: 12, color: '#444', marginTop: 12 }}>
+          Last updated: {new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })} · © 2026 HireHub360 ·{' '}
           <a href="/privacy" style={{ color: '#555', textDecoration: 'underline' }}>Privacy</a>
         </p>
       </footer>

@@ -1,5 +1,6 @@
 import Head from 'next/head'
 import Link from 'next/link'
+import InterestForm from '../components/InterestForm'
 
 const COURSES = [
   {
@@ -208,6 +209,20 @@ export default function UpskillingPage() {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* Worker interest capture */}
+      <div style={{background:'#fff',padding:'48px 24px',borderTop:'1px solid #e5e5ea'}}>
+        <div style={{maxWidth:600,margin:'0 auto',textAlign:'center'}}>
+          <h2 style={{fontSize:24,fontWeight:800,color:'#1d1d1f',marginBottom:8,letterSpacing:'-.02em'}}>Looking for a course?</h2>
+          <p style={{color:'#6e6e73',fontSize:14,marginBottom:24,lineHeight:1.6}}>
+            New courses launching every month. Get notified when courses match your goals — and qualify for placement support.
+          </p>
+          <InterestForm product="upskilling" productLabel="Upskilling Courses" accent="#ff6b00" />
+          <p style={{fontSize:11,color:'#aaa',marginTop:14,maxWidth:420,marginLeft:'auto',marginRight:'auto',lineHeight:1.5}}>
+            Salary ranges shown are typical post-completion ranges based on partner placements. Individual outcomes vary by skill, experience, location, and employer.
+          </p>
+        </div>
       </div>
 
       {/* Institute partner CTA */}

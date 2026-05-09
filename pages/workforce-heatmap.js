@@ -411,8 +411,13 @@ export default function WorkforceHeatmap() {
 
         {/* Footer note */}
         <footer style={{ borderTop: '1px solid #e5e5e5', background: '#fff', padding: '24px', textAlign: 'center' }}>
-          <p style={{ fontSize: 13, color: '#aaa', margin: 0 }}>
-            Data updated daily · <a href="/" style={{ color: '#ff6b00', textDecoration: 'none' }}>HireHub360</a> · India's AI-powered jobs platform
+          <p style={{ fontSize: 12, color: '#888', margin: '0 0 8px', maxWidth: 700, marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.6 }}>
+            <strong style={{ color: '#666' }}>Data sources:</strong> Aggregated job postings on HireHub360 + partner platforms,
+            India Skills Report 2025, NSDC Sector Skill Council studies, MoLE labour bureau data, and partner survey panels.
+            Macro stats are directional; individual outcomes vary by skill, location, and employer.
+          </p>
+          <p style={{ fontSize: 12, color: '#aaa', margin: 0 }}>
+            Last updated: {new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })} · <a href="/" style={{ color: '#ff6b00', textDecoration: 'none' }}>HireHub360</a> · India's AI-powered jobs platform
           </p>
         </footer>
 
