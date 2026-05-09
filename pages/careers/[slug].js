@@ -119,28 +119,35 @@ function slugToName(slug) {
 
 export async function getServerSideProps({ params, query }) {
   const slug = params.slug
+  const companyId = query.id ? decodeURIComponent(query.id) : null
 
-  // Validate color is a safe CSS hex value to prevent CSS injection
-  const rawColor = query.c ? decodeURIComponent(query.c) : '#ff6b00'
+  // Try to load brand from auth metadata (new short-link format)
+  let brandFromDB = null
+  if (companyId) {
+    try {
+      const { data: userData } = await supabaseService.auth.admin.getUserById(companyId)
+      const meta = userData?.user?.user_metadata || {}
+      if (meta.brand && meta.brand.name) brandFromDB = meta.brand
+    } catch (e) {}
+  }
+
+  // Validate color — allow from URL params (legacy links) or DB
+  const rawColor = brandFromDB?.color || (query.c ? decodeURIComponent(query.c) : '#ff6b00')
   const safeColor = /^#[0-9a-fA-F]{3,6}$/.test(rawColor) ? rawColor : '#ff6b00'
-
-  // Validate logo URL must be https to prevent javascript: injection
-  const rawLogo = query.logo ? decodeURIComponent(query.logo) : null
+  const rawLogo = brandFromDB?.logo || (query.logo ? decodeURIComponent(query.logo) : null)
   const safeLogo = rawLogo && rawLogo.startsWith('https://') ? rawLogo : null
 
-  // Brand data from URL query params (set by saveBrand in app)
   const company = {
-    name:    decodeURIComponent(query.n || slugToName(slug)),
+    name:    brandFromDB?.name || decodeURIComponent(query.n || slugToName(slug)),
     color:   safeColor,
-    tagline: decodeURIComponent(query.t || 'We are hiring great people!'),
-    cta:     decodeURIComponent(query.cta || 'Apply Now'),
+    tagline: brandFromDB?.tagline || decodeURIComponent(query.t || 'We are hiring great people!'),
+    cta:     brandFromDB?.cta || decodeURIComponent(query.cta || 'Apply Now'),
     logo:    safeLogo,
   }
 
-  // Jobs from Supabase — prefer exact company_id match (when ?id= param present), else fuzzy name
+  // Jobs — prefer company_id exact match, else fuzzy name
   let jobs = []
   try {
-    const companyId = query.id ? decodeURIComponent(query.id) : null
     let q = supabaseService
       .from('jobs')
       .select('id,slug,title,location,salary_label,job_type,skills,company_name,company_id')
@@ -160,8 +167,7 @@ export async function getServerSideProps({ params, query }) {
     jobs = data || []
   } catch (e) { console.error('careers DB error:', e) }
 
-  // If no brand name in query and no jobs found, show 404
-  if (!query.n && jobs.length === 0) {
+  if (!company.name && jobs.length === 0) {
     return { props: { company: { name: null }, jobs: [], params_slug: slug } }
   }
 
