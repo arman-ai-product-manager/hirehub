@@ -4399,13 +4399,7 @@ function _careerLink(br){
   var br2 = br || getBrand();
   var slug = mkSlug(br2.name || "your-company");
   var uid = S._uid || (S.co && S.co.id) || "";
-  var params = "?n="+encodeURIComponent(br2.name||"")
-    +"&c="+encodeURIComponent(br2.color||"#ff6b00")
-    +"&t="+encodeURIComponent(br2.tagline||"")
-    +"&cta="+encodeURIComponent(br2.cta||"Apply Now")
-    +(br2.logo?"&logo="+encodeURIComponent(br2.logo):"")
-    +(uid?"&id="+encodeURIComponent(uid):"");
-  return "https://hirehub360.in/careers/"+slug+params;
+  return "https://hirehub360.in/careers/"+slug+(uid?"?id="+uid:"");
 }
 
 function previewCareerPage() {
