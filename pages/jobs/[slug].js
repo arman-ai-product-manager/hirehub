@@ -22,7 +22,7 @@ const DEMO_JOBS = [
   {id:'d12',title:'Operations Manager',company_name:'Amazon',location:'Chennai',salary_label:'₹10–18 LPA',salary_hidden:false,job_type:'Full-time',skills:['Ops','Logistics','Six Sigma'],created_at:'2026-04-01T00:00:00.000Z',experience:'3–7 yrs',description:'Manage warehouse operations, drive process efficiency, and lead a team of 20+ associates to meet operational KPIs.'},
 ]
 
-export default function JobPage({ job }) {
+export default function JobPage({ job, similarJobs }) {
   const [showApply, setShowApply] = useState(false)
   const [copied, setCopied]       = useState(false)
   const canonicalUrl = job ? `https://hirehub360.in/jobs/${mkSlug(job.title)}-${mkSlug(job.company_name)}-${mkSlug(job.location)}` : ''
@@ -174,7 +174,26 @@ export default function JobPage({ job }) {
           )}
         </div>
 
-        {/* SIMILAR JOBS PROMPT */}
+        {/* SIMILAR JOBS */}
+        {similarJobs && similarJobs.length > 0 && (
+          <div style={{ marginTop: 24 }}>
+            <h2 style={{ fontWeight: 800, fontSize: 18, marginBottom: 14, letterSpacing: '-.03em' }}>Similar Jobs</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(260px,1fr))', gap: 12 }}>
+              {similarJobs.map(s => (
+                <a key={s.id || s.slug} href={`/jobs/${s.slug}`} style={{ background: '#fff', borderRadius: 14, padding: 16, border: '1.5px solid #e5e5ea', display: 'block', textDecoration: 'none', transition: 'all .18s' }}>
+                  <div style={{ fontWeight: 700, fontSize: 14, color: '#1d1d1f', marginBottom: 4 }}>{s.title}</div>
+                  <div style={{ fontSize: 12, color: '#6e6e73', marginBottom: 10 }}>{s.company_name} · {s.location}</div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+                    {s.salary_label && <span style={{ background: '#f0fdf4', color: '#1a8a3c', fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 6 }}>{s.salary_label}</span>}
+                    {s.experience && <span style={{ background: '#f5f5f7', color: '#3d3d3f', fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 6 }}>{s.experience}</span>}
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* CTA */}
         <div style={{ background: '#fff', borderRadius: 16, padding: '20px 24px', marginTop: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
           <div>
             <div style={{ fontWeight: 700, fontSize: 15 }}>Looking for more {job.title} jobs?</div>
@@ -248,19 +267,58 @@ export async function getStaticPaths() {
   return { paths: [...dbPaths, ...demoPaths], fallback: 'blocking' }
 }
 
+function buildSimilar(target, allJobs) {
+  if (!target) return []
+  const targetSlug = mkSlug(target.title)+'-'+mkSlug(target.company_name)+'-'+mkSlug(target.location)
+  const targetSkills = new Set((target.skills || []).map(s => String(s).toLowerCase()))
+  const scored = allJobs
+    .filter(j => {
+      const jSlug = mkSlug(j.title)+'-'+mkSlug(j.company_name)+'-'+mkSlug(j.location)
+      return jSlug !== targetSlug
+    })
+    .map(j => {
+      let score = 0
+      if (j.location && target.location && j.location.toLowerCase() === target.location.toLowerCase()) score += 2
+      const sharedSkills = (j.skills || []).filter(s => targetSkills.has(String(s).toLowerCase())).length
+      score += sharedSkills * 3
+      if (j.title && target.title && j.title.toLowerCase().split(' ').some(w => target.title.toLowerCase().includes(w) && w.length > 3)) score += 4
+      return { job: j, score }
+    })
+    .filter(x => x.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 4)
+    .map(x => ({
+      id: x.job.id,
+      slug: mkSlug(x.job.title)+'-'+mkSlug(x.job.company_name)+'-'+mkSlug(x.job.location),
+      title: x.job.title,
+      company_name: x.job.company_name,
+      location: x.job.location,
+      salary_label: x.job.salary_hidden ? null : (x.job.salary_label || null),
+      experience: x.job.experience || null,
+    }))
+  return scored
+}
+
 export async function getStaticProps({ params }) {
   // 1. Check real DB jobs
   const { data: jobs } = await supabaseService.from('jobs').select('*').eq('status','active')
+  const dbAndDemo = [...(jobs || []), ...DEMO_JOBS]
   const dbJob = (jobs || []).find(j =>
     mkSlug(j.title)+'-'+mkSlug(j.company_name)+'-'+mkSlug(j.location) === params.slug
   )
-  if (dbJob) return { props: { job: dbJob }, revalidate: 3600 }
+  if (dbJob) {
+    const similarJobs = buildSimilar(dbJob, dbAndDemo)
+    return { props: { job: dbJob, similarJobs }, revalidate: 3600 }
+  }
 
   // 2. Fall back to demo jobs
   const demoJob = DEMO_JOBS.find(j =>
     mkSlug(j.title)+'-'+mkSlug(j.company_name)+'-'+mkSlug(j.location) === params.slug
   )
-  if (demoJob) return { props: { job: demoJob }, revalidate: 86400 }
+  if (demoJob) {
+    const similarJobs = buildSimilar(demoJob, dbAndDemo)
+    return { props: { job: demoJob, similarJobs }, revalidate: 86400 }
+  }
 
   return { notFound: true }
 }
