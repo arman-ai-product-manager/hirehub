@@ -594,7 +594,7 @@ function _dbPush(k,v){
         applied_at:v.appliedAt||new Date().toISOString(),
         updated_at:v.updatedAt||new Date().toISOString()}).then(function(){});
     } else if(k.indexOf("job:")===0&&k.indexOf("seo")<0&&v.id){
-      fetch("/api/jobs/save",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+      var _jobBody=JSON.stringify({
         id:v.id,company_id:S._uid,company_name:v.company||(S.co&&S.co.name)||"",
         title:v.title||"",location:v.loc||"",salary_min:v.smin||null,salary_max:v.smax||null,
         salary_hidden:!!v.shide,salary_label:v.sal||null,currency:v.curr||"INR",
@@ -603,7 +603,13 @@ function _dbPush(k,v){
         visa_sponsor:!!v.visa,status:v.status||"active",
         slug:v.slug||(mkSlug(v.title)+"-"+mkSlug(v.company)+"-"+mkSlug(v.loc)),
         created_at:v.createdAt||new Date().toISOString()
-      })}).catch(function(){});
+      });
+      SB.auth.getSession().then(function(r){
+        var tok=(r&&r.data&&r.data.session)?r.data.session.access_token:"";
+        fetch("/api/jobs/save",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+tok},body:_jobBody}).catch(function(){});
+      }).catch(function(){
+        fetch("/api/jobs/save",{method:"POST",headers:{"Content-Type":"application/json"},body:_jobBody}).catch(function(){});
+      });
     }
   }catch(e){}
 }
@@ -675,13 +681,17 @@ function _hydrate(user, cb){
     // Sync localStorage-only jobs to DB (jobs that failed to save previously)
     var dbJobIds=(myJobsR&&myJobsR.data)?myJobsR.data.map(function(j){return j.id;}):[];
     try{
+      var _tok="";
+      SB.auth.getSession().then(function(r){
+        _tok=(r&&r.data&&r.data.session)?r.data.session.access_token:"";
+      }).catch(function(){});
       Object.keys(localStorage).forEach(function(k){
         if(k.indexOf("sh_job:")!==0)return;
         var lj=null;try{lj=JSON.parse(localStorage.getItem(k));}catch(e){}
         if(!lj||!lj.id||!lj.title)return;
         if((lj.companyId||lj.company_id)!==user.id)return;
-        if(dbJobIds.indexOf(lj.id)>=0)return; // already in DB
-        fetch("/api/jobs/save",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+        if(dbJobIds.indexOf(lj.id)>=0)return;
+        fetch("/api/jobs/save",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+_tok},body:JSON.stringify({
           id:lj.id,company_id:user.id,company_name:lj.company||(S.co&&S.co.name)||"",
           title:lj.title||"",location:lj.loc||"",salary_hidden:!!lj.shide,salary_label:lj.sal||null,
           currency:lj.curr||"INR",experience:lj.exp||null,job_type:lj.type||"Full-time",
