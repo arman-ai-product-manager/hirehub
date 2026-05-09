@@ -1,7 +1,35 @@
 import Head from 'next/head'
+import { useState } from 'react'
 import { supabaseService } from '../../lib/supabase'
 
 export default function CareerPage({ company, jobs, params_slug }) {
+  const [subEmail, setSubEmail] = useState('')
+  const [subStatus, setSubStatus] = useState('')
+
+  async function handleSubscribe(e) {
+    e.preventDefault()
+    if (!subEmail || !/.+@.+\..+/.test(subEmail)) {
+      setSubStatus('⚠️ Enter a valid email')
+      return
+    }
+    setSubStatus('Saving…')
+    try {
+      const res = await fetch('/api/careers/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: subEmail, company: company.name, slug: params_slug }),
+      })
+      if (res.ok) {
+        setSubStatus('✅ Done! We will email you when ' + company.name + ' posts a new job.')
+        setSubEmail('')
+      } else {
+        setSubStatus('⚠️ Could not save. Try again later.')
+      }
+    } catch {
+      setSubStatus('⚠️ Network error. Try again.')
+    }
+  }
+
   if (!company.name) {
     return (
       <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'system-ui,sans-serif',background:'#f5f5f7'}}>
@@ -74,9 +102,29 @@ export default function CareerPage({ company, jobs, params_slug }) {
       {/* Jobs */}
       <div id="jobs" style={{maxWidth:700,margin:'0 auto',padding:'28px 16px'}}>
         {jobs.length === 0 ? (
-          <div style={{background:'#fff',borderRadius:16,border:'1px solid #e5e5ea',padding:'40px 20px',textAlign:'center'}}>
-            <div style={{fontSize:36,marginBottom:12}}>📋</div>
-            <p style={{color:'#6e6e73',fontSize:14}}>No open positions right now. Check back soon!</p>
+          <div style={{background:'#fff',borderRadius:16,border:'1px solid #e5e5ea',padding:'36px 24px',textAlign:'center'}}>
+            <div style={{fontSize:42,marginBottom:12}}>🔔</div>
+            <h3 style={{fontWeight:800,fontSize:18,marginBottom:8,letterSpacing:'-.02em'}}>No open positions right now</h3>
+            <p style={{color:'#6e6e73',fontSize:14,marginBottom:20,maxWidth:380,marginLeft:'auto',marginRight:'auto'}}>
+              Get notified the moment <strong>{company.name}</strong> posts a new job. No spam — just role alerts.
+            </p>
+            <form onSubmit={handleSubscribe} style={{display:'flex',gap:8,maxWidth:380,margin:'0 auto',flexWrap:'wrap'}}>
+              <input
+                type="email"
+                value={subEmail}
+                onChange={e => setSubEmail(e.target.value)}
+                placeholder="you@email.com"
+                required
+                style={{flex:1,minWidth:180,border:'1.5px solid #e5e5ea',borderRadius:10,padding:'10px 14px',fontSize:14,outline:'none'}}
+              />
+              <button
+                type="submit"
+                style={{background:c,color:'#fff',padding:'10px 22px',borderRadius:10,fontWeight:700,fontSize:14,border:'none',cursor:'pointer'}}
+              >
+                Notify Me
+              </button>
+            </form>
+            {subStatus && <div style={{marginTop:12,fontSize:13,color:subStatus.startsWith('✅')?'#1a8a3c':subStatus.startsWith('⚠️')?'#be123c':'#666'}}>{subStatus}</div>}
           </div>
         ) : (
           <>

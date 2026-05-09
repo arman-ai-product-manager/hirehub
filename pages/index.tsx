@@ -52,7 +52,16 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
   const [applyJob, setApplyJob] = useState<Job|null>(null)
   const [copied, setCopied]   = useState('')
   const [origin, setOrigin]   = useState('https://hirehub360.in')
+  const [menuOpen, setMenuOpen] = useState(false)
   const copyTimer             = useRef<ReturnType<typeof setTimeout>|null>(null)
+
+  function submitSearch(e?: React.FormEvent) {
+    if (e) e.preventDefault()
+    if (typeof document !== 'undefined') {
+      const target = document.querySelector('section[aria-label="Job listings"]')
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }
 
   useEffect(() => {
     if (typeof window !== 'undefined') setOrigin(window.location.origin)
@@ -123,6 +132,17 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
         .nav-links a:hover{color:#ff6b00}
         .btn-post{background:#ff6b00;color:#fff!important;padding:8px 20px;border-radius:999px;font-weight:700;font-size:14px;transition:opacity .15s}
         .btn-post:hover{opacity:.88}
+        /* Hamburger button — only visible on mobile */
+        .ham-btn{display:none;background:none;border:none;cursor:pointer;width:36px;height:36px;flex-direction:column;justify-content:center;gap:5px;align-items:center;padding:0;margin-left:6px}
+        .ham-btn span{display:block;width:22px;height:2px;background:#1d1d1f;border-radius:2px;transition:all .2s}
+        @media(max-width:640px){.ham-btn{display:flex}}
+        /* Mobile drawer */
+        .m-bg{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;backdrop-filter:blur(2px);animation:fadeIn .2s}
+        .m-drawer{position:fixed;top:0;right:0;bottom:0;width:80vw;max-width:300px;background:#fff;z-index:201;padding:72px 20px 20px;box-shadow:-8px 0 32px rgba(0,0,0,.18);display:flex;flex-direction:column;gap:6px;animation:slideInRight .25s ease}
+        .m-drawer a{padding:14px 16px;border-radius:10px;font-size:15px;font-weight:600;color:#1d1d1f;background:#f5f5f7;text-decoration:none;transition:background .15s}
+        .m-drawer a:hover{background:#e5e5ea}
+        @keyframes slideInRight{from{transform:translateX(100%)}to{transform:translateX(0)}}
+        @keyframes fadeIn{from{opacity:0}to{opacity:1}}
         /* HERO */
         .hero{background:linear-gradient(135deg,#0f0f0f 0%,#1a0800 60%,#0f0f0f 100%);padding:56px 5vw 44px;color:#fff}
         .hero h1{font-size:clamp(28px,5vw,58px);font-weight:900;letter-spacing:-.05em;line-height:1.08;margin-bottom:14px}
@@ -228,11 +248,29 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
           <a href="/" className="hide-mob">Browse Jobs</a>
           <a href="/features" className="hide-mob">Features</a>
           <a href="/pricing" className="hide-mob">Pricing</a>
-          <a href="/resume/your-name" className="hide-mob">My Resume</a>
+          <a href="/blog" className="hide-mob">Blog</a>
           <a href="/hirehub.html" className="hide-mob">Sign In</a>
           <a href="/hirehub.html" className="btn-post">Post a Job →</a>
+          <button className="ham-btn" aria-label="Open menu" aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}>
+            <span/><span/><span/>
+          </button>
         </div>
       </nav>
+
+      {/* Mobile drawer menu */}
+      {menuOpen && (
+        <>
+          <div className="m-bg" onClick={() => setMenuOpen(false)} />
+          <div className="m-drawer" role="menu">
+            <a href="/" onClick={() => setMenuOpen(false)}>🔍 Browse Jobs</a>
+            <a href="/features" onClick={() => setMenuOpen(false)}>🚀 Features</a>
+            <a href="/pricing" onClick={() => setMenuOpen(false)}>💳 Pricing</a>
+            <a href="/blog" onClick={() => setMenuOpen(false)}>📝 Blog</a>
+            <a href="/hirehub.html" onClick={() => setMenuOpen(false)}>👤 Sign In</a>
+            <a href="/hirehub.html" onClick={() => setMenuOpen(false)} style={{background:'#ff6b00',color:'#fff'}}>📢 Post a Job</a>
+          </div>
+        </>
+      )}
 
       {/* HERO */}
       <section className="hero" itemScope itemType="https://schema.org/WebPage">
@@ -248,7 +286,7 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
             : 'AI-matched jobs across India\'s top companies. Real salaries, instant apply, real-time status tracking.'
           }
         </p>
-        <div className="search-wrap" role="search" aria-label="Job search">
+        <form className="search-wrap" role="search" aria-label="Job search" onSubmit={submitSearch}>
           <input
             type="search"
             placeholder="Job title, skill, or company name…"
@@ -256,8 +294,8 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
-          <button aria-label="Search">🔍 Search Jobs</button>
-        </div>
+          <button type="submit" aria-label="Search">🔍 Search Jobs</button>
+        </form>
         <div className="stats-row">
           <div className="stat"><span className="n">{total > 0 ? total.toLocaleString()+'+' : '10,000+'}</span><span className="l">Active Jobs</span></div>
           <div className="stat"><span className="n">500+</span><span className="l">Verified Companies</span></div>
