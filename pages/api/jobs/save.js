@@ -1,4 +1,5 @@
-const { supabaseService } = require('../../../lib/supabase')
+const { createClient } = require('@supabase/supabase-js')
+const { supabaseService, supabaseUrl, supabaseAnon } = require('../../../lib/supabase')
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
@@ -8,12 +9,18 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Missing required job fields' })
   }
 
-  // Validate status to prevent arbitrary values
+  // Use user's auth token if provided — works even without service role key
+  const authHeader = req.headers.authorization || ''
+  const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : ''
+  const client = token
+    ? createClient(supabaseUrl, supabaseAnon, { global: { headers: { Authorization: `Bearer ${token}` } } })
+    : supabaseService
+
   const VALID_STATUS = ['active', 'paused', 'closed']
   const status = VALID_STATUS.includes(job.status) ? job.status : 'active'
 
   try {
-    const { error } = await supabaseService.from('jobs').upsert({
+    const { error } = await client.from('jobs').upsert({
       id:            job.id,
       company_id:    job.company_id,
       company_name:  job.company_name,
