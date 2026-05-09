@@ -73,7 +73,6 @@ export default function LangBlogPost({ post, related, siblings, langCode }) {
         <meta name="language" content={lm.htmlLang} />
         <link rel="canonical" href={canonicalUrl} />
 
-        {/* hreflang — link to all sibling language versions */}
         <link rel="alternate" hrefLang="en-IN" href={`https://hirehub360.in/blog/${enSlug}`} />
         <link rel="alternate" hrefLang={lm.htmlLang} href={canonicalUrl} />
         {(siblings || []).filter(s => s.lang !== langCode && s.lang !== 'en').map(s => {
@@ -84,7 +83,6 @@ export default function LangBlogPost({ post, related, siblings, langCode }) {
         })}
         <link rel="alternate" hrefLang="x-default" href={`https://hirehub360.in/blog/${enSlug}`} />
 
-        {/* Open Graph */}
         <meta property="og:type" content="article" />
         <meta property="og:title" content={post.title} />
         <meta property="og:description" content={post.excerpt || post.title} />
@@ -118,7 +116,6 @@ export default function LangBlogPost({ post, related, siblings, langCode }) {
       <main style={{maxWidth:780,margin:'0 auto',padding:'48px 24px'}} lang={lm.htmlLang} dir={lm.dir}>
         <Link href="/blog" style={{color:'#ff6b00',textDecoration:'none',fontSize:14,fontWeight:600}}>← Blog</Link>
 
-        {/* Language switcher */}
         {siblings && siblings.length > 0 && (
           <div style={{display:'flex',gap:8,flexWrap:'wrap',margin:'16px 0',padding:'10px 14px',background:'#f9f9f9',borderRadius:10,border:'1px solid #eee',alignItems:'center'}}>
             <span style={{fontSize:12,color:'#888',marginRight:4}}>🌐</span>
@@ -220,13 +217,14 @@ export async function getStaticPaths() {
     .in('lang', SUPPORTED_LANGS)
     .eq('published', true).limit(500)
   const paths = (posts || []).map(p => ({
-    params: { lang: p.lang, slug: p.slug.replace(/^[a-z]{2}-/, '') }
+    params: { slug: p.lang, postSlug: p.slug.replace(/^[a-z]{2}-/, '') }
   }))
   return { paths, fallback: 'blocking' }
 }
 
 export async function getStaticProps({ params }) {
-  const { lang, slug } = params
+  const lang = params.slug
+  const slug = params.postSlug
   if (!SUPPORTED_LANGS.includes(lang)) return { notFound: true }
 
   const langSlug = `${lang}-${slug}`
@@ -236,7 +234,6 @@ export async function getStaticProps({ params }) {
 
   if (!post) return { notFound: true }
 
-  // Fetch sibling translations via canonical_id
   let siblings = []
   if (post.canonical_id) {
     const { data: sibs } = await supabaseService
@@ -247,7 +244,6 @@ export async function getStaticProps({ params }) {
     siblings = sibs || []
   }
 
-  // Related posts in same language
   const tags = (post.tags || []).slice(0, 2)
   let related = []
   if (tags.length > 0) {
