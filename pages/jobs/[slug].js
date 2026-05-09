@@ -48,13 +48,18 @@ export default function JobPage({ job }) {
     }
   }
 
+  const safeDate = (d) => {
+    if (typeof d === 'string' && /^\d{4}-\d{2}-\d{2}/.test(d)) return d.split('T')[0]
+    return new Date().toISOString().split('T')[0]
+  }
+  const validThrough = new Date(Date.now() + 365 * 86400000).toISOString().split('T')[0]
   const schema = {
     '@context': 'https://schema.org/',
     '@type': 'JobPosting',
     title: job.title,
     description: job.description || `Hiring ${job.title} at ${job.company_name} in ${job.location}`,
-    datePosted: job.created_at?.split('T')[0],
-    validThrough: '2026-12-31',
+    datePosted: safeDate(job.created_at),
+    validThrough,
     employmentType: (job.job_type || 'FULL_TIME').toUpperCase().replace(/-/g, '_').replace(/ /g, '_'),
     hiringOrganization: { '@type': 'Organization', name: job.company_name },
     jobLocation: { '@type': 'Place', address: { '@type': 'PostalAddress', addressLocality: job.location, addressCountry: 'IN' } },
@@ -76,7 +81,6 @@ export default function JobPage({ job }) {
         <link rel="canonical" href={`https://hirehub360.in/jobs/${mkSlug(job.title)}-${mkSlug(job.company_name)}-${mkSlug(job.location)}`} />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
-        <meta name="viewport" content="width=device-width,initial-scale=1" />
       </Head>
 
       <style>{`

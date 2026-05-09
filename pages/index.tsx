@@ -1,5 +1,5 @@
 import Head from 'next/head'
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 const { supabaseService } = require('../lib/supabase')
 
 function mkSlug(s: string) {
@@ -51,6 +51,20 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
   const [city, setCity]       = useState('')
   const [applyJob, setApplyJob] = useState<Job|null>(null)
   const [copied, setCopied]   = useState('')
+  const [origin, setOrigin]   = useState('https://hirehub360.in')
+  const copyTimer             = useRef<ReturnType<typeof setTimeout>|null>(null)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') setOrigin(window.location.origin)
+  }, [])
+
+  // Close apply modal on Escape (keyboard accessibility)
+  useEffect(() => {
+    if (!applyJob) return
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setApplyJob(null) }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [applyJob])
 
   const filtered = jobs.filter(j => {
     const q = search.toLowerCase()
@@ -89,7 +103,6 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
         <meta property="og:description" content="India's smartest job platform. AI-matched jobs, instant apply, trusted by thousands of job seekers and companies across India." />
         <meta property="og:type" content="website" />
         <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1" />
-        <meta name="viewport" content="width=device-width,initial-scale=1" />
         <link rel="canonical" href="https://hirehub360.in" />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaWebsite) }} />
@@ -302,10 +315,15 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
                   <div style={{display:'flex',gap:6}}>
                     <button className="ab" style={{background:'#f5f5f7',color:'#1d1d1f',border:'1.5px solid #e5e5ea'}}
                       onClick={()=>{
-                        const url = window.location.origin+'/jobs/'+slug(j)
+                        const url = origin+'/jobs/'+slug(j)
                         const text = `${j.title} at ${j.company_name} — ${j.location} | HireHub360`
-                        if(navigator.share){navigator.share({title:text,url}).catch(()=>{})}
-                        else{navigator.clipboard?.writeText(url);setCopied(j.id);setTimeout(()=>setCopied(''),2000)}
+                        if(typeof navigator !== 'undefined' && navigator.share){navigator.share({title:text,url}).catch(()=>{})}
+                        else{
+                          navigator.clipboard?.writeText(url)
+                          if(copyTimer.current) clearTimeout(copyTimer.current)
+                          setCopied(j.id)
+                          copyTimer.current = setTimeout(()=>setCopied(''),2000)
+                        }
                       }}>
                       {copied===j.id?'✅':'📤'}
                     </button>
@@ -521,13 +539,13 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
 
       {/* APPLY MODAL */}
       {applyJob && (
-        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.55)',zIndex:1000,display:'flex',alignItems:'flex-end',justifyContent:'center'}} onClick={()=>setApplyJob(null)}>
+        <div role="dialog" aria-modal="true" aria-labelledby="apply-modal-title" style={{position:'fixed',inset:0,background:'rgba(0,0,0,.55)',zIndex:1000,display:'flex',alignItems:'flex-end',justifyContent:'center'}} onClick={()=>setApplyJob(null)}>
           <div style={{background:'#fff',borderRadius:'20px 20px 0 0',padding:'28px 24px 44px',width:'100%',maxWidth:480,animation:'slideUp .25s ease'}} onClick={e=>e.stopPropagation()}>
             <style>{`@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}`}</style>
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:18}}>
               <div>
-                <div style={{fontWeight:800,fontSize:18,letterSpacing:'-.03em',marginBottom:4}}>Apply for this Job</div>
-                <div style={{fontSize:13,color:'#6e6e73'}}>{applyJob.title} · {applyJob.company_name} · {applyJob.location}</div>
+                <div id="apply-modal-title" style={{fontWeight:800,fontSize:18,letterSpacing:'-.03em',marginBottom:4}}>Apply for this Job</div>
+                <div style={{fontSize:13,color:'#6e6e73'}}>{applyJob?.title || 'Job'} · {applyJob?.company_name || ''} · {applyJob?.location || ''}</div>
               </div>
               <button onClick={()=>setApplyJob(null)} style={{background:'none',border:'none',fontSize:24,cursor:'pointer',color:'#aaa'}}>×</button>
             </div>
@@ -554,9 +572,9 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
             <div style={{borderTop:'1px solid #f0f0f0',paddingTop:14}}>
               <div style={{fontSize:12,color:'#aaa',marginBottom:8,textAlign:'center' as const}}>Or share this job with someone</div>
               <div style={{display:'flex',gap:8}}>
-                <a href={`https://wa.me/?text=${encodeURIComponent(applyJob.title+' at '+applyJob.company_name+' — '+applyJob.location+' | '+window.location.origin+'/jobs/'+slug(applyJob))}`} target="_blank" rel="noopener" style={{flex:1,background:'#25D366',color:'#fff',padding:'9px',borderRadius:9,textAlign:'center' as const,fontSize:13,fontWeight:700,textDecoration:'none'}}>WhatsApp</a>
-                <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.origin+'/jobs/'+slug(applyJob))}`} target="_blank" rel="noopener" style={{flex:1,background:'#0077B5',color:'#fff',padding:'9px',borderRadius:9,textAlign:'center' as const,fontSize:13,fontWeight:700,textDecoration:'none'}}>LinkedIn</a>
-                <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(applyJob.title+' at '+applyJob.company_name+' — Apply on HireHub360')}&url=${encodeURIComponent(window.location.origin+'/jobs/'+slug(applyJob))}`} target="_blank" rel="noopener" style={{flex:1,background:'#000',color:'#fff',padding:'9px',borderRadius:9,textAlign:'center' as const,fontSize:13,fontWeight:700,textDecoration:'none'}}>X/Twitter</a>
+                <a href={`https://wa.me/?text=${encodeURIComponent((applyJob?.title||'Job')+' at '+(applyJob?.company_name||'')+' — '+(applyJob?.location||'')+' | '+origin+'/jobs/'+slug(applyJob))}`} target="_blank" rel="noopener" style={{flex:1,background:'#25D366',color:'#fff',padding:'9px',borderRadius:9,textAlign:'center' as const,fontSize:13,fontWeight:700,textDecoration:'none'}}>WhatsApp</a>
+                <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(origin+'/jobs/'+slug(applyJob))}`} target="_blank" rel="noopener" style={{flex:1,background:'#0077B5',color:'#fff',padding:'9px',borderRadius:9,textAlign:'center' as const,fontSize:13,fontWeight:700,textDecoration:'none'}}>LinkedIn</a>
+                <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent((applyJob?.title||'Job')+' at '+(applyJob?.company_name||'')+' — Apply on HireHub360')}&url=${encodeURIComponent(origin+'/jobs/'+slug(applyJob))}`} target="_blank" rel="noopener" style={{flex:1,background:'#000',color:'#fff',padding:'9px',borderRadius:9,textAlign:'center' as const,fontSize:13,fontWeight:700,textDecoration:'none'}}>X/Twitter</a>
               </div>
             </div>
 

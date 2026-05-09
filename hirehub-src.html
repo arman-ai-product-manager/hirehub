@@ -596,7 +596,9 @@ function _dbPush(k,v){
       SB.from("applications").upsert({id:v.id,job_id:v.jobId,candidate_id:S._uid,
         status:v.status||"applied",fit_score:v.fitScore||null,
         applied_at:v.appliedAt||new Date().toISOString(),
-        updated_at:v.updatedAt||new Date().toISOString()}).then(function(){});
+        updated_at:v.updatedAt||new Date().toISOString()}).then(function(r){
+          if(r&&r.error)console.error("[dbPush] application sync failed:",r.error.message);
+        }).catch(function(e){console.error("[dbPush] application sync error:",e);});
     } else if(k.indexOf("job:")===0&&k.indexOf("seo")<0&&v.id){
       var _jobBody=JSON.stringify({
         id:v.id,company_id:S._uid,company_name:v.company||(S.co&&S.co.name)||"",
@@ -610,12 +612,15 @@ function _dbPush(k,v){
       });
       SB.auth.getSession().then(function(r){
         var tok=(r&&r.data&&r.data.session)?r.data.session.access_token:"";
-        fetch("/api/jobs/save",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+tok},body:_jobBody}).catch(function(){});
-      }).catch(function(){
-        fetch("/api/jobs/save",{method:"POST",headers:{"Content-Type":"application/json"},body:_jobBody}).catch(function(){});
-      });
+        if(!tok){console.error("[dbPush] no session token, skipping job DB sync");return;}
+        fetch("/api/jobs/save",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+tok},body:_jobBody})
+          .then(function(res){
+            if(!res.ok)return res.json().then(function(j){console.error("[dbPush] job save failed:",res.status,j&&j.error);});
+          })
+          .catch(function(e){console.error("[dbPush] job save network error:",e);});
+      }).catch(function(e){console.error("[dbPush] could not get session:",e);});
     }
-  }catch(e){}
+  }catch(e){console.error("[dbPush] error:",e);}
 }
 
 // Pull user data from Supabase into localStorage on login
@@ -630,9 +635,16 @@ function _hydrate(user, cb){
   if(meta.coStats){ try{localStorage.setItem(user.email+"_co:stats",JSON.stringify(meta.coStats));}catch(e){} }
   if(!window.SB){ if(cb) cb(); return; }
 
-  // Timeout safety — never hang more than 6 seconds
+  // Timeout safety — never hang more than 15 seconds
+  // (6s was too short on slow connections — caused partial data loads)
   var called=false;
-  var timer=setTimeout(function(){ if(!called){called=true;if(cb)cb();} },6000);
+  var timer=setTimeout(function(){
+    if(!called){
+      called=true;
+      console.warn("[hydrate] timed out after 15s — proceeding with partial data");
+      if(cb)cb();
+    }
+  },15000);
 
   var JOB_COLS="id,title,company_name,location,salary_label,salary_hidden,experience,job_type,sector,skills,currency,remote_policy,visa_sponsor,company_id,status,slug,created_at";
   // 6 queries in parallel — added company's OWN jobs query (index 5) so they always reload on login
@@ -4422,11 +4434,23 @@ function saveBrand() {
   var br = getBrandFromForm();
   if(!br.name) { nt("⚠️ Enter brand / company name"); return; }
   dbSet("co:brand", br);
-  // Persist brand to Supabase Auth metadata so it survives logout/device switch
-  if(window.SB) SB.auth.updateUser({data:{brand:br}}).catch(function(){});
   var slug = mkSlug(br.name);
-  var link = _careerLink(br);
-  nt("✅ Brand saved! Career page: hirehub360.in/careers/"+slug);
+  // Persist brand to Supabase Auth metadata so it survives logout/device switch
+  if(window.SB) {
+    SB.auth.updateUser({data:{brand:br}}).then(function(r){
+      if(r&&r.error){
+        console.error("[saveBrand] auth metadata update failed:",r.error);
+        nt("⚠️ Brand saved locally — sync to cloud failed. Try again.");
+      } else {
+        nt("✅ Brand saved! Career page: hirehub360.in/careers/"+slug);
+      }
+    }).catch(function(e){
+      console.error("[saveBrand] auth metadata error:",e);
+      nt("⚠️ Brand saved locally — cloud sync failed (network?). Try again.");
+    });
+  } else {
+    nt("✅ Brand saved! Career page: hirehub360.in/careers/"+slug);
+  }
   coTab("brand");
 }
 function _careerLink(br){

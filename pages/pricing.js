@@ -228,7 +228,8 @@ export default function Pricing() {
 
   async function handlePay(planId, amount, label) {
     if (!amount) {
-      window.open('https://wa.me/919820000000?text=Hi+I+want+Enterprise+pricing+for+HireHub360', '_blank')
+      const wa = process.env.NEXT_PUBLIC_ENTERPRISE_WA || process.env.NEXT_PUBLIC_SUPPORT_WA || '919820000000'
+      window.open(`https://wa.me/${wa}?text=Hi+I+want+Enterprise+pricing+for+HireHub360`, '_blank')
       return
     }
     if (amount === 0) return
@@ -327,7 +328,6 @@ export default function Pricing() {
       <Head>
         <title>Pricing — HireHub360 | India's Smartest Hiring Platform</title>
         <meta name="description" content="Monthly plans from ₹999/mo. Pay-per-CV unlock. ATS Scanner. No hidden fees. 3,400+ companies trust HireHub360." />
-        <meta name="viewport" content="width=device-width,initial-scale=1" />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <script src="https://checkout.razorpay.com/v1/checkout.js" />
       </Head>

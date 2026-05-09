@@ -1,4 +1,10 @@
 const { supabaseService } = require('../../../lib/supabase')
+const nodeCrypto = require('crypto')
+
+function uuid() {
+  if (typeof nodeCrypto.randomUUID === 'function') return nodeCrypto.randomUUID()
+  return nodeCrypto.randomBytes(16).toString('hex')
+}
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
@@ -29,7 +35,7 @@ Please connect me with the recruiter. Thank you!`
   // Log application attempt to Supabase (best-effort, don't fail the request)
   try {
     await supabaseService.from('applications').insert({
-      id:             crypto.randomUUID(),
+      id:             uuid(),
       job_id:         jobId || null,
       source:         'whatsapp',
       status:         'applied',

@@ -167,7 +167,7 @@ export async function getServerSideProps({ res }) {
 
   // Demo job pages
   const demoJobUrls = DEMO_JOB_SLUGS.map(slug =>
-    url(`${base}/jobs/${slug}`, '2026-04-01', 'monthly', '0.70')
+    url(`${base}/jobs/${slug}`, today, 'monthly', '0.70')
   ).join('\n')
 
   // /hire/[skill]-[city] landing pages (priority 0.88)
