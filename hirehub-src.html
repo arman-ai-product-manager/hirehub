@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover,maximum-scale=1.0"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="theme-color" content="#ff6b00"/>
 <!-- Force redirect from Vercel preview URLs to production -->
 <script>
 // Always stay on production domain — never let Vercel preview URLs show to users
@@ -60,9 +63,10 @@ body.dark input,body.dark textarea,body.dark select{background:#2c2c2e;color:var
 body.dark .mbox{background:#1c1c1e}
 body.dark .login-card{background:#1c1c1e}
 body.dark .mbg{background:rgba(0,0,0,.7)}
-html{-webkit-font-smoothing:antialiased}
-body{font-family:'Mona Sans',-apple-system,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
-input,textarea,select{font-family:inherit;font-size:15px;background:#fff;border:1.5px solid var(--ln);border-radius:10px;padding:12px 15px;color:var(--ink);outline:none;width:100%;transition:border-color .2s,box-shadow .2s;line-height:1.5}
+html{-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{font-family:'Mona Sans',-apple-system,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;overscroll-behavior-y:none}
+*{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+input,textarea,select{font-family:inherit;font-size:16px;background:#fff;border:1.5px solid var(--ln);border-radius:10px;padding:12px 15px;color:var(--ink);outline:none;width:100%;transition:border-color .2s,box-shadow .2s;line-height:1.5}
 input:focus,textarea:focus,select:focus{border-color:var(--ac);box-shadow:0 0 0 3px rgba(255,107,0,.12)}
 input::placeholder,textarea::placeholder{color:var(--fa)}
 textarea{resize:vertical}

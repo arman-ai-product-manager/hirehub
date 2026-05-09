@@ -106,7 +106,7 @@ export default function SupportChat() {
               rows={2}
               style={{
                 width: '100%', border: '1px solid #e5e5ea', borderRadius: 10,
-                padding: '8px 12px', fontSize: 13, resize: 'none',
+                padding: '8px 12px', fontSize: 16, resize: 'none',
                 fontFamily: 'inherit', color: '#1d1d1f', outline: 'none',
                 boxSizing: 'border-box',
               }}
