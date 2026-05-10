@@ -252,6 +252,7 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
           <a href="/" className="hide-mob">Browse Jobs</a>
           <a href="/features" className="hide-mob">Features</a>
           <a href="/pricing" className="hide-mob">Pricing</a>
+          <a href="/cv-screener" className="hide-mob" style={{color:'#ff6b00',fontWeight:600}}>🤖 AI CV Screener</a>
           <a href="/job-alerts" className="hide-mob">🔔 Alerts</a>
           <a href="/my-applications" className="hide-mob">My Apps</a>
           <a href="/blog" className="hide-mob">Blog</a>
@@ -271,6 +272,7 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
             <a href="/" onClick={() => setMenuOpen(false)}>🔍 Browse Jobs</a>
             <a href="/features" onClick={() => setMenuOpen(false)}>🚀 Features</a>
             <a href="/pricing" onClick={() => setMenuOpen(false)}>💳 Pricing</a>
+            <a href="/cv-screener" onClick={() => setMenuOpen(false)} style={{background:'#fff7ed',color:'#9a3412',fontWeight:600}}>🤖 AI CV Screener (HR)</a>
             <a href="/job-alerts" onClick={() => setMenuOpen(false)}>🔔 Job Alerts</a>
             <a href="/my-applications" onClick={() => setMenuOpen(false)}>📋 My Applications</a>
             <a href="/blog" onClick={() => setMenuOpen(false)}>📝 Blog</a>
