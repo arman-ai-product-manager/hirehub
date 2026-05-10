@@ -328,7 +328,17 @@ export default function Pricing() {
       <Head>
         <title>Pricing — HireHub360 | India's Smartest Hiring Platform</title>
         <meta name="description" content="Monthly plans from ₹999/mo. Pay-per-CV unlock. ATS Scanner. No hidden fees. 3,400+ companies trust HireHub360." />
+        <link rel="canonical" href="https://hirehub360.in/pricing" />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <meta property="og:title" content="Pricing — HireHub360 | India's Smartest Hiring Platform" />
+        <meta property="og:description" content="Plans from ₹999/mo. AI candidate scoring, ATS, CV unlocks. No hidden fees. 3,400+ companies trust HireHub360." />
+        <meta property="og:url" content="https://hirehub360.in/pricing" />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://hirehub360.in/api/og?t=HireHub360+Pricing&s=Plans+from+%E2%82%B9999%2Fmo+%C2%B7+AI+screening+%C2%B7+3%2C400%2B+companies" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:site_name" content="HireHub360" />
+        <meta name="twitter:card" content="summary_large_image" />
         <script src="https://checkout.razorpay.com/v1/checkout.js" />
       </Head>
 

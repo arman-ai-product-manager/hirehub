@@ -172,8 +172,16 @@ export default function CvScreener() {
         <title>AI Bulk CV Screener — Rank 30 Resumes in 60 Seconds | HireHub360</title>
         <meta name="description" content="Upload up to 30 resumes, paste a job description, and let AI rank candidates by fit instantly. The fastest CV screener for Indian HR teams." />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-        <meta property="og:title" content="AI Bulk CV Screener — HireHub360" />
-        <meta property="og:description" content="Drop 30 resumes, get ranked candidates in 60 seconds. Free for HR." />
+        <meta property="og:title" content="AI Bulk CV Screener — Rank 30 Resumes in 60 Seconds" />
+        <meta property="og:description" content="Drop 30 resumes, paste a JD, and AI ranks candidates by fit in 60 seconds. Free for Indian HR teams." />
+        <meta property="og:url" content="https://hirehub360.in/cv-screener" />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://hirehub360.in/api/og?t=AI+Bulk+CV+Screener&s=Rank+30+resumes+against+your+JD+in+60+seconds+%E2%80%94+free+for+HR" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:site_name" content="HireHub360" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <link rel="canonical" href="https://hirehub360.in/cv-screener" />
       </Head>
 
       <style jsx global>{`

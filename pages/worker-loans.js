@@ -52,6 +52,11 @@ export default function WorkerLoans() {
         <meta property="og:description" content="Get ₹500–₹50,000 in 4 hours. No CIBIL needed. Your work history is your credit score." />
         <meta property="og:url" content="https://hirehub360.in/worker-loans" />
         <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://hirehub360.in/api/og?t=Instant+Worker+Loans+%E2%82%B9500%E2%80%9350%2C000&s=Approved+in+4+hours+%C2%B7+No+CIBIL+needed+%C2%B7+Your+work+history+is+your+credit" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:site_name" content="HireHub360" />
+        <meta name="twitter:card" content="summary_large_image" />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <script
           type="application/ld+json"

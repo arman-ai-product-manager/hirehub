@@ -80,7 +80,11 @@ export default function UpskillingPage() {
         <meta name="description" content="Free and paid upskilling courses for India's workforce. AI, Cloud, Digital Marketing, Blue Collar certifications. Get hired faster with verified skills on HireHub360." />
         <meta property="og:title" content="Upskill & Get Hired — HireHub360 Learning" />
         <meta property="og:description" content="India's upskilling platform. AI, Cloud, Marketing, Blue Collar. Free courses with direct hiring pathway." />
-        <meta property="og:image" content="https://hirehub360.in/og-default.png" />
+        <meta property="og:image" content="https://hirehub360.in/api/og?t=Upskill+%26+Get+Hired+%E2%80%94+HireHub360&s=AI+%C2%B7+Cloud+%C2%B7+Marketing+%C2%B7+Blue+Collar+%E2%80%94+free+courses+with+direct+hiring" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:site_name" content="HireHub360" />
+        <meta name="twitter:card" content="summary_large_image" />
         <meta property="og:url" content="https://hirehub360.in/upskilling" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <link rel="canonical" href="https://hirehub360.in/upskilling" />

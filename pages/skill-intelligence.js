@@ -83,6 +83,11 @@ export default function SkillIntelligence() {
         <meta property="og:description" content="Which skills are exploding (+340%) and which are dying (-60%)? Live skill demand data across India's top cities." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://hirehub360.in/skill-intelligence" />
+        <meta property="og:image" content="https://hirehub360.in/api/og?t=India+Skill+Intelligence+2026&s=Which+skills+are+exploding+or+dying%3F+Live+data+from+50%2C000%2B+job+postings" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:site_name" content="HireHub360" />
+        <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="India Skill Intelligence Report 2026 | HireHub360" />
         <meta name="twitter:description" content="Rising skills, declining skills, city demand matrix — all from 50,000+ live job postings." />

@@ -270,6 +270,12 @@ ${generated.education_formatted || ''}
         <meta property="og:title" content="Free AI Resume Builder India 2026 | HireHub360" />
         <meta property="og:description" content="Create a professional resume in 2 minutes with AI. Free for everyone." />
         <meta property="og:url" content="https://hirehub360.in/resume-builder" />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://hirehub360.in/api/og?t=Free+AI+Resume+Builder+India+2026&s=Create+a+professional+resume+in+2+minutes+%E2%80%94+free+for+everyone" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:site_name" content="HireHub360" />
+        <meta name="twitter:card" content="summary_large_image" />
         <meta name="robots" content="index, follow" />
         <link rel="canonical" href="https://hirehub360.in/resume-builder" />
         <style>{`
