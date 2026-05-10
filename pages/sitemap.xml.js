@@ -116,6 +116,7 @@ export async function getServerSideProps({ res }) {
     url(`${base}/payroll`,                  today,   'weekly',  '0.86'),
     url(`${base}/worker-insurance`,         today,   'weekly',  '0.86'),
     url(`${base}/job-alerts`,               today,   'weekly',  '0.80'),
+    url(`${base}/cv-screener`,              today,   'weekly',  '0.92'),
   ].join('\n')
 
   // City landing pages
