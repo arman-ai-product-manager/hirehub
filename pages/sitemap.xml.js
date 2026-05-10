@@ -115,6 +115,7 @@ export async function getServerSideProps({ res }) {
     url(`${base}/worker-loans`,             today,   'weekly',  '0.86'),
     url(`${base}/payroll`,                  today,   'weekly',  '0.86'),
     url(`${base}/worker-insurance`,         today,   'weekly',  '0.86'),
+    url(`${base}/job-alerts`,               today,   'weekly',  '0.80'),
   ].join('\n')
 
   // City landing pages
@@ -187,6 +188,16 @@ export async function getServerSideProps({ res }) {
     url(`${base}/salary/${slug}`, today, 'monthly', '0.85')
   ).join('\n')
 
+  // /jobs/for/[role] role landing pages (priority 0.90)
+  const ROLE_SLUGS = [
+    'software-engineer','product-manager','data-scientist','sales-executive',
+    'marketing-manager','hr-executive','finance-analyst','designer',
+    'devops-engineer','content-writer','operations-manager','business-analyst',
+  ]
+  const roleUrls = ROLE_SLUGS.map(slug =>
+    url(`${base}/jobs/for/${slug}`, today, 'weekly', '0.90')
+  ).join('\n')
+
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
 ${staticUrls}
@@ -195,6 +206,7 @@ ${cityMidUrls}
 ${hireUrls}
 ${compareUrls}
 ${salaryUrls}
+${roleUrls}
 ${blogUrls}
 ${langBlogUrls}
 ${dbJobUrls}
