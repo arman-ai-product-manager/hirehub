@@ -1,5 +1,6 @@
 import Head from 'next/head'
 import { useState, useEffect, useRef } from 'react'
+import { useSavedJobs } from '../lib/savedJobs'
 const { supabaseService } = require('../lib/supabase')
 
 function mkSlug(s: string) {
@@ -58,6 +59,7 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
   const [origin, setOrigin]   = useState('https://hirehub360.in')
   const [menuOpen, setMenuOpen] = useState(false)
   const copyTimer             = useRef<ReturnType<typeof setTimeout>|null>(null)
+  const { isSaved, toggle: toggleSaved, count: savedCount } = useSavedJobs()
 
   function submitSearch(e?: React.FormEvent) {
     if (e) e.preventDefault()
@@ -254,6 +256,7 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
           <a href="/pricing" className="hide-mob">Pricing</a>
           <a href="/cv-screener" className="hide-mob" style={{color:'#ff6b00',fontWeight:600}}>🤖 AI CV Screener</a>
           <a href="/job-alerts" className="hide-mob">🔔 Alerts</a>
+          <a href="/saved-jobs" className="hide-mob">❤️ Saved{savedCount > 0 ? ` (${savedCount})` : ''}</a>
           <a href="/my-applications" className="hide-mob">My Apps</a>
           <a href="/blog" className="hide-mob">Blog</a>
           <a href="/hirehub.html" className="hide-mob">Sign In</a>
@@ -274,6 +277,7 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
             <a href="/pricing" onClick={() => setMenuOpen(false)}>💳 Pricing</a>
             <a href="/cv-screener" onClick={() => setMenuOpen(false)} style={{background:'#fff7ed',color:'#9a3412',fontWeight:600}}>🤖 AI CV Screener (HR)</a>
             <a href="/job-alerts" onClick={() => setMenuOpen(false)}>🔔 Job Alerts</a>
+            <a href="/saved-jobs" onClick={() => setMenuOpen(false)}>❤️ Saved Jobs{savedCount > 0 ? ` (${savedCount})` : ''}</a>
             <a href="/my-applications" onClick={() => setMenuOpen(false)}>📋 My Applications</a>
             <a href="/blog" onClick={() => setMenuOpen(false)}>📝 Blog</a>
             <a href="/hirehub.html" onClick={() => setMenuOpen(false)}>👤 Sign In</a>
@@ -361,6 +365,11 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
                 <div className="jf" style={{marginTop:12}}>
                   <span>{ago(j.created_at)}</span>
                   <div style={{display:'flex',gap:6}}>
+                    <button className="ab" aria-label={isSaved(j.id) ? 'Remove from saved' : 'Save job'}
+                      style={{background:isSaved(j.id) ? '#fff7ed' : '#f5f5f7', color:isSaved(j.id) ? '#ff6b00' : '#1d1d1f', border:'1.5px solid '+(isSaved(j.id) ? '#fed7aa' : '#e5e5ea'), minWidth:42}}
+                      onClick={() => toggleSaved(j)}>
+                      {isSaved(j.id) ? '❤️' : '🤍'}
+                    </button>
                     <button className="ab" style={{background:'#f5f5f7',color:'#1d1d1f',border:'1.5px solid #e5e5ea'}}
                       onClick={()=>{
                         const url = origin+'/jobs/'+slug(j)
