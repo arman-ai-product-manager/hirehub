@@ -1,5 +1,6 @@
 import Head from 'next/head'
 import { useState, useEffect } from 'react'
+import { useSavedJobs } from '../../lib/savedJobs'
 const { supabaseService } = require('../../lib/supabase')
 
 function mkSlug(s) {
@@ -25,6 +26,8 @@ const DEMO_JOBS = [
 export default function JobPage({ job, similarJobs }) {
   const [showApply, setShowApply] = useState(false)
   const [copied, setCopied]       = useState(false)
+  const { isSaved, toggle: toggleSaved } = useSavedJobs()
+  const saved = job && isSaved(job.id)
   const canonicalUrl = job ? `https://hirehub360.in/jobs/${mkSlug(job.title)}-${mkSlug(job.company_name)}-${mkSlug(job.location)}` : ''
   const [pageUrl, setPageUrl] = useState(canonicalUrl)
   useEffect(() => { setPageUrl(window.location.href) }, [])
@@ -153,6 +156,10 @@ export default function JobPage({ job, similarJobs }) {
           <div style={{ display: 'flex', gap: 10, marginBottom: 28, flexWrap: 'wrap' }}>
             <button className="apply-btn" style={{ flex: 2, minWidth: 180 }} onClick={() => setShowApply(true)}>
               ⚡ Apply Now
+            </button>
+            <button className="share-btn" onClick={() => toggleSaved(job)} aria-label={saved ? 'Remove from saved' : 'Save job'}
+              style={{ background: saved ? '#fff7ed' : undefined, color: saved ? '#ff6b00' : undefined, borderColor: saved ? '#fed7aa' : undefined }}>
+              {saved ? '❤️ Saved' : '🤍 Save'}
             </button>
             <button className="share-btn" onClick={handleShare}>
               {copied ? '✅ Copied!' : '📤 Share'}
