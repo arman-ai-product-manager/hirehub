@@ -8,14 +8,18 @@ function mkSlug(s: string) {
 
 const CITIES = ['Mumbai','Bangalore','Delhi','Hyderabad','Pune','Chennai','Noida','Gurgaon','Kolkata','Ahmedabad']
 const CATEGORIES = [
-  { icon:'💻', label:'Technology',    q:'software developer engineer' },
-  { icon:'📊', label:'Marketing',     q:'marketing digital growth' },
-  { icon:'💰', label:'Finance',       q:'finance accounts analyst' },
-  { icon:'👥', label:'Human Resources',q:'hr human resources recruiter' },
-  { icon:'📈', label:'Sales',         q:'sales business development' },
-  { icon:'🎨', label:'Design',        q:'design ui ux figma' },
-  { icon:'⚙️', label:'Operations',    q:'operations supply chain logistics' },
-  { icon:'📋', label:'Management',    q:'manager director head' },
+  { icon:'💻', label:'Software Engineer', slug:'software-engineer' },
+  { icon:'📊', label:'Product Manager',   slug:'product-manager' },
+  { icon:'📈', label:'Data Scientist',    slug:'data-scientist' },
+  { icon:'📞', label:'Sales',             slug:'sales-executive' },
+  { icon:'📣', label:'Marketing',         slug:'marketing-manager' },
+  { icon:'👥', label:'HR',                slug:'hr-executive' },
+  { icon:'💰', label:'Finance',           slug:'finance-analyst' },
+  { icon:'🎨', label:'Design',            slug:'designer' },
+  { icon:'⚙️', label:'DevOps',           slug:'devops-engineer' },
+  { icon:'✍️', label:'Content',          slug:'content-writer' },
+  { icon:'📦', label:'Operations',        slug:'operations-manager' },
+  { icon:'📋', label:'Business Analyst',  slug:'business-analyst' },
 ]
 
 const DEMO_JOBS = [
@@ -248,6 +252,8 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
           <a href="/" className="hide-mob">Browse Jobs</a>
           <a href="/features" className="hide-mob">Features</a>
           <a href="/pricing" className="hide-mob">Pricing</a>
+          <a href="/job-alerts" className="hide-mob">🔔 Alerts</a>
+          <a href="/my-applications" className="hide-mob">My Apps</a>
           <a href="/blog" className="hide-mob">Blog</a>
           <a href="/hirehub.html" className="hide-mob">Sign In</a>
           <a href="/hirehub.html" className="btn-post">Post a Job →</a>
@@ -265,6 +271,8 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
             <a href="/" onClick={() => setMenuOpen(false)}>🔍 Browse Jobs</a>
             <a href="/features" onClick={() => setMenuOpen(false)}>🚀 Features</a>
             <a href="/pricing" onClick={() => setMenuOpen(false)}>💳 Pricing</a>
+            <a href="/job-alerts" onClick={() => setMenuOpen(false)}>🔔 Job Alerts</a>
+            <a href="/my-applications" onClick={() => setMenuOpen(false)}>📋 My Applications</a>
             <a href="/blog" onClick={() => setMenuOpen(false)}>📝 Blog</a>
             <a href="/hirehub.html" onClick={() => setMenuOpen(false)}>👤 Sign In</a>
             <a href="/hirehub.html" onClick={() => setMenuOpen(false)} style={{background:'#ff6b00',color:'#fff'}}>📢 Post a Job</a>
@@ -387,7 +395,7 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
         </div>
         <div className="cg">
           {CATEGORIES.map(c => (
-            <a key={c.label} href={`/hirehub.html`} className="cc" aria-label={`${c.label} jobs`}>
+            <a key={c.label} href={`/jobs/for/${c.slug}`} className="cc" aria-label={`${c.label} jobs`}>
               <div className="ci">{c.icon}</div>
               <div className="cl">{c.label}</div>
             </a>
