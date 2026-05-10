@@ -200,7 +200,17 @@ export default function AIScoring() {
       <Head>
         <title>AI Candidate Scoring — HireHub360</title>
         <meta name="description" content="AI-powered candidate fit scoring for Indian recruiters. Get instant 0-100 scores, grade, strengths, gaps and hire probability for every applicant." />
+        <link rel="canonical" href="https://hirehub360.in/ai-scoring" />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <meta property="og:title" content="AI Candidate Scoring Tool — HireHub360" />
+        <meta property="og:description" content="AI-powered fit scores for every candidate. 0-100 score, grade, strengths, gaps, hire probability. Free for Indian recruiters." />
+        <meta property="og:url" content="https://hirehub360.in/ai-scoring" />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://hirehub360.in/api/og?t=AI+Candidate+Scoring&s=Instant+fit+scores+for+every+CV+%E2%80%94+free+for+Indian+recruiters" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:site_name" content="HireHub360" />
+        <meta name="twitter:card" content="summary_large_image" />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
           '@context': 'https://schema.org',
           '@type': 'SoftwareApplication',

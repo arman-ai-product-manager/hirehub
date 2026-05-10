@@ -11,6 +11,15 @@ export default function BlogIndex({ posts }) {
         <meta name="robots" content="index,follow" />
         <link rel="canonical" href="https://hirehub360.in/blog" />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <meta property="og:title" content="Blog — HireHub360 | Career Tips & Hiring Insights" />
+        <meta property="og:description" content="Career tips, job search strategies, resume writing advice, and hiring insights for India's job market." />
+        <meta property="og:url" content="https://hirehub360.in/blog" />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://hirehub360.in/api/og?t=HireHub360+Blog&s=Career+tips%2C+job+search+strategies+%26+hiring+insights+for+India" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:site_name" content="HireHub360" />
+        <meta name="twitter:card" content="summary_large_image" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
       </Head>
 

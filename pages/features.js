@@ -132,6 +132,13 @@ export default function FeaturesPage() {
         <meta name="description" content="HireHub Score, AI Salary Negotiator, Live Work Streaming, Blockchain Work Certificates, Reverse Hiring, 1-Hour Hire, Dark Apply — 7 world-first hiring innovations built for India." />
         <meta property="og:title" content="HireHub360 — 7 Features No Job Platform Has Built Yet" />
         <meta property="og:description" content="Work Credit Score. AI Salary Negotiator. Blind Hiring. Live Work Streaming. Blockchain certificates. All in one platform." />
+        <meta property="og:url" content="https://hirehub360.in/features" />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://hirehub360.in/api/og?t=7+Features+No+Platform+Has+Built&s=HireHub+Score+%C2%B7+AI+Salary+Agent+%C2%B7+BlindHire+%C2%B7+InstantHire" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:site_name" content="HireHub360" />
+        <meta name="twitter:card" content="summary_large_image" />
         <meta name="robots" content="index,follow" />
         <link rel="canonical" href="https://hirehub360.in/features" />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />

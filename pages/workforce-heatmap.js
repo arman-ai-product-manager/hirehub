@@ -67,6 +67,11 @@ export default function WorkforceHeatmap() {
         <meta property="og:description" content="Real-time workforce intelligence across 21 cities, 7 sectors, 50+ roles. Where India is hiring — and where it's going." />
         <meta property="og:url" content="https://hirehub360.in/workforce-heatmap" />
         <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://hirehub360.in/api/og?t=India+Hiring+Heatmap+2026&s=21+cities+%C2%B7+7+sectors+%C2%B7+50%2B+roles+%E2%80%94+where+India+is+hiring" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:site_name" content="HireHub360" />
+        <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="India Hiring Heatmap 2026 | HireHub360" />
         <meta name="twitter:description" content="21 cities. 450M+ workers. Real-time hiring intelligence for India." />

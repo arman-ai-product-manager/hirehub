@@ -55,6 +55,11 @@ export default function Payroll() {
         <meta property="og:description" content="Automate salaries, PF, ESI, TDS for 1 to 10,000 employees. Starting ₹999/month." />
         <meta property="og:url" content="https://hirehub360.in/payroll" />
         <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://hirehub360.in/api/og?t=One-Click+Payroll+for+India&s=Automate+PF+%C2%B7+ESI+%C2%B7+TDS+%C2%B7+Salary+slips+%E2%80%94+from+%E2%82%B9999%2Fmo" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:site_name" content="HireHub360" />
+        <meta name="twitter:card" content="summary_large_image" />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <script
           type="application/ld+json"

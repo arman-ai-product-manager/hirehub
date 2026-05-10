@@ -98,7 +98,10 @@ export default function SalaryIntelligence() {
         <meta property="og:description" content="City-wise salary data, top skills by demand growth, sector hiring trends, and the AI vs Human jobs breakdown for India 2026." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://hirehub360.in/salary-intelligence" />
-        <meta property="og:image" content="https://hirehub360.in/favicon.svg" />
+        <meta property="og:image" content="https://hirehub360.in/api/og?t=India+Salary+Intelligence+2026&s=City-wise+salary+data+%C2%B7+top+skills+%C2%B7+sector+hiring+trends" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:site_name" content="HireHub360" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="India Salary Intelligence 2026 — HireHub360" />
         <meta name="twitter:description" content="Free salary data across 8 cities, top 10 skills, sector hiring trends and AI vs Human jobs for India 2026." />

@@ -66,6 +66,11 @@ export default function About() {
         <meta property="og:description" content="We're on a mission to make hiring in India faster, smarter, and fairer using AI." />
         <meta property="og:url" content="https://hirehub360.in/about" />
         <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://hirehub360.in/api/og?t=About+HireHub360&s=India%27s+AI-powered+job+platform+%E2%80%94+faster%2C+smarter%2C+fairer+hiring" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:site_name" content="HireHub360" />
+        <meta name="twitter:card" content="summary_large_image" />
         <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
       </Head>

@@ -35,9 +35,19 @@ export default function JobAlerts() {
   return (
     <>
       <Head>
-        <title>Job Alerts — Get notified when matching jobs are posted | HireHub360</title>
-        <meta name="description" content="Set up free job alerts and get email/SMS when new jobs matching your skills and city are posted on HireHub360." />
+        <title>Free Job Alerts India — Get Email/SMS When Matching Jobs Are Posted | HireHub360</title>
+        <meta name="description" content="Set up free job alerts and get email or SMS when new jobs matching your skills and city are posted on HireHub360. Daily or weekly digest." />
+        <link rel="canonical" href="https://hirehub360.in/job-alerts" />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <meta property="og:title" content="Free Job Alerts India — Email/SMS When Matching Jobs Post" />
+        <meta property="og:description" content="Set up a free alert. Get notified when jobs matching your skills and city are posted. Daily or weekly." />
+        <meta property="og:url" content="https://hirehub360.in/job-alerts" />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://hirehub360.in/api/og?t=Free+Job+Alerts+India&s=Get+email+or+SMS+the+moment+a+matching+job+is+posted+%E2%80%94+free" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:site_name" content="HireHub360" />
+        <meta name="twitter:card" content="summary_large_image" />
       </Head>
 
       <div style={{ minHeight:'100vh', background:'#f5f5f7', fontFamily:"-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui" }}>

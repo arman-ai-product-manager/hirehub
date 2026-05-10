@@ -84,6 +84,11 @@ export default function WorkerInsurance() {
         <meta property="og:description" content="Full coverage for every Indian worker. No medical test. Claim via WhatsApp in 48 hours." />
         <meta property="og:url" content="https://hirehub360.in/worker-insurance" />
         <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://hirehub360.in/api/og?t=Worker+Insurance+%E2%82%B9149%2Fmonth&s=Full+coverage+%C2%B7+No+medical+test+%C2%B7+Claim+via+WhatsApp+in+48+hours" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:site_name" content="HireHub360" />
+        <meta name="twitter:card" content="summary_large_image" />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <script
           type="application/ld+json"
