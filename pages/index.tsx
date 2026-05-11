@@ -256,6 +256,7 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
           <a href="/features" className="hide-mob">Features</a>
           <a href="/pricing" className="hide-mob">Pricing</a>
           <a href="/cv-screener" className="hide-mob" style={{color:'#ff6b00',fontWeight:600}}>🤖 AI CV Screener</a>
+          <a href="/jd-optimizer" className="hide-mob">📝 JD Optimizer</a>
           <a href="/resume-upload" className="hide-mob">📄 Resume Parser</a>
           <a href="/cover-letter" className="hide-mob">✍️ Cover Letter</a>
           <a href="/mock-interview" className="hide-mob">🎙 Mock Interview</a>
@@ -284,6 +285,7 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
             <a href="/features" onClick={() => setMenuOpen(false)}>🚀 Features</a>
             <a href="/pricing" onClick={() => setMenuOpen(false)}>💳 Pricing</a>
             <a href="/cv-screener" onClick={() => setMenuOpen(false)} style={{background:'#fff7ed',color:'#9a3412',fontWeight:600}}>🤖 AI CV Screener (HR)</a>
+            <a href="/jd-optimizer" onClick={() => setMenuOpen(false)}>📝 JD Optimizer (HR)</a>
             <a href="/resume-upload" onClick={() => setMenuOpen(false)}>📄 AI Resume Parser</a>
             <a href="/cover-letter" onClick={() => setMenuOpen(false)}>✍️ AI Cover Letter</a>
             <a href="/mock-interview" onClick={() => setMenuOpen(false)}>🎙 AI Mock Interview</a>
