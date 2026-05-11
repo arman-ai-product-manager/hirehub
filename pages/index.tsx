@@ -256,6 +256,7 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
           <a href="/pricing" className="hide-mob">Pricing</a>
           <a href="/cv-screener" className="hide-mob" style={{color:'#ff6b00',fontWeight:600}}>🤖 AI CV Screener</a>
           <a href="/interview-prep" className="hide-mob">🎯 Interview Prep</a>
+          <a href="/salary-calculator" className="hide-mob">💰 Salary</a>
           <a href="/job-alerts" className="hide-mob">🔔 Alerts</a>
           <a href="/saved-jobs" className="hide-mob">❤️ Saved{savedCount > 0 ? ` (${savedCount})` : ''}</a>
           <a href="/my-applications" className="hide-mob">My Apps</a>
@@ -278,6 +279,7 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
             <a href="/pricing" onClick={() => setMenuOpen(false)}>💳 Pricing</a>
             <a href="/cv-screener" onClick={() => setMenuOpen(false)} style={{background:'#fff7ed',color:'#9a3412',fontWeight:600}}>🤖 AI CV Screener (HR)</a>
             <a href="/interview-prep" onClick={() => setMenuOpen(false)}>🎯 AI Interview Prep</a>
+            <a href="/salary-calculator" onClick={() => setMenuOpen(false)}>💰 Salary Calculator</a>
             <a href="/job-alerts" onClick={() => setMenuOpen(false)}>🔔 Job Alerts</a>
             <a href="/saved-jobs" onClick={() => setMenuOpen(false)}>❤️ Saved Jobs{savedCount > 0 ? ` (${savedCount})` : ''}</a>
             <a href="/my-applications" onClick={() => setMenuOpen(false)}>📋 My Applications</a>
