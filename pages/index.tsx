@@ -260,6 +260,7 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
           <a href="/resume-upload" className="hide-mob">📄 Resume Parser</a>
           <a href="/cover-letter" className="hide-mob">✍️ Cover Letter</a>
           <a href="/mock-interview" className="hide-mob">🎙 Mock Interview</a>
+          <a href="/skill-gap" className="hide-mob">📈 Skill Gap</a>
           <a href="/interview-prep" className="hide-mob">🎯 Interview Prep</a>
           <a href="/salary-calculator" className="hide-mob">💰 Salary</a>
           <a href="/salaries" className="hide-mob">📊 Salary Guides</a>
@@ -289,6 +290,7 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
             <a href="/resume-upload" onClick={() => setMenuOpen(false)}>📄 AI Resume Parser</a>
             <a href="/cover-letter" onClick={() => setMenuOpen(false)}>✍️ AI Cover Letter</a>
             <a href="/mock-interview" onClick={() => setMenuOpen(false)}>🎙 AI Mock Interview</a>
+            <a href="/skill-gap" onClick={() => setMenuOpen(false)}>📈 AI Skill Gap Analyzer</a>
             <a href="/interview-prep" onClick={() => setMenuOpen(false)}>🎯 AI Interview Prep</a>
             <a href="/salary-calculator" onClick={() => setMenuOpen(false)}>💰 Salary Calculator</a>
             <a href="/salaries" onClick={() => setMenuOpen(false)}>📊 Salary Guides</a>

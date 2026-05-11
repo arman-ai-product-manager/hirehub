@@ -124,6 +124,7 @@ export async function getServerSideProps({ res }) {
     url(`${base}/mock-interview`,           today,   'weekly',  '0.92'),
     url(`${base}/companies`,                today,   'weekly',  '0.92'),
     url(`${base}/jd-optimizer`,             today,   'weekly',  '0.92'),
+    url(`${base}/skill-gap`,                today,   'weekly',  '0.92'),
     url(`${base}/post-job`,                 today,   'weekly',  '0.95'),
   ].join('\n')
 
