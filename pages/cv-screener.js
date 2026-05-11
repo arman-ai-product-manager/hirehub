@@ -166,6 +166,46 @@ export default function CvScreener() {
     setFiles([]); setResults(null); setError(''); setJd('')
   }
 
+  function shareWhatsApp() {
+    if (!results) return
+    const top = results.results.slice(0, 5)
+    const lines = top.map((r, i) =>
+      `${['🥇','🥈','🥉','4️⃣','5️⃣'][i]} ${r.candidate_name} — ${r.score}/100 (${r.recommendation})\n   ${r.current_role || 'Unknown role'} · ${r.years_experience || 0} yrs\n   ${r.summary ? r.summary.slice(0, 100) + '…' : ''}`
+    ).join('\n\n')
+    const mode = results.mode === 'jd-fit' ? 'JD-fit screening' : 'quality screening'
+    const text = `📊 *AI CV Screening Results* (${results.total} CVs · ${mode})\n\nTop ${top.length} candidates:\n\n${lines}\n\n_Screened by HireHub360 AI — hirehub360.in/cv-screener_`
+    const url = `https://wa.me/?text=${encodeURIComponent(text)}`
+    window.open(url, '_blank', 'noopener')
+  }
+
+  function exportCSV() {
+    if (!results) return
+    const header = ['Rank','Candidate','File','Score','Grade','Current Role','Years Exp','Top Skills','Recommendation','Summary','Strengths','Gaps']
+    const rows = results.results.map((r, i) => [
+      i + 1,
+      r.candidate_name || 'Unknown',
+      r.file || '',
+      r.score,
+      r.grade,
+      r.current_role || '',
+      r.years_experience || 0,
+      (r.top_skills || []).join(' | '),
+      r.recommendation || '',
+      (r.summary || '').replace(/"/g, "'"),
+      (r.strengths || []).join(' | ').replace(/"/g, "'"),
+      (r.gaps || []).join(' | ').replace(/"/g, "'"),
+    ])
+    const csv = [header, ...rows]
+      .map(row => row.map(v => `"${String(v).replace(/"/g, '""')}"`).join(','))
+      .join('\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url; a.download = `cv-screening-results-${new Date().toISOString().slice(0,10)}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   return (
     <>
       <Head>
@@ -186,6 +226,11 @@ export default function CvScreener() {
 
       <style jsx global>{`
         .drop-active { background:#fff7ed !important; border-color:#ff6b00 !important; }
+        @media print {
+          header, .no-print { display:none !important; }
+          body { background:#fff !important; }
+          .print-result { page-break-inside:avoid; border:1px solid #ccc !important; margin-bottom:12px !important; }
+        }
       `}</style>
 
       <div style={{ minHeight:'100vh', background:'#f5f5f7', fontFamily:"-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui" }}>
@@ -296,18 +341,55 @@ export default function CvScreener() {
                     {results.total} CV{results.total===1?'':'s'} ranked
                   </h2>
                   <p style={{ fontSize:13, color:'#6e6e73', margin:0 }}>
-                    Mode: <strong>{results.mode === 'jd-fit' ? 'Job Description Fit' : 'Overall Quality'}</strong> · Sorted by AI score
+                    Mode: <strong>{results.mode === 'jd-fit' ? 'JD Fit' : 'Overall Quality'}</strong> · Sorted by AI score
                   </p>
                 </div>
-                <button onClick={reset} style={{ background:'#fff', color:'#1d1d1f', border:'1px solid #d2d2d7', padding:'10px 18px', borderRadius:10, fontSize:14, fontWeight:500, cursor:'pointer' }}>
-                  🔄 Screen new batch
-                </button>
+                <div className="no-print" style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
+                  <button onClick={exportCSV}
+                    style={{ background:'#1d1d1f', color:'#fff', border:'none', padding:'10px 16px', borderRadius:10, fontSize:14, fontWeight:500, cursor:'pointer' }}>
+                    ⬇️ Download CSV
+                  </button>
+                  <button onClick={shareWhatsApp}
+                    style={{ background:'#25D366', color:'#fff', border:'none', padding:'10px 16px', borderRadius:10, fontSize:14, fontWeight:500, cursor:'pointer' }}>
+                    💬 Share Top 5 on WhatsApp
+                  </button>
+                  <button onClick={() => window.print()}
+                    style={{ background:'#fff', color:'#1d1d1f', border:'1px solid #d2d2d7', padding:'10px 16px', borderRadius:10, fontSize:14, fontWeight:500, cursor:'pointer' }}>
+                    🖨️ Print / PDF
+                  </button>
+                  <button onClick={reset}
+                    style={{ background:'#fff', color:'#6e6e73', border:'1px solid #d2d2d7', padding:'10px 16px', borderRadius:10, fontSize:14, fontWeight:500, cursor:'pointer' }}>
+                    🔄 New batch
+                  </button>
+                </div>
               </div>
 
               <div style={{ display:'grid', gap:14 }}>
                 {results.results.map((r, i) => (
                   <ResultCard key={i} rank={i+1} r={r} />
                 ))}
+              </div>
+              <p style={{ textAlign:'center', fontSize:12, color:'#6e6e73', marginTop:24 }}>
+                Screened {results.total} CVs · {new Date().toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })} · HireHub360 AI Screener
+              </p>
+
+              <div className="no-print" style={{ marginTop:32, background:'linear-gradient(135deg,#1d1d1f 0%,#2d2d30 100%)', borderRadius:18, padding:'28px 24px', textAlign:'center', color:'#fff' }}>
+                <div style={{ fontSize:13, background:'rgba(255,107,0,0.2)', color:'#ffb380', display:'inline-block', padding:'4px 12px', borderRadius:999, marginBottom:12, fontWeight:600 }}>
+                  🚀 Liked this? Go further
+                </div>
+                <h3 style={{ fontSize:22, fontWeight:700, margin:'0 0 8px' }}>Post your job + get applicants scored automatically</h3>
+                <p style={{ opacity:0.8, maxWidth:520, margin:'0 auto 20px', fontSize:14, lineHeight:1.5 }}>
+                  With HireHub360 Growth plan — post unlimited jobs, every new applicant gets AI-scored in seconds, you only review top fits.
+                </p>
+                <div style={{ display:'flex', gap:12, justifyContent:'center', flexWrap:'wrap' }}>
+                  <a href="/pricing" style={{ display:'inline-block', background:'#ff6b00', color:'#fff', padding:'14px 28px', borderRadius:12, fontWeight:600, textDecoration:'none', fontSize:15 }}>
+                    See Pricing →
+                  </a>
+                  <a href="/hirehub.html" style={{ display:'inline-block', background:'rgba(255,255,255,0.1)', color:'#fff', padding:'14px 28px', borderRadius:12, fontWeight:600, textDecoration:'none', fontSize:15, border:'1px solid rgba(255,255,255,0.2)' }}>
+                    Post a Job Free
+                  </a>
+                </div>
+                <p style={{ fontSize:12, opacity:0.5, marginTop:14 }}>₹999/mo · Cancel anytime · 3,400+ companies trust HireHub360</p>
               </div>
             </div>
           )}
@@ -333,7 +415,7 @@ function ResultCard({ rank, r }) {
   const scoreColor = r.score >= 80 ? '#059669' : r.score >= 60 ? '#10b981' : r.score >= 40 ? '#f59e0b' : '#dc2626'
 
   return (
-    <div style={{ background:'#fff', borderRadius:14, padding:'18px 20px', border:'1px solid #e5e5e7' }}>
+    <div className="print-result" style={{ background:'#fff', borderRadius:14, padding:'18px 20px', border:'1px solid #e5e5e7' }}>
       <div style={{ display:'flex', gap:14, alignItems:'flex-start', marginBottom:10 }}>
         <div style={{ background: rank <= 3 ? '#fff7ed' : '#f5f5f7', color: rank <= 3 ? '#ff6b00' : '#1d1d1f', width:38, height:38, borderRadius:10, display:'flex', alignItems:'center', justifyContent:'center', fontWeight:700, fontSize:16, flexShrink:0 }}>
           {rank <= 3 ? ['🥇','🥈','🥉'][rank-1] : '#'+rank}

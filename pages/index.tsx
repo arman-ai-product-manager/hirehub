@@ -260,7 +260,7 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
           <a href="/my-applications" className="hide-mob">My Apps</a>
           <a href="/blog" className="hide-mob">Blog</a>
           <a href="/hirehub.html" className="hide-mob">Sign In</a>
-          <a href="/hirehub.html" className="btn-post">Post a Job →</a>
+          <a href="/post-job" className="btn-post">Post a Job →</a>
           <button className="ham-btn" aria-label="Open menu" aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}>
             <span/><span/><span/>
           </button>
@@ -281,7 +281,7 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
             <a href="/my-applications" onClick={() => setMenuOpen(false)}>📋 My Applications</a>
             <a href="/blog" onClick={() => setMenuOpen(false)}>📝 Blog</a>
             <a href="/hirehub.html" onClick={() => setMenuOpen(false)}>👤 Sign In</a>
-            <a href="/hirehub.html" onClick={() => setMenuOpen(false)} style={{background:'#ff6b00',color:'#fff'}}>📢 Post a Job</a>
+            <a href="/post-job" onClick={() => setMenuOpen(false)} style={{background:'#ff6b00',color:'#fff'}}>📢 Post a Job</a>
           </div>
         </>
       )}
