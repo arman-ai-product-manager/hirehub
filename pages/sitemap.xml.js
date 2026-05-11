@@ -216,6 +216,14 @@ export async function getServerSideProps({ res }) {
     url(`${base}/company/${slug}`, today, 'weekly', '0.88')
   ).join('\n')
 
+  // /salaries/[role]-in-[city] programmatic salary pages (10 roles × 9 cities = 90)
+  const SAL_ROLES = ['software-engineer','product-manager','data-scientist','data-analyst','marketing-manager','devops-engineer','designer','backend-developer','frontend-developer','cloud-engineer']
+  const SAL_CITIES = ['bangalore','mumbai','delhi','hyderabad','pune','gurgaon','chennai','noida','dubai']
+  const salaryGuideUrls = SAL_ROLES.flatMap(r =>
+    SAL_CITIES.map(c => url(`${base}/salaries/${r}-in-${c}`, today, 'weekly', '0.85'))
+  ).join('\n')
+  const salariesIndexUrl = url(`${base}/salaries`, today, 'weekly', '0.90')
+
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
 ${staticUrls}
@@ -226,6 +234,8 @@ ${compareUrls}
 ${salaryUrls}
 ${roleUrls}
 ${companyUrls}
+${salariesIndexUrl}
+${salaryGuideUrls}
 ${blogUrls}
 ${langBlogUrls}
 ${dbJobUrls}
