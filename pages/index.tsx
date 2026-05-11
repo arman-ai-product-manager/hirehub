@@ -252,6 +252,7 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
         <a href="/" className="logo">Hire<span>Hub</span><span style={{color:'#ff6b00',fontSize:'0.75em',fontWeight:900,verticalAlign:'super',marginLeft:1}}>360</span></a>
         <div className="nav-links">
           <a href="/" className="hide-mob">Browse Jobs</a>
+          <a href="/companies" className="hide-mob">🏢 Companies</a>
           <a href="/features" className="hide-mob">Features</a>
           <a href="/pricing" className="hide-mob">Pricing</a>
           <a href="/cv-screener" className="hide-mob" style={{color:'#ff6b00',fontWeight:600}}>🤖 AI CV Screener</a>
@@ -276,6 +277,7 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
           <div className="m-bg" onClick={() => setMenuOpen(false)} />
           <div className="m-drawer" role="menu">
             <a href="/" onClick={() => setMenuOpen(false)}>🔍 Browse Jobs</a>
+            <a href="/companies" onClick={() => setMenuOpen(false)}>🏢 Companies</a>
             <a href="/features" onClick={() => setMenuOpen(false)}>🚀 Features</a>
             <a href="/pricing" onClick={() => setMenuOpen(false)}>💳 Pricing</a>
             <a href="/cv-screener" onClick={() => setMenuOpen(false)} style={{background:'#fff7ed',color:'#9a3412',fontWeight:600}}>🤖 AI CV Screener (HR)</a>

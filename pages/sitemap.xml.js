@@ -120,6 +120,7 @@ export async function getServerSideProps({ res }) {
     url(`${base}/interview-prep`,           today,   'weekly',  '0.92'),
     url(`${base}/salary-calculator`,        today,   'weekly',  '0.93'),
     url(`${base}/resume-upload`,            today,   'weekly',  '0.92'),
+    url(`${base}/companies`,                today,   'weekly',  '0.92'),
     url(`${base}/post-job`,                 today,   'weekly',  '0.95'),
   ].join('\n')
 
@@ -203,6 +204,16 @@ export async function getServerSideProps({ res }) {
     url(`${base}/jobs/for/${slug}`, today, 'weekly', '0.90')
   ).join('\n')
 
+  // /company/[slug] company profile pages (priority 0.88)
+  const COMPANY_SLUGS = [
+    'swiggy','zomato','razorpay','flipkart','cred','tcs','infosys','wipro',
+    'accenture','amazon','jio','hdfc-bank','magicpin','nykaa','careem',
+    'emirates-nbd','emaar-properties','noon',
+  ]
+  const companyUrls = COMPANY_SLUGS.map(slug =>
+    url(`${base}/company/${slug}`, today, 'weekly', '0.88')
+  ).join('\n')
+
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
 ${staticUrls}
@@ -212,6 +223,7 @@ ${hireUrls}
 ${compareUrls}
 ${salaryUrls}
 ${roleUrls}
+${companyUrls}
 ${blogUrls}
 ${langBlogUrls}
 ${dbJobUrls}
