@@ -121,6 +121,7 @@ export async function getServerSideProps({ res }) {
     url(`${base}/salary-calculator`,        today,   'weekly',  '0.93'),
     url(`${base}/resume-upload`,            today,   'weekly',  '0.92'),
     url(`${base}/cover-letter`,             today,   'weekly',  '0.92'),
+    url(`${base}/mock-interview`,           today,   'weekly',  '0.92'),
     url(`${base}/companies`,                today,   'weekly',  '0.92'),
     url(`${base}/post-job`,                 today,   'weekly',  '0.95'),
   ].join('\n')
