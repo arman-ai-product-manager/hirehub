@@ -127,6 +127,14 @@ export async function getServerSideProps({ res }) {
     url(`${base}/skill-gap`,                today,   'weekly',  '0.92'),
     url(`${base}/post-job`,                 today,   'weekly',  '0.95'),
     url(`${base}/support`,                  today,   'weekly',  '0.80'),
+    url(`${base}/hirehub-score`,            today,   'weekly',  '0.88'),
+    url(`${base}/ai-salary-agent`,          today,   'weekly',  '0.88'),
+    url(`${base}/livework`,                 today,   'weekly',  '0.88'),
+    url(`${base}/verifiedwork`,             today,   'weekly',  '0.88'),
+    url(`${base}/workerfirst`,              today,   'weekly',  '0.88'),
+    url(`${base}/instanthire`,              today,   'weekly',  '0.88'),
+    url(`${base}/blindhire`,               today,   'weekly',  '0.88'),
+    url(`${base}/negotiate`,               today,   'weekly',  '0.88'),
   ].join('\n')
 
   // City landing pages

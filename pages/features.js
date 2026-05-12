@@ -4,11 +4,12 @@ import { useState } from 'react'
 const FEATURES = [
   {
     id: 'work-credit-score',
+    href: '/hirehub-score',
     icon: '⭐',
     badge: 'WORK CREDIT SCORE',
     name: 'HireHub Score',
     tagline: 'India\'s First Work Reputation System',
-    color: '#ff6b00',
+    color: '#f59e0b',
     desc: 'Every worker gets a verified HireHub Score — built from attendance, ratings, punctuality, and skill tests. Like CIBIL but for your career. Your score travels with you everywhere, unlocking higher pay and premium jobs automatically.',
     bullets: [
       'Score built from attendance, ratings, punctuality & skill tests',
@@ -20,6 +21,7 @@ const FEATURES = [
   },
   {
     id: 'ai-salary-negotiator',
+    href: '/ai-salary-agent',
     icon: '🤖',
     badge: 'AI SALARY NEGOTIATOR',
     name: 'AI Salary Agent',
@@ -36,6 +38,7 @@ const FEATURES = [
   },
   {
     id: 'live-work-streaming',
+    href: '/livework',
     icon: '📡',
     badge: 'LIVE WORK STREAMING',
     name: 'LiveWork',
@@ -52,6 +55,7 @@ const FEATURES = [
   },
   {
     id: 'job-nft',
+    href: '/verifiedwork',
     icon: '🔗',
     badge: 'JOB NFT / WORK CERTIFICATE',
     name: 'VerifiedWork',
@@ -68,6 +72,7 @@ const FEATURES = [
   },
   {
     id: 'reverse-hiring',
+    href: '/workerfirst',
     icon: '🔄',
     badge: 'REVERSE HIRING',
     name: 'WorkerFirst',
@@ -84,6 +89,7 @@ const FEATURES = [
   },
   {
     id: '1-hour-hire',
+    href: '/instanthire',
     icon: '⚡',
     badge: '1 HOUR HIRE',
     name: 'InstantHire',
@@ -100,6 +106,7 @@ const FEATURES = [
   },
   {
     id: 'dark-apply',
+    href: '/blindhire',
     icon: '🕶️',
     badge: 'DARK APPLY',
     name: 'BlindHire',
@@ -251,17 +258,26 @@ export default function FeaturesPage() {
                 {f.bullets.map((b, i) => <li key={i}>{b}</li>)}
               </ul>
               <div className="feat-label">💡 {f.label}</div>
-              {waitlist[f.id] ? (
-                <button className="waitlist-btn joined">✅ You're on the waitlist!</button>
-              ) : (
-                <button
+              <div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:16}}>
+                <a
+                  href={f.href}
                   className="waitlist-btn"
-                  style={{background: f.color === '#1d1d1f' ? '#ff6b00' : f.color, color:'#fff'}}
-                  onClick={() => joinWaitlist(f.id)}
+                  style={{background: f.color === '#1d1d1f' ? '#ff6b00' : f.color, color:'#fff', textDecoration:'none', display:'inline-block'}}
                 >
-                  Join Waitlist →
-                </button>
-              )}
+                  Learn More →
+                </a>
+                {waitlist[f.id] ? (
+                  <button className="waitlist-btn joined" style={{flex:'none'}}>✅ Waitlisted!</button>
+                ) : (
+                  <button
+                    className="waitlist-btn"
+                    style={{background:'transparent',border:'1px solid #333',color:'#aaa',flex:'none'}}
+                    onClick={() => joinWaitlist(f.id)}
+                  >
+                    Join Waitlist
+                  </button>
+                )}
+              </div>
             </div>
           ))}
         </div>
