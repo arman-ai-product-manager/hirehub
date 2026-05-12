@@ -126,6 +126,7 @@ export async function getServerSideProps({ res }) {
     url(`${base}/jd-optimizer`,             today,   'weekly',  '0.92'),
     url(`${base}/skill-gap`,                today,   'weekly',  '0.92'),
     url(`${base}/post-job`,                 today,   'weekly',  '0.95'),
+    url(`${base}/support`,                  today,   'weekly',  '0.80'),
   ].join('\n')
 
   // City landing pages
