@@ -237,6 +237,7 @@ export async function getServerSideProps({ params, req }) {
     if (data) {
       candidate = {
         ...data,
+        title: data.title || data.position || data.job_title || '',
         skills: Array.isArray(data.skills) ? data.skills : (data.skills ? String(data.skills).split(',').map(s => s.trim()) : []),
         experience: Array.isArray(data.experience) ? data.experience : [],
         education: Array.isArray(data.education) ? data.education : [],
@@ -255,6 +256,7 @@ export async function getServerSideProps({ params, req }) {
       if (data) {
         candidate = {
           ...data,
+          title: data.title || data.position || data.job_title || '',
           skills: Array.isArray(data.skills) ? data.skills : (data.skills ? String(data.skills).split(',').map(s => s.trim()) : []),
           experience: Array.isArray(data.experience) ? data.experience : [],
           education: Array.isArray(data.education) ? data.education : [],
