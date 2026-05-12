@@ -193,26 +193,51 @@ export async function getServerSideProps({ params, query }) {
     logo:    safeLogo,
   }
 
-  // Jobs — prefer company_id exact match, else fuzzy name
+  // Jobs — try multiple matching strategies so jobs always appear
   let jobs = []
   try {
-    let q = supabaseService
+    const base = supabaseService
       .from('jobs')
       .select('id,slug,title,location,salary_label,job_type,skills,company_name,company_id')
-      .eq('status', 'active')
+      .in('status', ['active', 'published', 'open'])
       .order('created_at', { ascending: false })
       .limit(50)
 
     if (companyId) {
-      q = q.eq('company_id', companyId)
-    } else {
-      const searchName = slug.replace(/-/g, ' ')
-      q = q.or(`company_name.ilike.%${searchName}%,company_name.ilike.%${slug}%`)
-    }
+      // Strategy 1: exact company_id match (most reliable)
+      const { data: byId } = await base.eq('company_id', companyId)
+      jobs = byId || []
 
-    const { data, error } = await q
-    if (error) console.error('careers DB error:', error)
-    jobs = data || []
+      // Strategy 2: if no results, match on company name from brand metadata
+      if (jobs.length === 0 && company.name) {
+        const nameTerm = company.name.toLowerCase().replace(/[^a-z0-9]/g, '')
+        const { data: byName } = await supabaseService
+          .from('jobs')
+          .select('id,slug,title,location,salary_label,job_type,skills,company_name,company_id')
+          .in('status', ['active', 'published', 'open'])
+          .ilike('company_name', `%${company.name}%`)
+          .order('created_at', { ascending: false })
+          .limit(50)
+        jobs = byName || []
+
+        // Strategy 3: no status filter at all — maybe status field has unexpected value
+        if (jobs.length === 0) {
+          const { data: byIdNoStatus } = await supabaseService
+            .from('jobs')
+            .select('id,slug,title,location,salary_label,job_type,skills,company_name,company_id,status')
+            .eq('company_id', companyId)
+            .order('created_at', { ascending: false })
+            .limit(50)
+          jobs = byIdNoStatus || []
+        }
+      }
+    } else {
+      // No companyId — fuzzy name match from slug
+      const searchName = slug.replace(/-/g, ' ')
+      const { data: bySlugName } = await base
+        .or(`company_name.ilike.%${searchName}%,company_name.ilike.%${slug}%`)
+      jobs = bySlugName || []
+    }
   } catch (e) { console.error('careers DB error:', e) }
 
   if (!company.name && jobs.length === 0) {
