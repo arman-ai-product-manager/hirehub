@@ -1,6 +1,7 @@
 import Head from 'next/head'
 import { useState, useEffect, useRef } from 'react'
 import { useSavedJobs } from '../lib/savedJobs'
+import { getBrowserClient } from '../lib/supabaseBrowser'
 const { supabaseService } = require('../lib/supabase')
 
 function mkSlug(s: string) {
@@ -64,17 +65,14 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
   const { isSaved, toggle: toggleSaved, count: savedCount } = useSavedJobs()
 
   useEffect(() => {
-    // detect auth client-side
-    try {
-      const { createClient } = require('@supabase/supabase-js')
-      const sb = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-      )
-      sb.auth.getSession().then(({ data }: any) => {
-        if (data?.session?.user) setUser(data.session.user)
-      })
-    } catch {}
+    const sb = getBrowserClient()
+    sb.auth.getSession().then(({ data }: any) => {
+      if (data?.session?.user) setUser(data.session.user)
+    })
+    const { data: sub } = sb.auth.onAuthStateChange((_event: any, session: any) => {
+      setUser(session?.user ?? null)
+    })
+    return () => sub?.subscription?.unsubscribe()
   }, [])
 
   function submitSearch(e?: React.FormEvent) {
