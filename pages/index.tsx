@@ -319,9 +319,10 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
                   <a href="/cv-screener" className="drop-item"><span className="drop-item-icon" style={{background:'#fff7ed'}}>🤖</span>Bulk CV Screener</a>
                   <a href="/jd-optimizer" className="drop-item"><span className="drop-item-icon" style={{background:'#fdf4ff'}}>📝</span>JD Optimizer</a>
                   <a href="/post-job" className="drop-item"><span className="drop-item-icon" style={{background:'#fff7ed'}}>📢</span>Post a Job</a>
-                  <div className="drop-col-title" style={{marginTop:8}}>Coming Soon</div>
+                  <div className="drop-col-title" style={{marginTop:8}}>More Tools</div>
+                  <a href="/negotiate" className="drop-item"><span className="drop-item-icon" style={{background:'#f0fdf4'}}>🤝</span>Salary Coach</a>
+                  <a href="/salaries" className="drop-item"><span className="drop-item-icon" style={{background:'#f0fdf4'}}>📊</span>Salary Guides</a>
                   <a href="/features" className="drop-item" style={{opacity:.6}}><span className="drop-item-icon" style={{background:'#f5f5f7'}}>⭐</span>HireHub Score</a>
-                  <a href="/features" className="drop-item" style={{opacity:.6}}><span className="drop-item-icon" style={{background:'#f5f5f7'}}>🤝</span>AI Salary Agent</a>
                   <a href="/features" className="drop-item" style={{opacity:.6}}><span className="drop-item-icon" style={{background:'#f5f5f7'}}>🌐</span>LiveWork & BlindHire</a>
                 </div>
               </div>
@@ -351,19 +352,46 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
                 {(user.user_metadata?.full_name || user.email || 'U')[0].toUpperCase()}
               </button>
               {activeDropdown === 'user' && (
-                <div className="drop-menu" style={{right:0,left:'auto',transform:'none'}} onClick={e => e.stopPropagation()}>
-                  <div style={{padding:'8px 10px 4px',fontSize:12,color:'#888',fontWeight:600}}>{user.email}</div>
-                  <a href="/my-applications" className="drop-item"><span className="drop-item-icon" style={{background:'#f5f5f7'}}>📋</span>My Applications</a>
-                  <a href="/saved-jobs" className="drop-item"><span className="drop-item-icon" style={{background:'#fff7ed'}}>❤️</span>Saved Jobs{savedCount > 0 ? ` (${savedCount})` : ''}</a>
-                  <a href="/resume-upload" className="drop-item"><span className="drop-item-icon" style={{background:'#f0fdf4'}}>📄</span>My Resume</a>
-                  <div style={{height:1,background:'#f0f0f0',margin:'4px 8px'}}/>
-                  <div style={{padding:'6px 10px 4px',fontSize:10,fontWeight:800,color:'#ff6b00',textTransform:'uppercase',letterSpacing:'.06em'}}>Premium Features</div>
-                  <a href="/features#score" className="drop-item"><span className="drop-item-icon" style={{background:'#fff7ed'}}>⭐</span>HireHub Score</a>
-                  <a href="/features#salary-agent" className="drop-item"><span className="drop-item-icon" style={{background:'#f0fdf4'}}>🤝</span>AI Salary Agent</a>
-                  <a href="/features#livework" className="drop-item"><span className="drop-item-icon" style={{background:'#f0f9ff'}}>📡</span>LiveWork</a>
-                  <a href="/features#blindhire" className="drop-item"><span className="drop-item-icon" style={{background:'#fdf4ff'}}>🎭</span>BlindHire</a>
-                  <a href="/features#instanthire" className="drop-item"><span className="drop-item-icon" style={{background:'#fff7ed'}}>⚡</span>InstantHire</a>
-                  <a href="/features#workerfirst" className="drop-item"><span className="drop-item-icon" style={{background:'#f0fdf4'}}>🏆</span>WorkerFirst</a>
+                <div className="drop-menu wide" style={{right:0,left:'auto',transform:'none',minWidth:540}} onClick={e => e.stopPropagation()}>
+                  {/* email header */}
+                  <div style={{gridColumn:'1/-1',padding:'10px 14px 8px',borderBottom:'1px solid #f5f5f7',display:'flex',alignItems:'center',gap:10}}>
+                    <div style={{width:32,height:32,borderRadius:'50%',background:'linear-gradient(135deg,#ff6b00,#ff9a3c)',color:'#fff',fontSize:13,fontWeight:700,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                      {(user.user_metadata?.full_name || user.email || 'U')[0].toUpperCase()}
+                    </div>
+                    <div>
+                      <div style={{fontSize:13,fontWeight:700,color:'#1d1d1f'}}>{user.user_metadata?.full_name || 'My Account'}</div>
+                      <div style={{fontSize:11,color:'#888'}}>{user.email}</div>
+                    </div>
+                  </div>
+                  {/* col 1 — my account + ai tools */}
+                  <div className="drop-col">
+                    <div className="drop-col-title">My Account</div>
+                    <a href="/my-applications" className="drop-item"><span className="drop-item-icon" style={{background:'#f5f5f7'}}>📋</span>My Applications</a>
+                    <a href="/saved-jobs" className="drop-item"><span className="drop-item-icon" style={{background:'#fff7ed'}}>❤️</span>Saved Jobs{savedCount > 0 ? ` (${savedCount})` : ''}</a>
+                    <a href="/resume-upload" className="drop-item"><span className="drop-item-icon" style={{background:'#f0fdf4'}}>📄</span>My Resume</a>
+                    <div className="drop-col-title" style={{marginTop:8}}>AI Tools</div>
+                    <a href="/resume-upload" className="drop-item"><span className="drop-item-icon" style={{background:'#fff7ed'}}>📄</span>Resume Parser</a>
+                    <a href="/cover-letter" className="drop-item"><span className="drop-item-icon" style={{background:'#f0f9ff'}}>✍️</span>Cover Letter</a>
+                    <a href="/interview-prep" className="drop-item"><span className="drop-item-icon" style={{background:'#fdf4ff'}}>🎯</span>Interview Prep</a>
+                    <a href="/mock-interview" className="drop-item"><span className="drop-item-icon" style={{background:'#1e1b4b20'}}>🎙</span>Mock Interview</a>
+                    <a href="/skill-gap" className="drop-item"><span className="drop-item-icon" style={{background:'#f0f9ff'}}>📈</span>Skill Gap</a>
+                    <a href="/salary-calculator" className="drop-item"><span className="drop-item-icon" style={{background:'#f0fdf4'}}>💰</span>Salary Calculator</a>
+                  </div>
+                  <div className="drop-divider"/>
+                  {/* col 2 — premium features */}
+                  <div className="drop-col">
+                    <div className="drop-col-title" style={{color:'#ff6b00'}}>Premium Features — Unlocked</div>
+                    <a href="/negotiate" className="drop-item"><span className="drop-item-icon" style={{background:'#f0fdf4'}}>🤝</span>AI Salary Coach</a>
+                    <a href="/salaries" className="drop-item"><span className="drop-item-icon" style={{background:'#f0fdf4'}}>📊</span>Salary Guides</a>
+                    <a href="/jd-optimizer" className="drop-item"><span className="drop-item-icon" style={{background:'#fdf4ff'}}>📝</span>JD Optimizer</a>
+                    <a href="/cv-screener" className="drop-item"><span className="drop-item-icon" style={{background:'#fff7ed'}}>🤖</span>CV Screener</a>
+                    <div className="drop-col-title" style={{marginTop:8}}>Coming Soon</div>
+                    <a href="/features" className="drop-item" style={{opacity:.55}}><span className="drop-item-icon" style={{background:'#f5f5f7'}}>⭐</span>HireHub Score</a>
+                    <a href="/features" className="drop-item" style={{opacity:.55}}><span className="drop-item-icon" style={{background:'#f5f5f7'}}>📡</span>LiveWork</a>
+                    <a href="/features" className="drop-item" style={{opacity:.55}}><span className="drop-item-icon" style={{background:'#f5f5f7'}}>🎭</span>BlindHire</a>
+                    <a href="/features" className="drop-item" style={{opacity:.55}}><span className="drop-item-icon" style={{background:'#f5f5f7'}}>⚡</span>InstantHire</a>
+                    <a href="/features" className="drop-item" style={{opacity:.55}}><span className="drop-item-icon" style={{background:'#f5f5f7'}}>🏆</span>WorkerFirst</a>
+                  </div>
                 </div>
               )}
             </div>
@@ -411,13 +439,18 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
                 <div className="m-section-title" style={{color:'#ff6b00'}}>My Account</div>
                 <a href="/my-applications" onClick={() => setMenuOpen(false)}><span className="m-icon">📋</span>My Applications</a>
                 <a href="/saved-jobs" onClick={() => setMenuOpen(false)}><span className="m-icon">❤️</span>Saved Jobs{savedCount > 0 ? ` (${savedCount})` : ''}</a>
-                <div className="m-section-title" style={{color:'#ff6b00'}}>Premium Features</div>
-                <a href="/features#score" onClick={() => setMenuOpen(false)}><span className="m-icon">⭐</span>HireHub Score</a>
-                <a href="/features#salary-agent" onClick={() => setMenuOpen(false)}><span className="m-icon">🤝</span>AI Salary Agent</a>
-                <a href="/features#livework" onClick={() => setMenuOpen(false)}><span className="m-icon">📡</span>LiveWork</a>
-                <a href="/features#blindhire" onClick={() => setMenuOpen(false)}><span className="m-icon">🎭</span>BlindHire</a>
-                <a href="/features#instanthire" onClick={() => setMenuOpen(false)}><span className="m-icon">⚡</span>InstantHire</a>
-                <a href="/features#workerfirst" onClick={() => setMenuOpen(false)}><span className="m-icon">🏆</span>WorkerFirst</a>
+                <a href="/resume-upload" onClick={() => setMenuOpen(false)}><span className="m-icon">📄</span>My Resume</a>
+                <div className="m-section-title" style={{color:'#ff6b00'}}>Premium — Unlocked</div>
+                <a href="/negotiate" onClick={() => setMenuOpen(false)}><span className="m-icon">🤝</span>AI Salary Coach</a>
+                <a href="/salaries" onClick={() => setMenuOpen(false)}><span className="m-icon">📊</span>Salary Guides</a>
+                <a href="/jd-optimizer" onClick={() => setMenuOpen(false)}><span className="m-icon">📝</span>JD Optimizer</a>
+                <a href="/cv-screener" onClick={() => setMenuOpen(false)}><span className="m-icon">🤖</span>CV Screener</a>
+                <div className="m-section-title">Coming Soon</div>
+                <a href="/features" onClick={() => setMenuOpen(false)} style={{opacity:.55}}><span className="m-icon">⭐</span>HireHub Score</a>
+                <a href="/features" onClick={() => setMenuOpen(false)} style={{opacity:.55}}><span className="m-icon">📡</span>LiveWork</a>
+                <a href="/features" onClick={() => setMenuOpen(false)} style={{opacity:.55}}><span className="m-icon">🎭</span>BlindHire</a>
+                <a href="/features" onClick={() => setMenuOpen(false)} style={{opacity:.55}}><span className="m-icon">⚡</span>InstantHire</a>
+                <a href="/features" onClick={() => setMenuOpen(false)} style={{opacity:.55}}><span className="m-icon">🏆</span>WorkerFirst</a>
               </>}
 
               <div className="m-drawer-footer">
