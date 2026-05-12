@@ -11,7 +11,7 @@ const STEPS = [
   { step: '01', title: 'Set Your Target', desc: 'Tell the AI your desired salary, experience, skills, and the role. Takes 60 seconds.' },
   { step: '02', title: 'AI Enters the Room', desc: 'Our agent analyses the company budget, market rates, and your HireHub Score before talking to the employer.' },
   { step: '03', title: 'Live Negotiation', desc: 'AI negotiates in real time. It knows when to push, when to counter, and when you have maximum leverage.' },
-  { step: '04', title: 'You Win or Walk', desc: 'You get the full transcript and the final offer. Accept or decline — you're always in control.' },
+  { step: '04', title: 'You Win or Walk', desc: "You get the full transcript and the final offer. Accept or decline — you're always in control." },
 ]
 
 export default function AiSalaryAgent() {
