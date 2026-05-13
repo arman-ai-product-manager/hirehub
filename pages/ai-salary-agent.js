@@ -58,7 +58,7 @@ export default function AiSalaryAgent() {
           {[
             {from:'AI',msg:'Good morning. Rahul has 4 years in React and a HireHub Score of 834. His expected CTC is ₹18 LPA.'},
             {from:'HR',msg:'We were thinking ₹14 LPA for this role.'},
-            {from:'AI',msg:'Market median for this role in Bangalore is ₹16.2 LPA. Rahul's score is top 8% nationally. We'd accept ₹17 LPA with a 6-month review clause.'},
+            {from:'AI',msg:"Market median for this role in Bangalore is ₹16.2 LPA. Rahul's score is top 8% nationally. We'd accept ₹17 LPA with a 6-month review clause."},
             {from:'HR',msg:'We can do ₹16 LPA + performance bonus.'},
             {from:'AI',msg:'Accepted. Sending Rahul the offer summary now. ✅'},
           ].map((m,i)=>(
