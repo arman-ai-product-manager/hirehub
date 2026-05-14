@@ -1,13 +1,7 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  color-scheme: light;
 }
 
 html {
@@ -15,6 +9,7 @@ html {
   /* Prevent font size inflation on Android Chrome landscape */
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  color-scheme: light;
 }
 
 body {
@@ -59,10 +54,4 @@ input, textarea, select {
 /* Safe area padding for notch/punch-hole phones */
 .safe-bottom {
   padding-bottom: env(safe-area-inset-bottom);
-}
-
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
 }
