@@ -1910,33 +1910,43 @@ function renderCoDash(el){
     '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:12px;margin-bottom:18px">'+
     stats.map(function(s){return '<div class="card" style="padding:18px 15px"><div style="font-size:20px;margin-bottom:6px">'+s[3]+'</div><div style="font-weight:800;font-size:26px;letter-spacing:-.04em;color:'+s[2]+';line-height:1;margin-bottom:3px">'+s[0]+'</div><div style="font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.06em">'+s[1]+'</div></div>';}).join("")+
     '</div>'+
-    // AI Employer Tools grid
+    // AI Employer Tools — grouped by purpose
     (function(){
-      var _coTools=[
-        {icon:"📝",label:"JD Optimizer",url:"/jd-optimizer",color:"#8b5cf6"},
-        {icon:"🔎",label:"CV Screener",url:"/cv-screener",color:"#3b82f6"},
-        {icon:"⚡",label:"InstantHire",url:"/instanthire",color:"#ef4444"},
-        {icon:"🔄",label:"WorkerFirst",url:"/workerfirst",color:"#ff6b00"},
-        {icon:"🏷️",label:"Brand Kit",url:"",fn:"coTab('brand')",color:"#10b981"},
-        {icon:"🎯",label:"Interviews",url:"",fn:"coTab('iv')",color:"#f59e0b"},
-        {icon:"📊",label:"HireHub Score",url:"/hirehub-score",color:"#f59e0b"},
-        {icon:"🎭",label:"BlindHire",url:"/blindhire",color:"#6366f1"},
-        {icon:"📡",label:"LiveWork",url:"/livework",color:"#9333ea"},
-        {icon:"🔗",label:"VerifiedWork",url:"/verifiedwork",color:"#0891b2"},
-        {icon:"🤖",label:"AI Salary Agent",url:"/ai-salary-agent",color:"#22c55e"},
-        {icon:"📈",label:"Salary Guide",url:"/salaries",color:"#ec4899"},
+      var _coGroups=[
+        {title:"📝 Source & Screen", color:"#8b5cf6", tools:[
+          {icon:"📝",label:"JD Optimizer",url:"/jd-optimizer",color:"#8b5cf6"},
+          {icon:"🔎",label:"CV Screener",url:"/cv-screener",color:"#3b82f6"},
+          {icon:"🔄",label:"WorkerFirst",url:"/workerfirst",color:"#ff6b00"},
+          {icon:"👥",label:"Talent Pool",url:"",fn:"coTab('pool')",color:"#0ea5e9"},
+        ]},
+        {title:"⚡ Hire Faster", color:"#ef4444", tools:[
+          {icon:"⚡",label:"InstantHire",url:"/instanthire",color:"#ef4444"},
+          {icon:"🎯",label:"Interviews",url:"",fn:"coTab('iv')",color:"#f59e0b"},
+          {icon:"📡",label:"LiveWork",url:"/livework",color:"#9333ea"},
+          {icon:"🎭",label:"BlindHire",url:"/blindhire",color:"#6366f1"},
+        ]},
+        {title:"🛡️ Verify & Brand", color:"#10b981", tools:[
+          {icon:"📊",label:"HireHub Score",url:"/hirehub-score",color:"#f59e0b"},
+          {icon:"🔗",label:"VerifiedWork",url:"/verifiedwork",color:"#0891b2"},
+          {icon:"🏷️",label:"Brand Kit",url:"",fn:"coTab('brand')",color:"#10b981"},
+          {icon:"📈",label:"Salary Benchmark",url:"/salaries",color:"#ec4899"},
+        ]},
       ];
       return '<div style="margin-bottom:16px">'+
         '<div style="font-weight:800;font-size:13px;letter-spacing:.04em;color:var(--mu);text-transform:uppercase;margin-bottom:10px">🚀 AI Employer Tools</div>'+
-        '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:8px">'+
-        _coTools.map(function(t){
-          var clickAttr=t.url?'href="'+t.url+'"':'href="#" onclick="'+t.fn+';return false;"';
-          return '<a '+clickAttr+' style="background:#f8f8fa;border:1.5px solid #f0f0f5;border-radius:12px;padding:10px 6px;text-align:center;text-decoration:none;color:var(--ink);transition:all .18s;display:block" onmouseover="this.style.borderColor=\''+t.color+'\';this.style.background=\'#fff\';this.style.boxShadow=\'0 4px 14px rgba(0,0,0,.06)\'" onmouseout="this.style.borderColor=\'#f0f0f5\';this.style.background=\'#f8f8fa\';this.style.boxShadow=\'\'">'+
-          '<div style="font-size:22px;margin-bottom:4px">'+t.icon+'</div>'+
-          '<div style="font-size:10px;font-weight:700;color:#555;line-height:1.3">'+t.label+'</div>'+
-          '</a>';
+        _coGroups.map(function(g){
+          return '<div style="margin-bottom:14px">'+
+            '<div style="font-size:11px;font-weight:700;color:'+g.color+';margin-bottom:6px;letter-spacing:.02em">'+g.title+'</div>'+
+            '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:8px">'+
+            g.tools.map(function(t){
+              var clickAttr=t.url?'href="'+t.url+'"':'href="#" onclick="'+t.fn+';return false;"';
+              return '<a '+clickAttr+' style="background:#f8f8fa;border:1.5px solid #f0f0f5;border-radius:12px;padding:10px 6px;text-align:center;text-decoration:none;color:var(--ink);transition:all .18s;display:block" onmouseover="this.style.borderColor=\''+t.color+'\';this.style.background=\'#fff\';this.style.boxShadow=\'0 4px 14px rgba(0,0,0,.06)\'" onmouseout="this.style.borderColor=\'#f0f0f5\';this.style.background=\'#f8f8fa\';this.style.boxShadow=\'\'">'+
+              '<div style="font-size:22px;margin-bottom:4px">'+t.icon+'</div>'+
+              '<div style="font-size:10px;font-weight:700;color:#555;line-height:1.3">'+t.label+'</div>'+
+              '</a>';
+            }).join('')+'</div></div>';
         }).join('')+
-        '</div></div>';
+        '</div>';
     })()+
     '<div class="card" style="padding:16px 18px;margin-bottom:16px;background:var(--gl2);border:1px solid rgba(255,159,10,.2)">'+
     '<div style="font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--go);text-transform:uppercase;margin-bottom:8px">💡 AI Insights</div>'+
@@ -3625,32 +3635,42 @@ function renderCdJobs(el){
       '<div style="font-size:12px;color:#2563eb">A short bio helps recruiters find you and is required before applying.</div></div>'+
       '<button class="btn fi sm" onclick="cdGo(1)" style="flex-shrink:0;font-size:12px">Add Summary →</button></div>';
   }
-  var _aiTools=[
-    {icon:"📄",label:"Resume Builder",url:"/resume-upload",color:"#3b82f6"},
-    {icon:"✉️",label:"Cover Letter",url:"/cover-letter",color:"#8b5cf6"},
-    {icon:"🎤",label:"Interview Prep",url:"/interview-prep",color:"#10b981"},
-    {icon:"🎯",label:"Mock Interview",url:"/mock-interview",color:"#f59e0b"},
-    {icon:"🔍",label:"Skill Gap",url:"/skill-gap",color:"#ec4899"},
-    {icon:"💰",label:"Salary Coach",url:"/negotiate",color:"#22c55e"},
-    {icon:"🤖",label:"AI Salary Agent",url:"/ai-salary-agent",color:"#6366f1"},
-    {icon:"⭐",label:"HireHub Score",url:"/hirehub-score",color:"#f59e0b"},
-    {icon:"🔄",label:"WorkerFirst",url:"/workerfirst",color:"#ff6b00"},
-    {icon:"🎭",label:"BlindHire",url:"/blindhire",color:"#8b5cf6"},
-    {icon:"📡",label:"LiveWork",url:"/livework",color:"#9333ea"},
-    {icon:"🔗",label:"VerifiedWork",url:"/verifiedwork",color:"#0891b2"},
+  var _aiGroups=[
+    {title:"📝 Apply & Get Discovered", color:"#3b82f6", tools:[
+      {icon:"📄",label:"Resume Builder",url:"/resume-upload",color:"#3b82f6"},
+      {icon:"✉️",label:"Cover Letter",url:"/cover-letter",color:"#8b5cf6"},
+      {icon:"🎭",label:"BlindHire",url:"/blindhire",color:"#8b5cf6"},
+      {icon:"🔄",label:"WorkerFirst",url:"/workerfirst",color:"#ff6b00"},
+    ]},
+    {title:"🎤 Practice & Grow", color:"#10b981", tools:[
+      {icon:"🎤",label:"Interview Prep",url:"/interview-prep",color:"#10b981"},
+      {icon:"🎯",label:"Mock Interview",url:"/mock-interview",color:"#f59e0b"},
+      {icon:"🔍",label:"Skill Gap",url:"/skill-gap",color:"#ec4899"},
+      {icon:"⭐",label:"HireHub Score",url:"/hirehub-score",color:"#f59e0b"},
+    ]},
+    {title:"💰 Earn What You're Worth", color:"#22c55e", tools:[
+      {icon:"💰",label:"Salary Coach",url:"/negotiate",color:"#22c55e"},
+      {icon:"🤖",label:"AI Salary Agent",url:"/ai-salary-agent",color:"#6366f1"},
+      {icon:"🔗",label:"VerifiedWork",url:"/verifiedwork",color:"#0891b2"},
+      {icon:"📡",label:"LiveWork",url:"/livework",color:"#9333ea"},
+    ]},
   ];
   var _toolsHtml='<div style="margin-bottom:18px">'+
     '<div style="font-weight:800;font-size:14px;letter-spacing:-.02em;margin-bottom:10px;display:flex;align-items:center;gap:8px">'+
     '<span style="background:linear-gradient(135deg,#ff6b00,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-size:16px">🚀</span>'+
     'AI Tools & Features</div>'+
-    '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px">'+
-    _aiTools.map(function(t){
-      return '<a href="'+t.url+'" style="background:#f8f8fa;border:1.5px solid #f0f0f5;border-radius:12px;padding:10px 6px;text-align:center;text-decoration:none;color:var(--ink);transition:all .18s;display:block" onmouseover="this.style.borderColor=\''+t.color+'\';this.style.background=\'#fff\';this.style.boxShadow=\'0 4px 14px rgba(0,0,0,.08)\'" onmouseout="this.style.borderColor=\'#f0f0f5\';this.style.background=\'#f8f8fa\';this.style.boxShadow=\'\'">'+
-      '<div style="font-size:22px;margin-bottom:4px">'+t.icon+'</div>'+
-      '<div style="font-size:10px;font-weight:700;color:#555;line-height:1.3">'+t.label+'</div>'+
-      '</a>';
+    _aiGroups.map(function(g){
+      return '<div style="margin-bottom:14px">'+
+        '<div style="font-size:11px;font-weight:700;color:'+g.color+';margin-bottom:6px;letter-spacing:.02em">'+g.title+'</div>'+
+        '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px">'+
+        g.tools.map(function(t){
+          return '<a href="'+t.url+'" style="background:#f8f8fa;border:1.5px solid #f0f0f5;border-radius:12px;padding:10px 6px;text-align:center;text-decoration:none;color:var(--ink);transition:all .18s;display:block" onmouseover="this.style.borderColor=\''+t.color+'\';this.style.background=\'#fff\';this.style.boxShadow=\'0 4px 14px rgba(0,0,0,.08)\'" onmouseout="this.style.borderColor=\'#f0f0f5\';this.style.background=\'#f8f8fa\';this.style.boxShadow=\'\'">'+
+          '<div style="font-size:22px;margin-bottom:4px">'+t.icon+'</div>'+
+          '<div style="font-size:10px;font-weight:700;color:#555;line-height:1.3">'+t.label+'</div>'+
+          '</a>';
+        }).join('')+'</div></div>';
     }).join('')+
-    '</div></div>';
+    '</div>';
   el.innerHTML=_profileBanner+_toolsHtml+'<div style="display:flex;gap:9px;margin-bottom:10px;flex-wrap:wrap;align-items:center">'+
     '<div style="flex:1;min-width:165px;position:relative"><span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none;font-size:15px">🔍</span><input id="js" placeholder="Search jobs, companies, skills…" style="padding-left:40px" oninput="rJL()"/></div>'+
     '<select id="jcy" style="width:auto;min-width:115px" onchange="rJL()"><option value="">All Cities</option>'+["Mumbai","Delhi","Bangalore","Hyderabad","Chennai","Pune","Kolkata","New York","London","Toronto","Sydney","Berlin","Singapore","Dubai"].map(function(c){return '<option>'+c+'</option>';}).join("")+'</select>'+
