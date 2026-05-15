@@ -3175,28 +3175,27 @@ function shareProfileLink(){
   var p=S.cp;
   if(!p||!p.name){nt('⚠️ Complete your profile first');return;}
   var link=window.location.origin+'/profile/'+uid;
-  // Upsert profile to DB so the public link works, then copy
-  if(window.SB&&window._tok){
-    nt('Saving profile…');
+  var _copyLink=function(){
+    if(navigator.clipboard){navigator.clipboard.writeText(link).then(function(){nt('🔗 Profile link copied! Share with HR');});}
+    else{nt('🔗 Profile link: '+link);}
+  };
+  if(!window.SB){_copyLink();return;}
+  // Upsert profile to DB so the public link works — get fresh token first
+  nt('Saving profile…');
+  SB.auth.getSession().then(function(sr){
     SB.from('candidates').upsert({
-      user_id:uid,
-      name:p.name||'',title:p.current_role||p.title||'',
-      location:p.location||'',about:p.summary||p.about||'',
+      id:uid,
+      name:p.name||'',position:p.current_role||'',
+      location:p.location||'',bio:p.summary||p.bio||'',
       skills:p.skills||[],experience:p.experience||[],education:p.education||[],
       availability:p.availability||null,salary_expectation:p.salary_expectation||null,
       open_to:p.open_to||null,linkedin:p.linkedin||null,github:p.github||null,
       email:p.email||null,phone:p.phone||null
-    },{onConflict:'user_id'}).then(function(r){
-      if(r&&r.error){nt('⚠️ Profile sync failed. Link may not work for others.');}
-      if(navigator.clipboard){navigator.clipboard.writeText(link).then(function(){nt('🔗 Profile link copied! Share with HR');});}
-      else{nt('🔗 Profile link: '+link);}
-    }).catch(function(){
-      if(navigator.clipboard){navigator.clipboard.writeText(link).then(function(){nt('🔗 Profile link copied!');});}
-    });
-  } else {
-    if(navigator.clipboard){navigator.clipboard.writeText(link).then(function(){nt('🔗 Profile link copied! Share with HR');});}
-    else{nt('🔗 Profile link: '+link);}
-  }
+    },{onConflict:'id'}).then(function(r){
+      if(r&&r.error)console.warn('[shareProfile] upsert warn:',r.error.message);
+      _copyLink();
+    }).catch(function(){_copyLink();});
+  }).catch(function(){_copyLink();});
 }
 
 function renderProfilePage(el){
