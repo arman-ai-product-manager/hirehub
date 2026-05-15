@@ -50,8 +50,8 @@ export default async function handler(req, res) {
 
     const dailyUsed = (limitRow && limitRow.apply_date === today) ? (limitRow.daily_count || 0) : 0
     const FREE_LIMIT = 10
-    // Determine if user has paid plan
-    const dailyLimit = FREE_LIMIT   // TODO: check plan from companies/profiles when candidate upgrades
+    const candidatePlan = cand?.plan || 'free'
+    const dailyLimit = (candidatePlan && candidatePlan !== 'free') ? Infinity : FREE_LIMIT
 
     if (dailyUsed >= dailyLimit) {
       return res.json({ allowed: false, reason: 'daily_limit', daily_used: dailyUsed, daily_limit: dailyLimit })

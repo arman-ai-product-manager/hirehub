@@ -20,6 +20,7 @@ export default async function handler(req, res) {
 
   // Send email notification
   if (process.env.RESEND_API_KEY) {
+    const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')
     try {
       const { Resend } = require('resend')
       const resend = new Resend(process.env.RESEND_API_KEY)
@@ -28,12 +29,12 @@ export default async function handler(req, res) {
         to: [process.env.BOOKING_EMAIL || 'armanshk612@gmail.com'],
         subject: `[Contact] ${subject || 'New Message'} — ${name}`,
         html: `<h2>New Contact Form Submission</h2>
-          <p><b>Name:</b> ${name}</p>
-          <p><b>Email:</b> <a href="mailto:${email}">${email}</a></p>
-          <p><b>Phone:</b> ${phone || 'Not provided'}</p>
-          <p><b>Subject:</b> ${subject || 'Not specified'}</p>
+          <p><b>Name:</b> ${esc(name)}</p>
+          <p><b>Email:</b> <a href="mailto:${esc(email)}">${esc(email)}</a></p>
+          <p><b>Phone:</b> ${esc(phone) || 'Not provided'}</p>
+          <p><b>Subject:</b> ${esc(subject) || 'Not specified'}</p>
           <hr/>
-          <p>${message.replace(/\n/g,'<br/>')}</p>`
+          <p>${esc(message).replace(/\n/g,'<br/>')}</p>`
       })
       // Auto-reply to user
       await resend.emails.send({
