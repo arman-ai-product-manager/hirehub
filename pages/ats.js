@@ -23,7 +23,7 @@ const DEMO_APPS = [
 ]
 
 function timeAgo(dateStr) {
-  const now = new Date('2026-05-08T00:00:00Z')
+  const now = new Date()
   const then = new Date(dateStr)
   const diffMs = now - then
   const diffMins = Math.floor(diffMs / 60000)

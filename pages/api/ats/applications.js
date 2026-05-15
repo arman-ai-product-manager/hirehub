@@ -11,12 +11,24 @@ const DEMO_APPS = [
   { id: 'd8', job_title: 'Senior Developer', candidate_name: 'Anjali Menon', status: 'applied', fit_score: null, applied_at: '2026-05-07T09:30:00Z', source: 'WhatsApp', candidate_email: 'anjali@example.com', notes: '' },
 ]
 
+async function getAuthUser(req) {
+  const jwt = (req.headers.authorization || '').replace('Bearer ', '').trim()
+  if (!jwt) return null
+  const { data: { user }, error } = await supabaseService.auth.getUser(jwt)
+  return error ? null : user
+}
+
 export default async function handler(req, res) {
   if (req.method === 'GET') {
     const { company_id } = req.query
     if (!company_id) {
       return res.status(200).json({ demo: true, applications: DEMO_APPS })
     }
+
+    const user = await getAuthUser(req)
+    if (!user) return res.status(401).json({ error: 'Not authenticated' })
+    if (user.id !== company_id) return res.status(403).json({ error: 'Forbidden' })
+
     try {
       const { data, error } = await supabaseService
         .from('applications')
@@ -34,17 +46,23 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'POST') {
+    const user = await getAuthUser(req)
+    if (!user) return res.status(401).json({ error: 'Not authenticated' })
+
     const { id, status, notes } = req.body || {}
     if (!id) return res.status(400).json({ error: 'id required' })
+
+    // Verify the application belongs to this company
+    const { data: app } = await supabaseService
+      .from('applications').select('company_id').eq('id', id).maybeSingle()
+    if (!app || app.company_id !== user.id) return res.status(403).json({ error: 'Forbidden' })
+
     try {
       const updates = {}
       if (status !== undefined) updates.status = status
       if (notes !== undefined) updates.notes = notes
       updates.updated_at = new Date().toISOString()
-      const { error } = await supabaseService
-        .from('applications')
-        .update(updates)
-        .eq('id', id)
+      const { error } = await supabaseService.from('applications').update(updates).eq('id', id)
       if (error) throw error
       return res.status(200).json({ ok: true })
     } catch (err) {

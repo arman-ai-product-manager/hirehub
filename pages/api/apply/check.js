@@ -19,7 +19,7 @@ export default async function handler(req, res) {
     // ── Check 1: Account banned ───────────────────────────────────
     const { data: cand } = await supabaseService
       .from('candidates')
-      .select('id,name,skills,experience_years,bio,is_banned')
+      .select('id,name,skills,experience_years,bio,is_banned,plan')
       .eq('id', uid)
       .maybeSingle()
 

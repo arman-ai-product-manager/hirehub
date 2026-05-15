@@ -20,7 +20,7 @@ export default async function handler(req, res) {
     // ── Re-validate: banned ───────────────────────────────────────
     const { data: cand } = await supabaseService
       .from('candidates')
-      .select('id,name,skills,experience_years,bio,is_banned')
+      .select('id,name,skills,experience_years,bio,is_banned,plan')
       .eq('id', uid).maybeSingle()
 
     if (cand?.is_banned) return res.status(403).json({ error: 'Account suspended' })
@@ -96,7 +96,7 @@ export default async function handler(req, res) {
       metadata:    { company_id: job.company_id, company: job.company_name, title: job.title },
     }).catch(() => {})
 
-    return res.json({ ok: true, application_id: appId, daily_used: dailyUsed + 1, daily_limit: 10 })
+    return res.json({ ok: true, application_id: appId, daily_used: dailyUsed + 1, daily_limit: dailyLimit === Infinity ? null : dailyLimit })
   } catch (err) {
     return res.status(500).json({ error: err.message })
   }
