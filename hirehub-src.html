@@ -677,7 +677,7 @@ function _hydrate(user, cb){
     }
     if(cdR.data){
       var cd=cdR.data;
-      var cdObj={name:cd.name,location:cd.location,current_role:cd.position,current_company:cd.company,experience_years:cd.experience_years,notice_period:cd.notice_period,salary_expectation:cd.salary_expectation,skills:cd.skills||[],bio:cd.bio,fit_score:cd.fit_score};
+      var cdObj={name:cd.name,location:cd.location,current_role:cd.position,current_company:cd.company,experience_years:cd.experience_years,notice_period:cd.notice_period,salary_expectation:cd.salary_expectation,skills:cd.skills||[],bio:cd.bio,fit_score:cd.fit_score,_plan:cd.plan||'free'};
       try{localStorage.setItem(user.email+"_cd:profile",JSON.stringify(cdObj));}catch(e){}
       S.cp=cdObj;
     }
@@ -1093,7 +1093,7 @@ function rzpSubscribe(planType, label, monthlyAmount){
     onSuccess: function(){
       var planName = planType==='basic'||planType==='growth' ? 'growth' : planType;
       if(S.co){S.co.plan=planName;dbSet('co:profile',S.co);}
-      if(S.cd){S.cd.plan=planName;dbSet('cd:profile',S.cd);}
+      if(S.cp){S.cp._plan=planName;dbSet('cd:profile',S.cp);}
       mClose('m-price');
       nt('🎉 Welcome to '+label+'! Your features are now active.');
     }
@@ -1144,7 +1144,7 @@ function openPricing(role){
   ?'<div style="font-size:11px;font-weight:700;color:#6e6e73;text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px">👤 FOR JOB SEEKERS</div>'+
   '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(195px,1fr));gap:12px;margin-bottom:10px">'+
     pCard({name:"Free",price:"₹0",period:"Forever free",isCurrent:true,features:["Browse all jobs","Basic profile & CV","3 applications/day","1 free ATS scan"]})+
-    pCard({name:"Pro Seeker",price:"₹99",period:"/month · Cancel anytime",badge:"🔥 Most Popular",highlight:true,anchor:"₹299/mo",social:"18,400+ active seekers",scarcity:"Early adopter price ends Apr 30",features:["Unlimited applications","20 ATS scans/month","Priority in recruiter search","AI CV builder (unlimited)","Salary negotiation guide","Direct HR contact unlock"],cta:"Start for ₹1 →",ctaFn:"rzpPay({amount:100,desc:'Pro Seeker Trial',onSuccess:function(){if(S.cd){S.cd.plan='pro';dbSet('cd:profile',S.cd);}mClose('m-price');nt('🎉 Pro activated!');}})" })+
+    pCard({name:"Pro Seeker",price:"₹99",period:"/month · Cancel anytime",badge:"🔥 Most Popular",highlight:true,anchor:"₹299/mo",social:"18,400+ active seekers",scarcity:"Early adopter price ends Apr 30",features:["Unlimited applications","20 ATS scans/month","Priority in recruiter search","AI CV builder (unlimited)","Salary negotiation guide","Direct HR contact unlock"],cta:"Start for ₹1 →",ctaFn:"rzpPay({amount:100,desc:'Pro Seeker Trial',onSuccess:function(){if(S.cp){S.cp._plan='pro';dbSet('cd:profile',S.cp);}mClose('m-price');nt('🎉 Pro activated!');}})" })+
     pCard({name:"Career Plus",price:"₹249",period:"/month · Cancel anytime",features:["Everything in Pro","1:1 career coaching","Resume review by expert","Referral network access","Interview prep sessions","Featured profile badge"],cta:"Start Free Trial →",ctaFn:"rzpSubscribe('pro','Career Plus',249)"})+
   '</div>'+
   // ATS add-on for seekers
@@ -1937,19 +1937,20 @@ function renderCoDash(el){
       return '<div style="margin-bottom:16px">'+
         '<div style="font-weight:800;font-size:13px;letter-spacing:.04em;color:var(--mu);text-transform:uppercase;margin-bottom:10px">🚀 AI Employer Tools</div>'+
         _coGroups.map(function(g){
+          var live=g.tools.filter(function(t){return !t.soon;});
+          var soonCount=g.tools.length-live.length;
           return '<div style="margin-bottom:14px">'+
             '<div style="font-size:11px;font-weight:700;color:'+g.color+';margin-bottom:6px;letter-spacing:.02em">'+g.title+'</div>'+
             '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:8px">'+
-            g.tools.map(function(t){
-              var clickAttr=t.soon?'href="#"':(t.url?'href="'+t.url+'"':'href="#" onclick="'+t.fn+';return false;"');
-              var soonBadge=t.soon?'<div style="font-size:8px;font-weight:800;color:#ff6b00;letter-spacing:.04em;margin-top:2px">SOON</div>':'';
-              var opacity=t.soon?'opacity:.65;':'';
-              return '<a '+clickAttr+' style="'+opacity+'background:#f8f8fa;border:1.5px solid #f0f0f5;border-radius:12px;padding:10px 6px;text-align:center;text-decoration:none;color:var(--ink);transition:all .18s;display:block" onmouseover="this.style.borderColor=\''+t.color+'\';this.style.background=\'#fff\';this.style.boxShadow=\'0 4px 14px rgba(0,0,0,.06)\'" onmouseout="this.style.borderColor=\'#f0f0f5\';this.style.background=\'#f8f8fa\';this.style.boxShadow=\'\'">'+
+            live.map(function(t){
+              var clickAttr=t.url?'href="'+t.url+'"':'href="#" onclick="'+t.fn+';return false;"';
+              return '<a '+clickAttr+' style="background:#f8f8fa;border:1.5px solid #f0f0f5;border-radius:12px;padding:10px 6px;text-align:center;text-decoration:none;color:var(--ink);transition:all .18s;display:block" onmouseover="this.style.borderColor=\''+t.color+'\';this.style.background=\'#fff\';this.style.boxShadow=\'0 4px 14px rgba(0,0,0,.06)\'" onmouseout="this.style.borderColor=\'#f0f0f5\';this.style.background=\'#f8f8fa\';this.style.boxShadow=\'\'">'+
               '<div style="font-size:22px;margin-bottom:4px">'+t.icon+'</div>'+
               '<div style="font-size:10px;font-weight:700;color:#555;line-height:1.3">'+t.label+'</div>'+
-              soonBadge+
               '</a>';
-            }).join('')+'</div></div>';
+            }).join('')+'</div>'+
+            (soonCount?'<div style="font-size:10px;color:#aaa;margin-top:5px">+'+soonCount+' more coming soon</div>':'')+
+          '</div>';
         }).join('')+
         '</div>';
     })()+
@@ -3169,9 +3170,33 @@ function saveCdProfileLinks(){
   dbSet('cd:profile',S.cp);
 }
 function shareProfileLink(){
-  var link=window.location.origin+'/profile/'+(S._uid||'me');
-  if(navigator.clipboard){navigator.clipboard.writeText(link).then(function(){nt('🔗 Profile link copied! Share with HR');});}
-  else{nt('🔗 Profile link: '+link);}
+  var uid=S._uid;
+  if(!uid){nt('⚠️ Sign in to share your profile');return;}
+  var p=S.cp;
+  if(!p||!p.name){nt('⚠️ Complete your profile first');return;}
+  var link=window.location.origin+'/profile/'+uid;
+  // Upsert profile to DB so the public link works, then copy
+  if(window.SB&&window._tok){
+    nt('Saving profile…');
+    SB.from('candidates').upsert({
+      user_id:uid,
+      name:p.name||'',title:p.current_role||p.title||'',
+      location:p.location||'',about:p.summary||p.about||'',
+      skills:p.skills||[],experience:p.experience||[],education:p.education||[],
+      availability:p.availability||null,salary_expectation:p.salary_expectation||null,
+      open_to:p.open_to||null,linkedin:p.linkedin||null,github:p.github||null,
+      email:p.email||null,phone:p.phone||null
+    },{onConflict:'user_id'}).then(function(r){
+      if(r&&r.error){nt('⚠️ Profile sync failed. Link may not work for others.');}
+      if(navigator.clipboard){navigator.clipboard.writeText(link).then(function(){nt('🔗 Profile link copied! Share with HR');});}
+      else{nt('🔗 Profile link: '+link);}
+    }).catch(function(){
+      if(navigator.clipboard){navigator.clipboard.writeText(link).then(function(){nt('🔗 Profile link copied!');});}
+    });
+  } else {
+    if(navigator.clipboard){navigator.clipboard.writeText(link).then(function(){nt('🔗 Profile link copied! Share with HR');});}
+    else{nt('🔗 Profile link: '+link);}
+  }
 }
 
 function renderProfilePage(el){
@@ -3668,18 +3693,19 @@ function renderCdJobs(el){
     '<span style="background:linear-gradient(135deg,#ff6b00,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-size:16px">🚀</span>'+
     'AI Tools & Features</div>'+
     _aiGroups.map(function(g){
+      var live=g.tools.filter(function(t){return !t.soon;});
+      var soonCount=g.tools.length-live.length;
       return '<div style="margin-bottom:14px">'+
         '<div style="font-size:11px;font-weight:700;color:'+g.color+';margin-bottom:6px;letter-spacing:.02em">'+g.title+'</div>'+
         '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px">'+
-        g.tools.map(function(t){
-          var soonBadge=t.soon?'<div style="font-size:8px;font-weight:800;color:#ff6b00;letter-spacing:.04em;margin-top:2px">SOON</div>':'';
-          var opacity=t.soon?'opacity:.65;':'';
-          return '<a href="'+t.url+'" style="'+opacity+'background:#f8f8fa;border:1.5px solid #f0f0f5;border-radius:12px;padding:10px 6px;text-align:center;text-decoration:none;color:var(--ink);transition:all .18s;display:block;position:relative" onmouseover="this.style.borderColor=\''+t.color+'\';this.style.background=\'#fff\';this.style.boxShadow=\'0 4px 14px rgba(0,0,0,.08)\'" onmouseout="this.style.borderColor=\'#f0f0f5\';this.style.background=\'#f8f8fa\';this.style.boxShadow=\'\'">'+
+        live.map(function(t){
+          return '<a href="'+t.url+'" style="background:#f8f8fa;border:1.5px solid #f0f0f5;border-radius:12px;padding:10px 6px;text-align:center;text-decoration:none;color:var(--ink);transition:all .18s;display:block;position:relative" onmouseover="this.style.borderColor=\''+t.color+'\';this.style.background=\'#fff\';this.style.boxShadow=\'0 4px 14px rgba(0,0,0,.08)\'" onmouseout="this.style.borderColor=\'#f0f0f5\';this.style.background=\'#f8f8fa\';this.style.boxShadow=\'\'">'+
           '<div style="font-size:22px;margin-bottom:4px">'+t.icon+'</div>'+
           '<div style="font-size:10px;font-weight:700;color:#555;line-height:1.3">'+t.label+'</div>'+
-          soonBadge+
           '</a>';
-        }).join('')+'</div></div>';
+        }).join('')+'</div>'+
+        (soonCount?'<div style="font-size:10px;color:#aaa;margin-top:5px">+'+soonCount+' more coming soon</div>':'')+
+      '</div>';
     }).join('')+
     '</div>';
   el.innerHTML=_profileBanner+_toolsHtml+'<div style="display:flex;gap:9px;margin-bottom:10px;flex-wrap:wrap;align-items:center">'+
@@ -4520,7 +4546,7 @@ function saveBrand() {
   var br = getBrandFromForm();
   if(!br.name) { nt("⚠️ Enter brand / company name"); return; }
   dbSet("co:brand", br);
-  var slug = mkSlug(br.name);
+  var link = _careerLink(br);
   // Persist brand to Supabase Auth metadata so it survives logout/device switch
   if(window.SB) {
     SB.auth.updateUser({data:{brand:br}}).then(function(r){
@@ -4528,14 +4554,17 @@ function saveBrand() {
         console.error("[saveBrand] auth metadata update failed:",r.error);
         nt("⚠️ Brand saved locally — sync to cloud failed. Try again.");
       } else {
-        nt("✅ Brand saved! Career page: hirehub360.in/careers/"+slug);
+        nt("✅ Brand saved! Career page ready to share.");
+        // Refresh the link inputs so they reflect the saved state
+        var inp=document.getElementById("career-link-input");
+        if(inp)inp.value=link;
       }
     }).catch(function(e){
       console.error("[saveBrand] auth metadata error:",e);
       nt("⚠️ Brand saved locally — cloud sync failed (network?). Try again.");
     });
   } else {
-    nt("✅ Brand saved! Career page: hirehub360.in/careers/"+slug);
+    nt("✅ Brand saved! Career page ready to share.");
   }
   coTab("brand");
 }
@@ -5072,9 +5101,26 @@ function finishTest(){
     // Show login immediately — never leave user on a blank screen
     showPg("pg-login");
     var _hydrated=false; // prevent re-hydration on TOKEN_REFRESHED / duplicate events
+    function _recheckPlan(uid){
+      if(!window.SB||!uid)return;
+      Promise.all([
+        SB.from('companies').select('plan').eq('id',uid).maybeSingle(),
+        SB.from('candidates').select('plan').eq('id',uid).maybeSingle()
+      ]).then(function(r){
+        var coData=r[0]&&r[0].data,cdData=r[1]&&r[1].data;
+        if(coData&&S.co&&coData.plan!==S.co.plan){
+          var prev=S.co.plan;S.co.plan=coData.plan||'free';dbSet('co:profile',S.co);
+          if(prev!=='free'&&S.co.plan==='free')nt('Your subscription has expired. Some features are no longer available.');
+        }
+        if(cdData&&S.cp&&cdData.plan!==(S.cp._plan||'free')){
+          S.cp._plan=cdData.plan||'free';dbSet('cd:profile',S.cp);
+        }
+      }).catch(function(){});
+    }
     SB.auth.onAuthStateChange(function(event,session){
-      // Only act on real sign-in / sign-out events — ignore TOKEN_REFRESHED, USER_UPDATED etc.
-      if(event==='TOKEN_REFRESHED'||event==='USER_UPDATED'||event==='MFA_CHALLENGE_VERIFIED')return;
+      // On token refresh, silently re-check plan from DB to catch expired subscriptions
+      if(event==='TOKEN_REFRESHED'){if(S._uid)_recheckPlan(S._uid);return;}
+      if(event==='USER_UPDATED'||event==='MFA_CHALLENGE_VERIFIED')return;
       if(session&&session.user){
         if(_hydrated)return; // already inside app — don't re-render
         _hydrated=true;
