@@ -1,6 +1,9 @@
 const { supabaseService } = require('../../../lib/supabase')
 const Anthropic = require('@anthropic-ai/sdk')
 
+// Vercel: allow up to 300s — screening 500 resumes in batches of 10 can take ~100-150s
+export const config = { maxDuration: 300 }
+
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 async function auth(req) {
@@ -64,25 +67,24 @@ function parseResult(text) {
 }
 
 async function screenOne(resume, job) {
-  const prompt = buildPrompt(resume, job)
-  let lastRawText = ''
+  const prompt    = buildPrompt(resume, job)
   const MAX_ATTEMPTS = 3
+  let lastRawText = ''
+  let lastWasParseError = false
 
   for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
     if (attempt > 0) await sleep(1000 * attempt) // 1s then 2s backoff
 
     try {
-      // On retry, extend the conversation to ask Claude to self-correct
-      const messages = attempt === 0
-        ? [{ role: 'user', content: prompt }]
-        : [
+      // Only do multi-turn correction when the previous failure was a JSON parse error
+      // (not an API/network error where lastRawText is empty or meaningless)
+      const messages = (attempt > 0 && lastWasParseError && lastRawText)
+        ? [
             { role: 'user', content: prompt },
             { role: 'assistant', content: lastRawText },
-            {
-              role: 'user',
-              content: `Your previous response was not valid JSON or was missing required fields. Return ONLY the raw JSON object — no markdown, no fences, no explanation. Start with { and end with }.`,
-            },
+            { role: 'user', content: 'Your previous response was not valid JSON or was missing required fields. Return ONLY the raw JSON object — no markdown, no code fences, no explanation. Start with { and end with }.' },
           ]
+        : [{ role: 'user', content: prompt }]
 
       const msg = await anthropic.messages.create({
         model: 'claude-sonnet-4-6',
@@ -91,13 +93,16 @@ async function screenOne(resume, job) {
         messages,
       })
 
-      lastRawText = msg.content[0]?.type === 'text' ? msg.content[0].text : ''
+      lastRawText      = msg.content[0]?.type === 'text' ? msg.content[0].text : ''
+      lastWasParseError = false
       return parseResult(lastRawText)
     } catch (e) {
+      // Distinguish parse/validation errors (retry with correction) from API errors (retry fresh)
+      lastWasParseError = e.message?.includes('JSON') || e.message?.includes('field') || e.message?.includes('recommendation')
+      if (!lastWasParseError) lastRawText = '' // don't send broken API response as assistant turn
       if (attempt === MAX_ATTEMPTS - 1) {
-        throw new Error(`AI parse failed after ${MAX_ATTEMPTS} attempts: ${e.message}`)
+        throw new Error(`Screening failed after ${MAX_ATTEMPTS} attempts: ${e.message}`)
       }
-      // loop continues with retry
     }
   }
 }
@@ -116,7 +121,7 @@ export default async function handler(req, res) {
     .from('screener_jobs').select('*').eq('id', job_id).eq('company_id', user.id).single()
   if (!job) return res.status(403).json({ error: 'Job not found' })
 
-  // Fetch pending resumes (or specific IDs)
+  // Fetch pending resumes (or specific IDs — both filtered to pending/error only)
   let query = supabaseService
     .from('screener_resumes')
     .select('id,file_name,raw_text,candidate_name,candidate_email,status')
@@ -126,11 +131,13 @@ export default async function handler(req, res) {
     .limit(500)
 
   if (resume_ids?.length > 0) {
+    // Still filter by status — never re-screen already completed resumes
     query = supabaseService
       .from('screener_resumes')
       .select('id,file_name,raw_text,candidate_name,candidate_email,status')
       .in('id', resume_ids)
       .eq('company_id', user.id)
+      .in('status', ['pending', 'error'])
   }
 
   const { data: resumes } = await query
@@ -173,12 +180,16 @@ export default async function handler(req, res) {
         const aiName  = (result.name  || '').trim().slice(0, 100)
         const aiEmail = (result.email || '').trim().slice(0, 200)
 
+        // Ensure array fields are actually arrays before calling .slice/.map
+        const matchedSkills = Array.isArray(result.matched_skills) ? result.matched_skills : []
+        const missingSkills = Array.isArray(result.missing_skills) ? result.missing_skills : []
+
         await supabaseService.from('screener_resumes').update({
           score,
           recommendation:   rec,
           summary:          (result.summary || '').slice(0, 600),
-          strengths:        (result.matched_skills || []).slice(0, 6).map(s => String(s).slice(0, 100)),
-          gaps:             (result.missing_skills || []).slice(0, 4).map(s => String(s).slice(0, 100)),
+          strengths:        matchedSkills.slice(0, 6).map(s => String(s).slice(0, 100)),
+          gaps:             missingSkills.slice(0, 4).map(s => String(s).slice(0, 100)),
           experience_years: expYrs,
           // Override heuristic name/email only when AI found something better
           ...(aiName  && !resume.candidate_name  ? { candidate_name:  aiName  } : {}),

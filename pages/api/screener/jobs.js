@@ -15,7 +15,7 @@ export default async function handler(req, res) {
   if (req.method === 'GET') {
     const { data, error } = await supabaseService
       .from('screener_jobs')
-      .select('id,title,description,skills,status,created_at')
+      .select('id,title,skills,status,created_at') // description excluded — not shown in dashboard, can be large
       .eq('company_id', user.id)
       .order('created_at', { ascending: false })
     if (error) return res.status(500).json({ error: error.message })

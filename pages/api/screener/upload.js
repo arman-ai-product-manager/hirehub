@@ -3,7 +3,10 @@ import fs from 'fs'
 const pdfParse = require('pdf-parse')
 const { supabaseService } = require('../../../lib/supabase')
 
-export const config = { api: { bodyParser: false } }
+export const config = {
+  api: { bodyParser: false },
+  maxDuration: 60, // PDF parsing + storage uploads can take >10s for large batches
+}
 
 async function auth(req) {
   const jwt = (req.headers.authorization || '').replace('Bearer ', '').trim()
@@ -14,7 +17,8 @@ async function auth(req) {
 
 function parseForm(req) {
   return new Promise((resolve, reject) => {
-    const form = new IncomingForm({ multiples: true, maxFileSize: 10 * 1024 * 1024 })
+    // 4 MB per file — Vercel's infrastructure enforces a 4.5 MB total request body limit
+    const form = new IncomingForm({ multiples: true, maxFileSize: 4 * 1024 * 1024 })
     form.parse(req, (err, fields, files) => {
       if (err) reject(err)
       else resolve({ fields, files })
