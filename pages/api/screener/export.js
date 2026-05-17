@@ -8,6 +8,8 @@ async function auth(req) {
   return error ? null : user
 }
 
+const REC_LABEL = { SHORTLIST: 'SHORTLIST', MAYBE: 'MAYBE', REJECT: 'REJECT' }
+
 export default async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' })
 
@@ -23,49 +25,69 @@ export default async function handler(req, res) {
 
   const { data: resumes } = await supabaseService
     .from('screener_resumes')
-    .select('candidate_name,candidate_email,candidate_phone,score,recommendation,summary,strengths,gaps,status,file_name,processed_at')
+    .select('candidate_name,candidate_email,candidate_phone,score,recommendation,experience_years,summary,strengths,gaps,status,file_name,processed_at')
     .eq('job_id', job_id).eq('company_id', user.id)
     .order('score', { ascending: false, nullsFirst: false })
 
   const rows = (resumes || []).map((r, i) => ({
-    Rank:            r.status === 'done' ? i + 1 : '-',
-    'Candidate Name': r.candidate_name || r.file_name,
-    Email:           r.candidate_email || '',
-    Phone:           r.candidate_phone || '',
-    Score:           r.score ?? '',
-    Recommendation:  r.recommendation ? r.recommendation.toUpperCase() : '',
-    Summary:         r.summary || '',
-    Strengths:       (r.strengths || []).join('; '),
-    Gaps:            (r.gaps || []).join('; '),
-    Status:          r.status,
-    'File Name':     r.file_name,
-    'Processed At':  r.processed_at ? new Date(r.processed_at).toLocaleString('en-IN') : '',
+    Rank:                r.status === 'done' ? i + 1 : '-',
+    'Candidate Name':   r.candidate_name || r.file_name,
+    Email:              r.candidate_email || '',
+    Phone:              r.candidate_phone || '',
+    Score:              r.score ?? '',
+    Recommendation:     r.recommendation ? (REC_LABEL[r.recommendation] || r.recommendation) : '',
+    'Exp. Years':       r.experience_years ?? '',
+    Summary:            r.summary || '',
+    'Matched Skills':   (r.strengths || []).join('; '),
+    'Missing Skills':   (r.gaps     || []).join('; '),
+    Status:             r.status,
+    'File Name':        r.file_name,
+    'Processed At':     r.processed_at ? new Date(r.processed_at).toLocaleString() : '',
   }))
 
   const wb = XLSX.utils.book_new()
   const ws = XLSX.utils.json_to_sheet(rows)
 
-  // Column widths
   ws['!cols'] = [
-    { wch: 6 }, { wch: 25 }, { wch: 28 }, { wch: 16 }, { wch: 8 },
-    { wch: 14 }, { wch: 60 }, { wch: 40 }, { wch: 40 }, { wch: 12 }, { wch: 25 }, { wch: 20 },
+    { wch: 6 },  // Rank
+    { wch: 26 }, // Candidate Name
+    { wch: 28 }, // Email
+    { wch: 16 }, // Phone
+    { wch: 7 },  // Score
+    { wch: 14 }, // Recommendation
+    { wch: 10 }, // Exp. Years
+    { wch: 60 }, // Summary
+    { wch: 40 }, // Matched Skills
+    { wch: 40 }, // Missing Skills
+    { wch: 12 }, // Status
+    { wch: 26 }, // File Name
+    { wch: 20 }, // Processed At
   ]
 
   XLSX.utils.book_append_sheet(wb, ws, 'Screened Resumes')
 
   // Summary sheet
   const done = resumes?.filter(r => r.status === 'done') || []
-  const summary = [
-    { Metric: 'Job Title',      Value: job.title },
-    { Metric: 'Total Uploaded', Value: resumes?.length || 0 },
-    { Metric: 'Screened',       Value: done.length },
-    { Metric: 'To Hire',        Value: done.filter(r => r.recommendation === 'hire').length },
-    { Metric: 'Consider',       Value: done.filter(r => r.recommendation === 'consider').length },
-    { Metric: 'Reject',         Value: done.filter(r => r.recommendation === 'reject').length },
-    { Metric: 'Avg Score',      Value: done.length ? Math.round(done.reduce((s, r) => s + (r.score || 0), 0) / done.length) : 0 },
-    { Metric: 'Export Date',    Value: new Date().toLocaleString('en-IN') },
+  const avgScore = done.length
+    ? Math.round(done.reduce((s, r) => s + (r.score || 0), 0) / done.length)
+    : 0
+
+  const summaryRows = [
+    { Metric: 'Job Title',        Value: job.title },
+    { Metric: 'Total Uploaded',   Value: resumes?.length || 0 },
+    { Metric: 'Screened',         Value: done.length },
+    { Metric: 'Shortlisted',      Value: done.filter(r => r.recommendation === 'SHORTLIST').length },
+    { Metric: 'Maybe',            Value: done.filter(r => r.recommendation === 'MAYBE').length },
+    { Metric: 'Rejected',         Value: done.filter(r => r.recommendation === 'REJECT').length },
+    { Metric: 'Avg Score',        Value: avgScore },
+    { Metric: 'Top Score',        Value: done.length ? Math.max(...done.map(r => r.score || 0)) : 0 },
+    { Metric: 'Avg Exp. (years)', Value: done.length ? Math.round(done.reduce((s, r) => s + (r.experience_years || 0), 0) / done.length) : 0 },
+    { Metric: 'Export Date',      Value: new Date().toLocaleString() },
   ]
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(summary), 'Summary')
+
+  const summaryWs = XLSX.utils.json_to_sheet(summaryRows)
+  summaryWs['!cols'] = [{ wch: 22 }, { wch: 30 }]
+  XLSX.utils.book_append_sheet(wb, summaryWs, 'Summary')
 
   const buf = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' })
   const safeName = job.title.replace(/[^a-z0-9]/gi, '_').slice(0, 40)

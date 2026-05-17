@@ -10,40 +10,96 @@ async function auth(req) {
   return error ? null : user
 }
 
-const SYSTEM = `You are an expert HR recruiter. Evaluate whether a resume matches a job description.
-Return ONLY valid JSON, no markdown, no explanation outside the JSON.`
+const sleep = ms => new Promise(r => setTimeout(r, ms))
 
-async function screenOne(resume, job) {
-  const prompt = `JOB TITLE: ${job.title}
+const SYSTEM = `You are an expert HR recruiter and resume evaluator.
+Your task: score a resume against a job description and extract candidate details.
+Rules:
+- Return ONLY a raw JSON object. No markdown, no code fences, no explanation.
+- Start your response with { and end with }
+- All fields are required. Use empty string "" or 0 if data is not found.`
+
+function buildPrompt(resume, job) {
+  return `JOB TITLE: ${job.title}
 
 JOB DESCRIPTION:
 ${job.description}
 
-REQUIRED SKILLS: ${(job.skills || []).join(', ') || 'See description'}
+REQUIRED SKILLS: ${(job.skills || []).join(', ') || 'See description above'}
 
 RESUME TEXT:
-${resume.raw_text?.slice(0, 8000) || '(empty)'}
+${(resume.raw_text || '').slice(0, 8000) || '(no text extracted)'}
 
-Return JSON with exactly these keys:
+Return a JSON object with EXACTLY these keys and value types:
 {
-  "score": <integer 0-100>,
-  "recommendation": <"hire" | "consider" | "reject">,
-  "summary": <1-2 sentence plain-English verdict>,
-  "strengths": [<up to 4 short strings>],
-  "gaps": [<up to 4 short strings>]
+  "score": <integer 0-100 — overall match strength>,
+  "name": <string — candidate's full name from resume, or "">,
+  "email": <string — candidate's email from resume, or "">,
+  "experience_years": <integer — total years of professional work experience, or 0>,
+  "matched_skills": [<up to 6 short strings — required skills the candidate has>],
+  "missing_skills": [<up to 4 short strings — required skills the candidate lacks>],
+  "summary": <string — 1-2 sentence plain-English verdict on fit for this specific role>,
+  "recommendation": <"SHORTLIST" if score>=70 | "MAYBE" if score 45-69 | "REJECT" if score<45>
 }`
+}
 
-  const msg = await anthropic.messages.create({
-    model: 'claude-sonnet-4-6',
-    max_tokens: 512,
-    system: SYSTEM,
-    messages: [{ role: 'user', content: prompt }],
-  })
+function parseResult(text) {
+  // Strip markdown code fences if present
+  let clean = text.trim()
+  clean = clean.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim()
 
-  const text = msg.content[0]?.type === 'text' ? msg.content[0].text : ''
-  const jsonMatch = text.match(/\{[\s\S]*\}/)
-  if (!jsonMatch) throw new Error('No JSON in response')
-  return JSON.parse(jsonMatch[0])
+  // Extract outermost JSON object
+  const start = clean.indexOf('{')
+  const end   = clean.lastIndexOf('}')
+  if (start === -1 || end === -1 || end <= start) throw new Error('No JSON object found in response')
+
+  const parsed = JSON.parse(clean.slice(start, end + 1))
+
+  // Strict field validation
+  if (typeof parsed.score !== 'number')          throw new Error('score must be a number')
+  if (!['SHORTLIST','MAYBE','REJECT'].includes(parsed.recommendation))
+    throw new Error(`Invalid recommendation "${parsed.recommendation}"`)
+
+  return parsed
+}
+
+async function screenOne(resume, job) {
+  const prompt = buildPrompt(resume, job)
+  let lastRawText = ''
+  const MAX_ATTEMPTS = 3
+
+  for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+    if (attempt > 0) await sleep(1000 * attempt) // 1s then 2s backoff
+
+    try {
+      // On retry, extend the conversation to ask Claude to self-correct
+      const messages = attempt === 0
+        ? [{ role: 'user', content: prompt }]
+        : [
+            { role: 'user', content: prompt },
+            { role: 'assistant', content: lastRawText },
+            {
+              role: 'user',
+              content: `Your previous response was not valid JSON or was missing required fields. Return ONLY the raw JSON object — no markdown, no fences, no explanation. Start with { and end with }.`,
+            },
+          ]
+
+      const msg = await anthropic.messages.create({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 700,
+        system: SYSTEM,
+        messages,
+      })
+
+      lastRawText = msg.content[0]?.type === 'text' ? msg.content[0].text : ''
+      return parseResult(lastRawText)
+    } catch (e) {
+      if (attempt === MAX_ATTEMPTS - 1) {
+        throw new Error(`AI parse failed after ${MAX_ATTEMPTS} attempts: ${e.message}`)
+      }
+      // loop continues with retry
+    }
+  }
 }
 
 export default async function handler(req, res) {
@@ -63,16 +119,16 @@ export default async function handler(req, res) {
   // Fetch pending resumes (or specific IDs)
   let query = supabaseService
     .from('screener_resumes')
-    .select('id,file_name,raw_text,candidate_name,status')
+    .select('id,file_name,raw_text,candidate_name,candidate_email,status')
     .eq('job_id', job_id)
     .eq('company_id', user.id)
-    .eq('status', 'pending')
+    .in('status', ['pending', 'error'])
     .limit(500)
 
   if (resume_ids?.length > 0) {
     query = supabaseService
       .from('screener_resumes')
-      .select('id,file_name,raw_text,candidate_name,status')
+      .select('id,file_name,raw_text,candidate_name,candidate_email,status')
       .in('id', resume_ids)
       .eq('company_id', user.id)
   }
@@ -80,55 +136,72 @@ export default async function handler(req, res) {
   const { data: resumes } = await query
   if (!resumes?.length) return res.json({ ok: true, processed: 0 })
 
-  // Mark all as processing — ignore errors (RLS may already block some; they'll get error status)
+  // Mark all as processing
   await supabaseService
     .from('screener_resumes')
-    .update({ status: 'processing' })
+    .update({ status: 'processing', error_msg: null })
     .in('id', resumes.map(r => r.id))
     .eq('company_id', user.id)
 
-  // Stream progress via JSON lines (process in batches of 5)
+  // Stream NDJSON progress — one line per resume
   res.setHeader('Content-Type', 'application/x-ndjson')
   res.setHeader('Transfer-Encoding', 'chunked')
   res.setHeader('Cache-Control', 'no-cache')
-  res.setHeader('X-Accel-Buffering', 'no') // disable Nginx buffering on Vercel
+  res.setHeader('X-Accel-Buffering', 'no') // disable Nginx buffering
 
   let processed = 0
-  const BATCH = 5
+  const BATCH = 10 // 10 concurrent Claude calls
 
   for (let i = 0; i < resumes.length; i += BATCH) {
     const batch = resumes.slice(i, i + BATCH)
     await Promise.all(batch.map(async resume => {
       try {
-        if (!resume.raw_text?.trim()) throw new Error('Empty resume — could not extract text from PDF')
+        if (!resume.raw_text?.trim()) {
+          throw new Error('Could not extract text from this PDF — file may be scanned or image-only')
+        }
+
         const result = await screenOne(resume, job)
 
-        // Validate AI returned sane values
-        const score = typeof result.score === 'number'
-          ? Math.max(0, Math.min(100, Math.round(result.score)))
-          : 0
-        const rec = ['hire', 'consider', 'reject'].includes(result.recommendation)
-          ? result.recommendation : 'reject'
+        // Clamp and sanitise all fields before writing to DB
+        const score   = Math.max(0, Math.min(100, Math.round(result.score)))
+        const rec     = ['SHORTLIST','MAYBE','REJECT'].includes(result.recommendation)
+                          ? result.recommendation : 'REJECT'
+        const expYrs  = typeof result.experience_years === 'number'
+                          ? Math.max(0, Math.min(60, Math.round(result.experience_years))) : 0
+
+        // Use AI-extracted name/email if better than heuristic extraction
+        const aiName  = (result.name  || '').trim().slice(0, 100)
+        const aiEmail = (result.email || '').trim().slice(0, 200)
 
         await supabaseService.from('screener_resumes').update({
           score,
-          recommendation: rec,
-          summary:        (result.summary   || '').slice(0, 500),
-          strengths:      (result.strengths || []).slice(0, 4).map(s => String(s).slice(0, 120)),
-          gaps:           (result.gaps      || []).slice(0, 4).map(s => String(s).slice(0, 120)),
-          status:         'done',
-          processed_at:   new Date().toISOString(),
-          error_msg:      null,
+          recommendation:   rec,
+          summary:          (result.summary || '').slice(0, 600),
+          strengths:        (result.matched_skills || []).slice(0, 6).map(s => String(s).slice(0, 100)),
+          gaps:             (result.missing_skills || []).slice(0, 4).map(s => String(s).slice(0, 100)),
+          experience_years: expYrs,
+          // Override heuristic name/email only when AI found something better
+          ...(aiName  && !resume.candidate_name  ? { candidate_name:  aiName  } : {}),
+          ...(aiEmail && !resume.candidate_email ? { candidate_email: aiEmail } : {}),
+          status:       'done',
+          processed_at: new Date().toISOString(),
+          error_msg:    null,
         }).eq('id', resume.id).eq('company_id', user.id)
 
         processed++
-        res.write(JSON.stringify({ id: resume.id, done: true, score, name: resume.candidate_name || resume.file_name }) + '\n')
+        res.write(JSON.stringify({
+          id:   resume.id,
+          ok:   true,
+          score,
+          rec,
+          name: aiName || resume.candidate_name || resume.file_name,
+        }) + '\n')
       } catch (e) {
         await supabaseService.from('screener_resumes').update({
-          status: 'error',
-          error_msg: (e.message || 'Unknown error').slice(0, 200),
+          status:    'error',
+          error_msg: (e.message || 'Unknown error').slice(0, 300),
         }).eq('id', resume.id).eq('company_id', user.id)
-        res.write(JSON.stringify({ id: resume.id, done: false, error: e.message }) + '\n')
+        res.write(JSON.stringify({ id: resume.id, ok: false, error: e.message }) + '\n')
       }
     }))
   }

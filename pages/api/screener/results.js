@@ -16,29 +16,32 @@ export default async function handler(req, res) {
   const { job_id } = req.query
   if (!job_id) return res.status(400).json({ error: 'job_id required' })
 
-  // Verify ownership
   const { data: job } = await supabaseService
     .from('screener_jobs').select('*').eq('id', job_id).eq('company_id', user.id).single()
   if (!job) return res.status(403).json({ error: 'Job not found' })
 
   const { data: resumes, error } = await supabaseService
     .from('screener_resumes')
-    .select('id,file_name,candidate_name,candidate_email,candidate_phone,score,recommendation,summary,strengths,gaps,status,error_msg,created_at,processed_at')
+    .select('id,file_name,candidate_name,candidate_email,candidate_phone,score,recommendation,summary,strengths,gaps,experience_years,file_url,status,error_msg,created_at,processed_at')
     .eq('job_id', job_id)
     .eq('company_id', user.id)
     .order('score', { ascending: false, nullsFirst: false })
 
   if (error) return res.status(500).json({ error: error.message })
 
+  const done = resumes.filter(r => r.status === 'done')
   const stats = {
     total:      resumes.length,
-    done:       resumes.filter(r => r.status === 'done').length,
+    done:       done.length,
     pending:    resumes.filter(r => r.status === 'pending').length,
     processing: resumes.filter(r => r.status === 'processing').length,
     error:      resumes.filter(r => r.status === 'error').length,
-    hire:       resumes.filter(r => r.recommendation === 'hire').length,
-    consider:   resumes.filter(r => r.recommendation === 'consider').length,
-    reject:     resumes.filter(r => r.recommendation === 'reject').length,
+    shortlist:  resumes.filter(r => r.recommendation === 'SHORTLIST').length,
+    maybe:      resumes.filter(r => r.recommendation === 'MAYBE').length,
+    reject:     resumes.filter(r => r.recommendation === 'REJECT').length,
+    avg_score:  done.length
+                  ? Math.round(done.reduce((s, r) => s + (r.score || 0), 0) / done.length)
+                  : 0,
   }
 
   return res.json({ job, resumes: resumes || [], stats })

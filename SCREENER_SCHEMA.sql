@@ -1,5 +1,6 @@
--- AI Resume Screener — run once in Supabase SQL editor
+-- AI Resume Screener — run once in Supabase SQL editor (fresh install)
 -- Tables are prefixed 'screener_' to avoid collision with existing tables
+-- If you already ran an earlier version, run SCREENER_MIGRATION_V2.sql instead
 
 CREATE TABLE IF NOT EXISTS screener_jobs (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -21,10 +22,14 @@ CREATE TABLE IF NOT EXISTS screener_resumes (
   candidate_email  TEXT,
   candidate_phone  TEXT,
   score            INT CHECK (score BETWEEN 0 AND 100),
-  recommendation   TEXT CHECK (recommendation IN ('hire','consider','reject')),
+  -- SHORTLIST = strong fit (score >= 70)
+  -- MAYBE     = borderline  (score 45-69)
+  -- REJECT    = poor fit    (score < 45)
+  recommendation   TEXT CHECK (recommendation IN ('SHORTLIST','MAYBE','REJECT')),
+  experience_years INT DEFAULT 0,
   summary          TEXT,
-  strengths        TEXT[],
-  gaps             TEXT[],
+  strengths        TEXT[],   -- matched skills
+  gaps             TEXT[],   -- missing skills
   raw_text         TEXT,
   status           TEXT DEFAULT 'pending' CHECK (status IN ('pending','processing','done','error')),
   error_msg        TEXT,
@@ -44,6 +49,7 @@ CREATE POLICY "company own resumes" ON screener_resumes
   FOR ALL USING (company_id = auth.uid());
 
 -- Indexes for fast lookups
-CREATE INDEX IF NOT EXISTS idx_screener_jobs_company    ON screener_jobs(company_id);
-CREATE INDEX IF NOT EXISTS idx_screener_resumes_job     ON screener_resumes(job_id);
-CREATE INDEX IF NOT EXISTS idx_screener_resumes_company ON screener_resumes(company_id);
+CREATE INDEX IF NOT EXISTS idx_screener_jobs_company      ON screener_jobs(company_id);
+CREATE INDEX IF NOT EXISTS idx_screener_resumes_job       ON screener_resumes(job_id);
+CREATE INDEX IF NOT EXISTS idx_screener_resumes_company   ON screener_resumes(company_id);
+CREATE INDEX IF NOT EXISTS idx_screener_resumes_score     ON screener_resumes(job_id, score DESC NULLS LAST);

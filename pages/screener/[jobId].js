@@ -6,9 +6,9 @@ const SB = typeof window !== 'undefined'
   ? createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
   : null
 
-const REC_COLOR = { hire: '#16a34a', consider: '#d97706', reject: '#dc2626' }
-const REC_BG    = { hire: '#dcfce7', consider: '#fef3c7', reject: '#fee2e2' }
-const REC_LABEL = { hire: '✓ Hire', consider: '~ Consider', reject: '✗ Reject' }
+const REC_COLOR = { SHORTLIST: '#16a34a', MAYBE: '#d97706', REJECT: '#dc2626' }
+const REC_BG    = { SHORTLIST: '#dcfce7', MAYBE: '#fef3c7', REJECT: '#fee2e2' }
+const REC_LABEL = { SHORTLIST: '✓ Shortlist', MAYBE: '~ Maybe', REJECT: '✗ Reject' }
 
 function ScoreBadge({ score }) {
   const color = score >= 70 ? '#16a34a' : score >= 45 ? '#d97706' : '#dc2626'
@@ -222,11 +222,17 @@ export default function JobDetail() {
               break outer // correctly exits the while loop
             }
             if (msg.id) {
+              const success = msg.ok === true || msg.done === true
               done++
               setScreenProgress(p => ({ ...p, done }))
               setResumes(prev => prev.map(r =>
                 r.id === msg.id
-                  ? { ...r, status: msg.done ? 'done' : 'error', score: msg.score ?? r.score }
+                  ? {
+                      ...r,
+                      status:         success ? 'done' : 'error',
+                      score:          msg.score  ?? r.score,
+                      recommendation: msg.rec    ?? r.recommendation,
+                    }
                   : r
               ))
             }
@@ -308,9 +314,15 @@ export default function JobDetail() {
 
   const filtered = filter === 'all'
     ? resumes
-    : resumes.filter(r => r.recommendation === filter || r.status === filter)
+    : resumes.filter(r =>
+        r.recommendation === filter ||         // SHORTLIST / MAYBE / REJECT
+        r.status === filter                    // pending / error
+      )
 
   const pendingCount = resumes.filter(r => r.status === 'pending' || r.status === 'error').length
+
+  // Map stream message ok field (new) with backward compat for done field (old)
+  function isStreamSuccess(msg) { return msg.ok === true || msg.done === true }
 
   // Show loading spinner while auth is resolving
   if (authLoading) return (
@@ -405,11 +417,12 @@ export default function JobDetail() {
             {stats && stats.total > 0 && (
               <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
                 {[
-                  { label: 'Total',    value: stats.total,    color: '#374151', bg: '#f3f4f6' },
-                  { label: 'Screened', value: stats.done,     color: '#374151', bg: '#f3f4f6' },
-                  { label: 'Hire',     value: stats.hire,     color: '#16a34a', bg: '#dcfce7' },
-                  { label: 'Consider', value: stats.consider, color: '#d97706', bg: '#fef3c7' },
-                  { label: 'Reject',   value: stats.reject,   color: '#dc2626', bg: '#fee2e2' },
+                  { label: 'Total',     value: stats.total,     color: '#374151', bg: '#f3f4f6' },
+                  { label: 'Screened',  value: stats.done,      color: '#374151', bg: '#f3f4f6' },
+                  stats.avg_score > 0 && { label: 'Avg Score', value: stats.avg_score, color: '#374151', bg: '#f3f4f6' },
+                  { label: 'Shortlist', value: stats.shortlist,  color: '#16a34a', bg: '#dcfce7' },
+                  { label: 'Maybe',     value: stats.maybe,      color: '#d97706', bg: '#fef3c7' },
+                  { label: 'Reject',    value: stats.reject,     color: '#dc2626', bg: '#fee2e2' },
                   stats.pending > 0 && { label: 'Pending', value: stats.pending, color: '#6b7280', bg: '#f3f4f6' },
                   stats.error   > 0 && { label: 'Error',   value: stats.error,   color: '#dc2626', bg: '#fee2e2' },
                 ].filter(Boolean).map(s => (
@@ -482,10 +495,10 @@ export default function JobDetail() {
             {resumes.length > 0 && (
               <div style={{ display: 'flex', gap: 5, marginBottom: 14, flexWrap: 'wrap' }}>
                 {[
-                  { key: 'all',      label: `All (${resumes.length})` },
-                  { key: 'hire',     label: `Hire (${stats?.hire || 0})` },
-                  { key: 'consider', label: `Consider (${stats?.consider || 0})` },
-                  { key: 'reject',   label: `Reject (${stats?.reject || 0})` },
+                  { key: 'all',       label: `All (${resumes.length})` },
+                  { key: 'SHORTLIST', label: `Shortlist (${stats?.shortlist || 0})` },
+                  { key: 'MAYBE',     label: `Maybe (${stats?.maybe || 0})` },
+                  { key: 'REJECT',    label: `Reject (${stats?.reject || 0})` },
                   stats?.pending > 0 && { key: 'pending', label: `Pending (${stats.pending})` },
                   stats?.error   > 0 && { key: 'error',   label: `Errors (${stats.error})` },
                 ].filter(Boolean).map(f => (
@@ -535,6 +548,11 @@ export default function JobDetail() {
                           <span style={{ fontWeight: 700, fontSize: 14, color: '#111827', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                             {r.candidate_name || r.file_name}
                           </span>
+                          {r.experience_years > 0 && (
+                            <span style={{ background: '#f0f9ff', color: '#0369a1', fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 999, flexShrink: 0, whiteSpace: 'nowrap' }}>
+                              {r.experience_years}yr exp
+                            </span>
+                          )}
                         </div>
                         <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 2, display: 'flex', flexWrap: 'wrap', gap: '2px 8px' }}>
                           {r.candidate_email && <span>{r.candidate_email}</span>}
@@ -583,18 +601,22 @@ export default function JobDetail() {
                         <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
                           {r.strengths?.length > 0 && (
                             <div style={{ flex: '1 1 200px', minWidth: 0 }}>
-                              <div style={{ fontWeight: 700, fontSize: 11, color: '#16a34a', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '.04em' }}>✓ Strengths</div>
-                              <ul style={{ margin: 0, paddingLeft: 16, fontSize: 12, color: '#374151', lineHeight: 1.9 }}>
-                                {r.strengths.map((s, i) => <li key={i}>{s}</li>)}
-                              </ul>
+                              <div style={{ fontWeight: 700, fontSize: 11, color: '#16a34a', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '.04em' }}>✓ Matched Skills</div>
+                              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+                                {r.strengths.map((s, i) => (
+                                  <span key={i} style={{ background: '#dcfce7', color: '#15803d', fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 999 }}>{s}</span>
+                                ))}
+                              </div>
                             </div>
                           )}
                           {r.gaps?.length > 0 && (
                             <div style={{ flex: '1 1 200px', minWidth: 0 }}>
-                              <div style={{ fontWeight: 700, fontSize: 11, color: '#dc2626', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '.04em' }}>✗ Gaps</div>
-                              <ul style={{ margin: 0, paddingLeft: 16, fontSize: 12, color: '#374151', lineHeight: 1.9 }}>
-                                {r.gaps.map((g, i) => <li key={i}>{g}</li>)}
-                              </ul>
+                              <div style={{ fontWeight: 700, fontSize: 11, color: '#dc2626', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '.04em' }}>✗ Missing Skills</div>
+                              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+                                {r.gaps.map((g, i) => (
+                                  <span key={i} style={{ background: '#fee2e2', color: '#dc2626', fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 999 }}>{g}</span>
+                                ))}
+                              </div>
                             </div>
                           )}
                         </div>
