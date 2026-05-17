@@ -75,12 +75,12 @@ function ResumePopup({ resume, rank, onClose, inQueue, onAddToQueue }) {
               {resume.candidate_phone && <span>{resume.candidate_phone}</span>}
             </div>
             <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
-              {resume.recommendation && (
-                <span style={{ background: REC_BG[resume.recommendation], color: REC_COLOR[resume.recommendation], fontWeight: 700, fontSize: 11, padding: '3px 9px', borderRadius: 6 }}>
-                  {REC_LABEL[resume.recommendation]}
-                </span>
-              )}
-              <span style={{ background: bg, color: c, fontWeight: 700, fontSize: 11, padding: '3px 9px', borderRadius: 6 }}>{scoreLabel(resume.score || 0)}</span>
+              {resume.recommendation
+                ? <span style={{ background: REC_BG[resume.recommendation], color: REC_COLOR[resume.recommendation], fontWeight: 700, fontSize: 11, padding: '3px 9px', borderRadius: 6 }}>
+                    {REC_LABEL[resume.recommendation]}
+                  </span>
+                : <span style={{ background: bg, color: c, fontWeight: 700, fontSize: 11, padding: '3px 9px', borderRadius: 6 }}>{scoreLabel(resume.score || 0)}</span>
+              }
               {resume.experience_years > 0 && (
                 <span style={{ background: '#f0f9ff', color: '#0369a1', fontWeight: 700, fontSize: 11, padding: '3px 9px', borderRadius: 6 }}>{resume.experience_years}yr exp</span>
               )}
@@ -183,8 +183,9 @@ export default function JobDetail() {
   const [sortDir, setSortDir]         = useState('desc')
   const [selected, setSelected]       = useState(new Set())
   const [interviewQueue, setInterviewQueue] = useState([])
-  const [popup, setPopup]             = useState(null)
+  const [popupId, setPopupId]         = useState(null)
   const [isMobile, setIsMobile]       = useState(false)
+  const [clearQueueConfirm, setClearQueueConfirm] = useState(false)
 
   // UI
   const [exporting, setExporting]     = useState(false)
@@ -197,17 +198,20 @@ export default function JobDetail() {
   const dragCounter  = useRef(0)
   const startTimeRef = useRef(null)
   const timerRef     = useRef(null)
+  const pollingRef   = useRef(false)
 
   const uploading = pipeline === 'uploading'
   const screening = pipeline === 'screening'
   const showToast = useCallback((msg, type = 'info') => setToast({ msg, type }), [])
 
-  // Mobile detection
+  // Mobile detection (debounced to avoid flicker on resize)
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 700)
     check()
-    window.addEventListener('resize', check)
-    return () => window.removeEventListener('resize', check)
+    let t
+    const debounced = () => { clearTimeout(t); t = setTimeout(check, 100) }
+    window.addEventListener('resize', debounced)
+    return () => { window.removeEventListener('resize', debounced); clearTimeout(t) }
   }, [])
 
   // Parse jobId from URL
@@ -250,6 +254,16 @@ export default function JobDetail() {
     return () => clearTimeout(t)
   }, [deleteConfirm])
 
+  // Auto-cancel clear-queue confirm
+  useEffect(() => {
+    if (!clearQueueConfirm) return
+    const t = setTimeout(() => setClearQueueConfirm(false), 4000)
+    return () => clearTimeout(t)
+  }, [clearQueueConfirm])
+
+  // Clear row selection when filter changes to avoid cross-filter confusion
+  useEffect(() => { setSelected(new Set()) }, [filter])
+
   async function getToken() {
     if (!SB) return ''
     const { data } = await SB.auth.getSession()
@@ -285,7 +299,11 @@ export default function JobDetail() {
     const hasPending = resumes.some(r => r.status === 'pending' || r.status === 'processing')
     if (hasPending && pipeline === 'idle') {
       clearInterval(pollRef.current)
-      pollRef.current = setInterval(() => loadResults(tokenRef.current, jobId, true), 4000)
+      pollRef.current = setInterval(async () => {
+        if (pollingRef.current) return
+        pollingRef.current = true
+        try { await loadResults(tokenRef.current, jobId, true) } finally { pollingRef.current = false }
+      }, 4000)
     } else {
       clearInterval(pollRef.current)
     }
@@ -306,25 +324,31 @@ export default function JobDetail() {
     }
     const reader = resp.body.getReader(), decoder = new TextDecoder()
     let buf = '', count = 0
-    outer: while (true) {
-      const { value, done: streamDone } = await reader.read()
-      if (streamDone) break
-      buf += decoder.decode(value, { stream: true })
-      const lines = buf.split('\n'); buf = lines.pop()
-      for (const line of lines) {
-        if (!line.trim()) continue
-        try {
-          const msg = JSON.parse(line)
-          if (msg.done === true && msg.processed !== undefined) break outer
-          if (msg.id) {
-            count++
-            setScreenProgress(p => ({ ...p, done: count }))
-            setResumes(prev => prev.map(r =>
-              r.id === msg.id ? { ...r, status: msg.ok ? 'done' : 'error', score: msg.score ?? r.score, recommendation: msg.rec ?? r.recommendation } : r
-            ))
-          }
-        } catch {}
+    try {
+      outer: while (true) {
+        const { value, done: streamDone } = await reader.read()
+        if (streamDone) break
+        buf += decoder.decode(value, { stream: true })
+        const lines = buf.split('\n'); buf = lines.pop()
+        for (const line of lines) {
+          if (!line.trim()) continue
+          try {
+            const msg = JSON.parse(line)
+            if (msg.done === true && msg.processed !== undefined) break outer
+            if (msg.id) {
+              count++
+              setScreenProgress(p => ({ ...p, done: count }))
+              setResumes(prev => prev.map(r =>
+                r.id === msg.id ? { ...r, status: msg.ok ? 'done' : 'error', score: msg.score ?? r.score, recommendation: msg.rec ?? r.recommendation } : r
+              ))
+            }
+          } catch {}
+        }
       }
+    } catch {
+      // Network dropped mid-stream — return partial count
+    } finally {
+      reader.cancel().catch(() => {})
     }
     return count
   }
@@ -431,7 +455,7 @@ export default function JobDetail() {
     // Remove from selection and interview queue immediately
     setSelected(prev => { const n = new Set(prev); n.delete(id); return n })
     setInterviewQueue(prev => prev.filter(r => r.id !== id))
-    if (popup?.id === id) setPopup(null)
+    if (popupId === id) setPopupId(null)
     const token = await getToken()
     try {
       const r = await fetch(`/api/screener/resume?id=${id}`, { method: 'DELETE', headers: { Authorization: 'Bearer ' + (token || tokenRef.current) } })
@@ -500,7 +524,12 @@ export default function JobDetail() {
   }
 
   // ── Derived values ───────────────────────────────────────────────────────
-  const doneResumes = resumes.filter(r => r.status === 'done')
+  const doneResumes    = resumes.filter(r => r.status === 'done')
+  // Derive popup live from resumes so it always shows fresh data after re-screening
+  const popup          = resumes.find(r => r.id === popupId) || null
+  const shortlistCount = doneResumes.filter(r => r.recommendation === 'SHORTLIST').length
+  const maybeCount     = doneResumes.filter(r => r.recommendation === 'MAYBE').length
+  const rejectCount    = doneResumes.filter(r => r.recommendation === 'REJECT').length
 
   // Rank by score across ALL done resumes (stable, not affected by current filter)
   const rankMap = Object.fromEntries(
@@ -584,7 +613,7 @@ export default function JobDetail() {
       {popup && (
         <ResumePopup
           resume={popup} rank={rankMap[popup.id]}
-          onClose={() => setPopup(null)}
+          onClose={() => setPopupId(null)}
           inQueue={!!interviewQueue.find(q => q.id === popup.id)}
           onAddToQueue={() => addToQueue(popup)}
         />
@@ -782,9 +811,9 @@ export default function JobDetail() {
                   <div style={{ display: 'flex', gap: 4, overflowX: 'auto', WebkitOverflowScrolling: 'touch', flexShrink: 0 }}>
                     {[
                       { key: 'all',       label: `All (${doneResumes.length})` },
-                      { key: 'SHORTLIST', label: `Shortlist (${stats?.shortlist || 0})`, color: '#16a34a' },
-                      { key: 'MAYBE',     label: `Maybe (${stats?.maybe || 0})`,         color: '#d97706' },
-                      { key: 'REJECT',    label: `Reject (${stats?.reject || 0})`,        color: '#dc2626' },
+                      { key: 'SHORTLIST', label: `Shortlist (${shortlistCount})`, color: '#16a34a' },
+                      { key: 'MAYBE',     label: `Maybe (${maybeCount})`,         color: '#d97706' },
+                      { key: 'REJECT',    label: `Reject (${rejectCount})`,       color: '#dc2626' },
                     ].map(f => (
                       <button key={f.key} onClick={() => setFilter(f.key)}
                         style={{ padding: '7px 12px', borderRadius: 8, border: '1.5px solid ' + (filter === f.key ? (f.color || '#ff6b00') : '#e5e7eb'), background: filter === f.key ? (f.key === 'all' ? '#fff5ee' : REC_BG[f.key] || '#fff5ee') : '#fff', color: filter === f.key ? (f.color || '#ff6b00') : '#374151', fontWeight: 700, fontSize: 12, cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}>
@@ -820,7 +849,7 @@ export default function JobDetail() {
                       const isPendingDelete = deleteConfirm === r.id
                       const isSelected = selected.has(r.id)
                       return (
-                        <div key={r.id} onClick={() => setPopup(r)}
+                        <div key={r.id} onClick={() => setPopupId(r.id)}
                           style={{ background: '#fff', borderRadius: 14, border: `1.5px solid ${isPendingDelete ? '#fca5a5' : isSelected ? '#ff6b00' : '#e5e7eb'}`, padding: '14px 14px', cursor: 'pointer', WebkitTapHighlightColor: 'transparent', transition: 'border-color .15s' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
                             {/* Checkbox */}
@@ -835,6 +864,13 @@ export default function JobDetail() {
                             </span>
                             {/* Score badge */}
                             <ScoreBadge score={r.score || 0} size={40} />
+                            {/* Delete — only shown when pipeline idle */}
+                            {pipeline === 'idle' && (
+                              <button
+                                onClick={e => { e.stopPropagation(); confirmDelete(r.id) }}
+                                style={{ background: 'none', border: 'none', color: isPendingDelete ? '#dc2626' : '#d1d5db', cursor: 'pointer', fontSize: 20, padding: '4px 6px', lineHeight: 1, flexShrink: 0 }}
+                                aria-label="Delete resume">×</button>
+                            )}
                           </div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 4 }}>
                             {r.recommendation && (
@@ -890,7 +926,7 @@ export default function JobDetail() {
                             const tdBase = { padding: '11px 12px', verticalAlign: 'middle', borderBottom: '1px solid #f3f4f6' }
                             return (
                               <tr key={r.id}
-                                onClick={() => !isPendingDelete && setPopup(r)}
+                                onClick={() => !isPendingDelete && setPopupId(r.id)}
                                 style={{ cursor: 'pointer', background: isSelected ? '#fffbf7' : '#fff', transition: 'background .1s' }}
                                 onMouseEnter={e => { if (!isSelected) e.currentTarget.style.background = '#f9fafb' }}
                                 onMouseLeave={e => { if (!isSelected) e.currentTarget.style.background = isSelected ? '#fffbf7' : '#fff' }}
@@ -952,7 +988,7 @@ export default function JobDetail() {
                                     </div>
                                   ) : (
                                     <div style={{ display: 'flex', gap: 4 }}>
-                                      <button onClick={() => setPopup(r)}
+                                      <button onClick={() => setPopupId(r.id)}
                                         style={{ background: '#f3f4f6', color: '#374151', border: 'none', borderRadius: 7, padding: '6px 10px', fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
                                         View
                                       </button>
@@ -992,10 +1028,23 @@ export default function JobDetail() {
                       style={{ background: '#dcfce7', color: '#16a34a', border: 'none', padding: '7px 13px', borderRadius: 8, fontWeight: 700, fontSize: 12, cursor: 'pointer', whiteSpace: 'nowrap' }}>
                       ⬇ Export CSV
                     </button>
-                    <button onClick={() => setInterviewQueue([])}
-                      style={{ background: '#f3f4f6', color: '#6b7280', border: 'none', padding: '7px 12px', borderRadius: 8, fontWeight: 600, fontSize: 12, cursor: 'pointer' }}>
-                      Clear
-                    </button>
+                    {clearQueueConfirm ? (
+                      <>
+                        <button onClick={() => { setInterviewQueue([]); setClearQueueConfirm(false) }}
+                          style={{ background: '#dc2626', color: '#fff', border: 'none', padding: '7px 12px', borderRadius: 8, fontWeight: 700, fontSize: 12, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                          Confirm Clear
+                        </button>
+                        <button onClick={() => setClearQueueConfirm(false)}
+                          style={{ background: '#f3f4f6', color: '#374151', border: 'none', padding: '7px 12px', borderRadius: 8, fontWeight: 600, fontSize: 12, cursor: 'pointer' }}>
+                          Cancel
+                        </button>
+                      </>
+                    ) : (
+                      <button onClick={() => setClearQueueConfirm(true)}
+                        style={{ background: '#f3f4f6', color: '#6b7280', border: 'none', padding: '7px 12px', borderRadius: 8, fontWeight: 600, fontSize: 12, cursor: 'pointer' }}>
+                        Clear
+                      </button>
+                    )}
                   </div>
                 </div>
                 <div style={{ padding: '10px 18px 14px' }}>
@@ -1007,7 +1056,7 @@ export default function JobDetail() {
                         <div style={{ fontSize: 11, color: '#9ca3af' }}>{r.candidate_email || r.file_name}</div>
                       </div>
                       {r.experience_years > 0 && <span style={{ fontSize: 11, color: '#0369a1', background: '#f0f9ff', padding: '2px 7px', borderRadius: 6, fontWeight: 700, flexShrink: 0 }}>{r.experience_years}yr</span>}
-                      <button onClick={() => setPopup(r)}
+                      <button onClick={() => setPopupId(r.id)}
                         style={{ background: '#f3f4f6', border: 'none', color: '#374151', padding: '5px 10px', borderRadius: 7, fontWeight: 600, fontSize: 12, cursor: 'pointer', flexShrink: 0 }}>
                         View
                       </button>

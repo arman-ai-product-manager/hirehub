@@ -193,12 +193,12 @@ export default function ScreenerDashboard() {
           {creating && (
             <div
               style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.45)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
-              onClick={e => { if (e.target === e.currentTarget) setCreating(false) }}
+              onClick={e => { if (e.target === e.currentTarget) { setCreating(false); setErr(''); setForm({ title: '', description: '', skills: '' }) } }}
             >
               <div style={{ background: '#fff', borderRadius: 18, padding: '28px 24px', width: '100%', maxWidth: 540, maxHeight: '90vh', overflowY: 'auto' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
                   <h2 style={{ fontWeight: 800, fontSize: 18, color: '#111827', margin: 0 }}>Create New Job</h2>
-                  <button onClick={() => setCreating(false)} style={{ background: 'none', border: 'none', fontSize: 22, color: '#9ca3af', cursor: 'pointer', padding: '4px 8px', lineHeight: 1 }} aria-label="Close">×</button>
+                  <button onClick={() => { setCreating(false); setErr(''); setForm({ title: '', description: '', skills: '' }) }} style={{ background: 'none', border: 'none', fontSize: 22, color: '#9ca3af', cursor: 'pointer', padding: '4px 8px', lineHeight: 1 }} aria-label="Close">×</button>
                 </div>
                 <form onSubmit={createJob}>
                   <label style={{ display: 'block', fontWeight: 600, fontSize: 13, color: '#374151', marginBottom: 5 }}>Job Title *</label>
@@ -242,7 +242,7 @@ export default function ScreenerDashboard() {
                       style={{ flex: 1, background: '#ff6b00', color: '#fff', border: 'none', padding: '12px', borderRadius: 9, fontWeight: 700, fontSize: 14, cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? .7 : 1 }}>
                       {saving ? 'Creating…' : 'Create Job'}
                     </button>
-                    <button type="button" onClick={() => setCreating(false)}
+                    <button type="button" onClick={() => { setCreating(false); setErr(''); setForm({ title: '', description: '', skills: '' }) }}
                       style={{ padding: '12px 18px', borderRadius: 9, border: '1.5px solid #d1d5db', background: '#fff', fontWeight: 600, fontSize: 14, cursor: 'pointer', color: '#374151' }}>
                       Cancel
                     </button>
