@@ -120,6 +120,39 @@ export default async function handler(req, res) {
   if (uploaded.length === 0) return res.status(400).json({ error: 'No files uploaded' })
   if (uploaded.length > 500) return res.status(400).json({ error: 'Max 500 files per batch' })
 
+  // Enforce subscription limit (server-side gate)
+  const { data: sub } = await supabaseService
+    .from('screener_subscriptions')
+    .select('status, resume_limit')
+    .eq('company_id', user.id)
+    .maybeSingle()
+
+  const isActive = sub?.status === 'active'
+  if (!isActive) {
+    return res.status(402).json({ error: 'No active subscription. Subscribe to start screening resumes.', upgrade_required: true })
+  }
+
+  const limit = sub.resume_limit
+  if (limit !== -1) { // -1 = unlimited (Agency plan)
+    const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString()
+    const { count: usedCount } = await supabaseService
+      .from('screener_resumes')
+      .select('id', { count: 'exact', head: true })
+      .eq('company_id', user.id)
+      .gte('created_at', monthStart)
+
+    const used      = usedCount || 0
+    const remaining = limit - used
+    if (remaining <= 0) {
+      return res.status(402).json({
+        error:            `Monthly limit reached. You've used ${used}/${limit} screenings this month.`,
+        upgrade_required: true,
+        used,
+        limit,
+      })
+    }
+  }
+
   // Process all files in parallel within this request
   const results = await Promise.all(uploaded.map(f => processOne(f, jobId, user.id)))
 

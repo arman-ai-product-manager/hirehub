@@ -1,6 +1,7 @@
 import Head from 'next/head'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { createClient } from '@supabase/supabase-js'
+import UpgradeModal from '../../components/UpgradeModal'
 
 const SB = typeof window !== 'undefined'
   ? createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
@@ -187,6 +188,11 @@ export default function JobDetail() {
   const [isMobile, setIsMobile]       = useState(false)
   const [clearQueueConfirm, setClearQueueConfirm] = useState(false)
 
+  // Subscription
+  const [sub, setSub]                 = useState(null)
+  const [usage, setUsage]             = useState(null)
+  const [showUpgrade, setShowUpgrade] = useState(false)
+
   // UI
   const [exporting, setExporting]     = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState(null)
@@ -231,7 +237,7 @@ export default function JobDetail() {
       setSession(s)
       tokenRef.current = s?.access_token || ''
       setAuthLoading(false)
-      if (s) loadResults(s.access_token, jobId, false)
+      if (s) { loadResults(s.access_token, jobId, false); loadSubscription(s.access_token) }
       else setLoading(false)
     }).catch(() => { setAuthLoading(false); setLoading(false) })
   }, [jobId]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -271,6 +277,15 @@ export default function JobDetail() {
     tokenRef.current = tok
     if (!tok && session) setSession(null)
     return tok
+  }
+
+  async function loadSubscription(token) {
+    try {
+      const r = await fetch('/api/screener/subscription', { headers: { Authorization: 'Bearer ' + token } })
+      if (!r.ok) return
+      const d = await r.json()
+      setSub(d.subscription); setUsage(d.usage)
+    } catch {}
   }
 
   async function loadResults(token, jid, silent = false) {
@@ -366,6 +381,10 @@ export default function JobDetail() {
     }
     if (fileRef.current) fileRef.current.value = ''
 
+    // Client-side limit check — server enforces too (402 gate in upload.js)
+    if (usage?.at_limit) { setShowUpgrade(true); return }
+    if (usage && !usage.active) { setShowUpgrade(true); return }
+
     setPipeline('uploading'); startTimeRef.current = Date.now(); setElapsed(0)
     setFileLog([]); setScannedCount(0); setUploadProgress({ done: 0, total: pdfs.length, errors: 0 })
 
@@ -380,7 +399,16 @@ export default function JobDetail() {
       try {
         const r = await fetch('/api/screener/upload', { method: 'POST', headers: { Authorization: 'Bearer ' + token }, body: fd })
         const d = await r.json().catch(() => ({ results: [] }))
-        if (!r.ok) { uploadErrors += batch.length; batch.forEach(f => log.push({ name: f.name, ok: false })) }
+        if (!r.ok) {
+          if (r.status === 402) {
+            // Subscription limit hit mid-upload — stop and show upgrade modal
+            startTimeRef.current = null; setElapsed(0); setPipeline('idle')
+            getToken().then(loadSubscription) // refresh usage
+            setShowUpgrade(true)
+            return
+          }
+          uploadErrors += batch.length; batch.forEach(f => log.push({ name: f.name, ok: false }))
+        }
         else {
           ;(d.results || []).forEach(x => {
             if (x.ok) { uploadedOk++; if (x.scanned) localScanned++; log.push({ name: x.file, ok: true, scanned: x.scanned }) }
@@ -428,7 +456,7 @@ export default function JobDetail() {
       const count = await doScreeningStream(token, pending.length)
       showToast(`Screening complete — ${count} resume${count !== 1 ? 's' : ''} processed`, 'success')
     } catch (e) { showToast('Screening error: ' + (e.message || 'Unknown error'), 'error') }
-    finally { await loadResults(token, jobId, true); setPipeline('done') }
+    finally { await loadResults(token, jobId, true); loadSubscription(token); setPipeline('done') }
   }
 
   function resetPipeline() { setPipeline('idle'); setFileLog([]); setScannedCount(0); setElapsed(0); startTimeRef.current = null }
@@ -610,6 +638,20 @@ export default function JobDetail() {
       </Head>
 
       <Toast msg={toast.msg} type={toast.type} onClose={() => setToast({ msg: '', type: 'info' })} />
+      {showUpgrade && (
+        <UpgradeModal
+          getToken={getToken}
+          usage={usage}
+          currentPlan={sub?.plan || null}
+          onClose={() => setShowUpgrade(false)}
+          onActivated={newSub => {
+            setSub(newSub)
+            getToken().then(loadSubscription)
+            setShowUpgrade(false)
+            showToast('🎉 Subscription activated! You can now upload resumes.', 'success')
+          }}
+        />
+      )}
       {popup && (
         <ResumePopup
           resume={popup} rank={rankMap[popup.id]}
@@ -695,6 +737,45 @@ export default function JobDetail() {
                 </div>
               )}
             </div>
+
+            {/* ── Usage bar ── */}
+            {usage && (
+              <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 11, padding: '10px 14px', marginTop: 14, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                {usage.active ? (
+                  <>
+                    <div style={{ flex: '1 1 160px', minWidth: 0 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5, fontSize: 12, fontWeight: 600 }}>
+                        <span style={{ color: '#374151' }}>
+                          {usage.unlimited ? 'Unlimited resumes' : `${usage.used} / ${usage.limit} resumes this month`}
+                        </span>
+                        {!usage.unlimited && (
+                          <span style={{ color: usage.percent >= 90 ? '#dc2626' : usage.percent >= 70 ? '#d97706' : '#6b7280' }}>{usage.percent}%</span>
+                        )}
+                      </div>
+                      {!usage.unlimited && (
+                        <div style={{ background: '#f3f4f6', borderRadius: 999, height: 6, overflow: 'hidden' }}>
+                          <div style={{ width: `${usage.percent}%`, height: '100%', borderRadius: 999, background: usage.percent >= 90 ? '#dc2626' : usage.percent >= 70 ? '#d97706' : '#ff6b00', transition: 'width .4s' }} />
+                        </div>
+                      )}
+                    </div>
+                    {(usage.at_limit || usage.percent >= 80) && (
+                      <button onClick={() => setShowUpgrade(true)}
+                        style={{ background: usage.at_limit ? '#dc2626' : '#ff6b00', color: '#fff', border: 'none', padding: '7px 14px', borderRadius: 8, fontWeight: 700, fontSize: 12, cursor: 'pointer', flexShrink: 0, whiteSpace: 'nowrap' }}>
+                        {usage.at_limit ? '🔒 Limit Reached' : 'Upgrade'}
+                      </button>
+                    )}
+                  </>
+                ) : (
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', flexWrap: 'wrap', gap: 8 }}>
+                    <span style={{ fontSize: 13, color: '#374151', fontWeight: 600 }}>🔒 No active subscription — uploads are disabled</span>
+                    <button onClick={() => setShowUpgrade(true)}
+                      style={{ background: '#ff6b00', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: 8, fontWeight: 700, fontSize: 12, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                      Subscribe →
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* ── Pipeline progress panel ── */}
             {pipeline !== 'idle' && (

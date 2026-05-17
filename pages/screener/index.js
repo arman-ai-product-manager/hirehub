@@ -1,6 +1,7 @@
 import Head from 'next/head'
 import { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
+import UpgradeModal from '../../components/UpgradeModal'
 
 const SB = typeof window !== 'undefined'
   ? createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
@@ -25,7 +26,10 @@ export default function ScreenerDashboard() {
   const [saving, setSaving]           = useState(false)
   const [err, setErr]                 = useState('')
   const [netErr, setNetErr]           = useState('')
-  const [deleteJobConfirm, setDeleteJobConfirm] = useState(null) // job id pending inline confirm
+  const [deleteJobConfirm, setDeleteJobConfirm] = useState(null)
+  const [sub, setSub]                 = useState(null)
+  const [usage, setUsage]             = useState(null)
+  const [showUpgrade, setShowUpgrade] = useState(false)
 
   // Lock body scroll when modal is open
   useEffect(() => {
@@ -46,8 +50,10 @@ export default function ScreenerDashboard() {
     SB.auth.getSession().then(({ data }) => {
       setSession(data.session)
       setAuthLoading(false)
-      if (data.session) loadJobs(data.session.access_token)
-      else setLoading(false)
+      if (data.session) {
+        loadJobs(data.session.access_token)
+        loadSubscription(data.session.access_token)
+      } else setLoading(false)
     }).catch(() => {
       // Supabase unreachable — stop spinner so user sees the sign-in gate
       setAuthLoading(false)
@@ -59,6 +65,16 @@ export default function ScreenerDashboard() {
     if (!SB) return ''
     const { data } = await SB.auth.getSession()
     return data?.session?.access_token || ''
+  }
+
+  async function loadSubscription(token) {
+    try {
+      const r = await fetch('/api/screener/subscription', { headers: { Authorization: 'Bearer ' + token } })
+      if (!r.ok) return
+      const d = await r.json()
+      setSub(d.subscription)
+      setUsage(d.usage)
+    } catch {}
   }
 
   async function loadJobs(token) {
@@ -155,6 +171,16 @@ export default function ScreenerDashboard() {
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
       </Head>
 
+      {showUpgrade && (
+        <UpgradeModal
+          getToken={getToken}
+          usage={usage}
+          currentPlan={sub?.plan || null}
+          onClose={() => setShowUpgrade(false)}
+          onActivated={newSub => { setSub(newSub); getToken().then(loadSubscription); setShowUpgrade(false) }}
+        />
+      )}
+
       <div style={{ minHeight: '100vh', background: '#f9fafb', fontFamily: 'system-ui,sans-serif' }}>
         {/* Nav */}
         <div style={{ background: '#fff', borderBottom: '1px solid #e5e7eb', padding: '0 5vw', height: 58, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
@@ -180,6 +206,47 @@ export default function ScreenerDashboard() {
               + New Job
             </button>
           </div>
+
+          {/* Subscription status bar */}
+          {usage && (
+            <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: '12px 16px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+              {usage.active ? (
+                <>
+                  <div style={{ flex: '1 1 200px', minWidth: 0 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5, fontSize: 13 }}>
+                      <span style={{ fontWeight: 600, color: '#374151' }}>
+                        {sub?.plan ? `${sub.plan.charAt(0).toUpperCase() + sub.plan.slice(1)} Plan` : 'Active'} — {usage.unlimited ? 'Unlimited resumes' : `${usage.used} / ${usage.limit} resumes used this month`}
+                      </span>
+                      {!usage.unlimited && (
+                        <span style={{ fontWeight: 700, color: usage.percent >= 90 ? '#dc2626' : usage.percent >= 70 ? '#d97706' : '#16a34a', flexShrink: 0 }}>{usage.percent}%</span>
+                      )}
+                    </div>
+                    {!usage.unlimited && (
+                      <div style={{ background: '#f3f4f6', borderRadius: 999, height: 7, overflow: 'hidden' }}>
+                        <div style={{ width: `${usage.percent}%`, height: '100%', borderRadius: 999, background: usage.percent >= 90 ? '#dc2626' : usage.percent >= 70 ? '#d97706' : '#ff6b00', transition: 'width .4s' }} />
+                      </div>
+                    )}
+                  </div>
+                  {(usage.at_limit || usage.percent >= 80) && (
+                    <button onClick={() => setShowUpgrade(true)}
+                      style={{ background: '#ff6b00', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: 8, fontWeight: 700, fontSize: 12, cursor: 'pointer', flexShrink: 0, whiteSpace: 'nowrap' }}>
+                      {usage.at_limit ? '🔒 Limit Reached — Upgrade' : 'Upgrade Plan'}
+                    </button>
+                  )}
+                </>
+              ) : (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', flexWrap: 'wrap', gap: 10 }}>
+                  <span style={{ fontSize: 13, color: '#374151', fontWeight: 600 }}>
+                    🔒 No active subscription — subscribe to start AI-screening resumes
+                  </span>
+                  <button onClick={() => setShowUpgrade(true)}
+                    style={{ background: '#ff6b00', color: '#fff', border: 'none', padding: '9px 18px', borderRadius: 9, fontWeight: 700, fontSize: 13, cursor: 'pointer', flexShrink: 0, whiteSpace: 'nowrap' }}>
+                    View Plans →
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Network error banner */}
           {netErr && (
