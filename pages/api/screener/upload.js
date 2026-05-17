@@ -31,7 +31,6 @@ function extractMeta(text) {
   const lines = text.split('\n').map(l => l.trim()).filter(Boolean)
   const emailMatch = text.match(/[\w.+-]+@[\w-]+\.[\w.]{2,}/)
   const phoneMatch = text.match(/(?:\+91[\s-]?)?[6-9]\d{9}|(?:\+\d{1,3}[\s-]?)?\(?\d{3}\)?[\s-]?\d{3}[\s-]?\d{4}/)
-  // Name: first non-empty line that looks like a name (2-4 words, title case)
   let name = ''
   for (const line of lines.slice(0, 8)) {
     if (/^[A-Z][a-z]+(?: [A-Z][a-z]+){1,3}$/.test(line) && line.length < 60) {
@@ -43,6 +42,55 @@ function extractMeta(text) {
     candidate_email: emailMatch?.[0] || '',
     candidate_phone: phoneMatch?.[0] || '',
   }
+}
+
+async function processOne(file, jobId, userId) {
+  const fileName = file.originalFilename || file.newFilename || 'resume.pdf'
+  let rawText = ''
+  let meta = { candidate_name: '', candidate_email: '', candidate_phone: '' }
+  let fileUrl = null
+
+  try {
+    const buf = await fs.promises.readFile(file.filepath)
+    const parsed = await pdfParse(buf)
+    rawText = parsed.text || ''
+    meta = extractMeta(rawText)
+
+    const storagePath = `screener/${userId}/${jobId}/${Date.now()}_${fileName}`
+    const { data: storageData } = await supabaseService.storage
+      .from('resumes')
+      .upload(storagePath, buf, { contentType: 'application/pdf', upsert: false })
+    if (storageData?.path) {
+      const { data: urlData } = supabaseService.storage.from('resumes').getPublicUrl(storageData.path)
+      fileUrl = urlData?.publicUrl || null
+    }
+  } catch (e) {
+    console.error('PDF parse error:', fileName, e.message)
+  } finally {
+    await fs.promises.unlink(file.filepath).catch(() => {})
+  }
+
+  const scanned = !rawText.trim()
+
+  const { data: resumeRow, error: insertErr } = await supabaseService
+    .from('screener_resumes')
+    .insert({
+      job_id:     jobId,
+      company_id: userId,
+      file_name:  fileName,
+      file_url:   fileUrl,
+      raw_text:   rawText.slice(0, 12000),
+      status:     rawText ? 'pending' : 'error',
+      error_msg:  rawText ? null : 'Could not extract text from PDF — file may be scanned or image-only',
+      ...meta,
+    })
+    .select()
+    .single()
+
+  if (insertErr) {
+    return { file: fileName, ok: false, error: insertErr.message }
+  }
+  return { file: fileName, ok: true, id: resumeRow.id, name: meta.candidate_name, scanned }
 }
 
 export default async function handler(req, res) {
@@ -70,58 +118,8 @@ export default async function handler(req, res) {
   if (uploaded.length === 0) return res.status(400).json({ error: 'No files uploaded' })
   if (uploaded.length > 500) return res.status(400).json({ error: 'Max 500 files per batch' })
 
-  const results = []
-
-  for (const file of uploaded) {
-    const fileName = file.originalFilename || file.newFilename || 'resume.pdf'
-    let rawText = ''
-    let meta = { candidate_name: '', candidate_email: '', candidate_phone: '' }
-    let fileUrl = null
-
-    try {
-      // Parse PDF
-      const buf = fs.readFileSync(file.filepath)
-      const parsed = await pdfParse(buf)
-      rawText = parsed.text || ''
-      meta = extractMeta(rawText)
-
-      // Upload to Supabase Storage
-      const storagePath = `screener/${user.id}/${jobId}/${Date.now()}_${fileName}`
-      const { data: storageData } = await supabaseService.storage
-        .from('resumes')
-        .upload(storagePath, buf, { contentType: 'application/pdf', upsert: false })
-      if (storageData?.path) {
-        const { data: urlData } = supabaseService.storage.from('resumes').getPublicUrl(storageData.path)
-        fileUrl = urlData?.publicUrl || null
-      }
-    } catch (e) {
-      console.error('PDF parse error:', fileName, e.message)
-    } finally {
-      try { fs.unlinkSync(file.filepath) } catch {}
-    }
-
-    // Insert resume record
-    const { data: resumeRow, error: insertErr } = await supabaseService
-      .from('screener_resumes')
-      .insert({
-        job_id: jobId,
-        company_id: user.id,
-        file_name: fileName,
-        file_url: fileUrl,
-        raw_text: rawText.slice(0, 12000),
-        status: rawText ? 'pending' : 'error',
-        error_msg: rawText ? null : 'Could not extract text from PDF',
-        ...meta,
-      })
-      .select()
-      .single()
-
-    if (insertErr) {
-      results.push({ file: fileName, ok: false, error: insertErr.message })
-    } else {
-      results.push({ file: fileName, ok: true, id: resumeRow.id, name: meta.candidate_name })
-    }
-  }
+  // Process all files in parallel within this request
+  const results = await Promise.all(uploaded.map(f => processOne(f, jobId, user.id)))
 
   return res.json({ ok: true, uploaded: results.length, results })
 }

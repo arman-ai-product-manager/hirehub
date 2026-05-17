@@ -10,8 +10,19 @@ const REC_COLOR = { SHORTLIST: '#16a34a', MAYBE: '#d97706', REJECT: '#dc2626' }
 const REC_BG    = { SHORTLIST: '#dcfce7', MAYBE: '#fef3c7', REJECT: '#fee2e2' }
 const REC_LABEL = { SHORTLIST: '✓ Shortlist', MAYBE: '~ Maybe', REJECT: '✗ Reject' }
 
-const MAX_FILE_MB   = 4           // Vercel request body hard limit
-const UPLOAD_CHUNK  = 5           // files per upload request (5 × 4 MB max = safe)
+const MAX_FILE_MB  = 4
+const UPLOAD_CHUNK = 5
+
+function fmtElapsed(secs) {
+  if (secs < 60) return `${secs}s`
+  return `${Math.floor(secs / 60)}m ${secs % 60}s`
+}
+
+function fmtETA(remainingSecs) {
+  if (!isFinite(remainingSecs) || remainingSecs <= 0) return null
+  if (remainingSecs < 60) return `~${Math.ceil(remainingSecs)}s`
+  return `~${Math.ceil(remainingSecs / 60)}m`
+}
 
 function ScoreBadge({ score }) {
   const color = score >= 70 ? '#16a34a' : score >= 45 ? '#d97706' : '#dc2626'
@@ -48,23 +59,35 @@ export default function JobDetail() {
   const [resumes, setResumes]         = useState([])
   const [stats, setStats]             = useState(null)
   const [loading, setLoading]         = useState(true)
-  const [uploading, setUploading]     = useState(false)
-  const [uploadProgress, setUploadProgress] = useState(null)
-  const [screening, setScreening]     = useState(false)
+
+  // Pipeline: 'idle' | 'uploading' | 'screening' | 'done'
+  const [pipeline, setPipeline]       = useState('idle')
+  const [uploadProgress, setUploadProgress] = useState({ done: 0, total: 0, errors: 0 })
   const [screenProgress, setScreenProgress] = useState({ done: 0, total: 0 })
+  const [fileLog, setFileLog]         = useState([]) // last 8 upload results
+  const [scannedCount, setScannedCount] = useState(0)
+  const [elapsed, setElapsed]         = useState(0)
+
   const [exporting, setExporting]     = useState(false)
   const [filter, setFilter]           = useState('all')
   const [expanded, setExpanded]       = useState(null)
-  const [deleteConfirm, setDeleteConfirm] = useState(null) // id of resume pending delete confirm
+  const [deleteConfirm, setDeleteConfirm] = useState(null)
   const [toast, setToast]             = useState({ msg: '', type: 'info' })
+
   const fileRef      = useRef()
   const pollRef      = useRef()
   const tokenRef     = useRef('')
-  const dragCounter  = useRef(0)     // fix: onDragLeave fires on child elements
+  const dragCounter  = useRef(0)
+  const startTimeRef = useRef(null)
+  const timerRef     = useRef(null)
+
+  // Derived
+  const uploading = pipeline === 'uploading'
+  const screening = pipeline === 'screening'
 
   const showToast = useCallback((msg, type = 'info') => setToast({ msg, type }), [])
 
-  // Parse jobId from the URL path (/screener/<uuid>)
+  // Parse jobId from URL path
   useEffect(() => {
     if (typeof window === 'undefined') return
     const parts = window.location.pathname.split('/').filter(Boolean)
@@ -72,13 +95,12 @@ export default function JobDetail() {
     if (id && id !== 'screener') {
       setJobId(id)
     } else {
-      // Truly no jobId — stop loading to show error state
       setLoading(false)
       setAuthLoading(false)
     }
   }, [])
 
-  // Session + initial data load — only fires once jobId is known (dep: jobId)
+  // Session + initial data load — only fires once jobId is known
   useEffect(() => {
     if (!SB || !jobId) return
     SB.auth.getSession().then(({ data }) => {
@@ -89,7 +111,6 @@ export default function JobDetail() {
       if (s) {
         loadResults(s.access_token, jobId, false)
       } else {
-        // No session — stop loading so sign-in gate renders
         setLoading(false)
       }
     }).catch(() => {
@@ -98,17 +119,29 @@ export default function JobDetail() {
     })
   }, [jobId]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Elapsed timer — runs while uploading or screening
+  useEffect(() => {
+    if (pipeline === 'uploading' || pipeline === 'screening') {
+      if (!startTimeRef.current) startTimeRef.current = Date.now()
+      timerRef.current = setInterval(() => {
+        setElapsed(Math.floor((Date.now() - startTimeRef.current) / 1000))
+      }, 1000)
+    } else {
+      clearInterval(timerRef.current)
+    }
+    return () => clearInterval(timerRef.current)
+  }, [pipeline])
+
   // Get a fresh token (handles Supabase auto-refresh so long sessions don't break)
   async function getToken() {
     if (!SB) return ''
     const { data } = await SB.auth.getSession()
     const tok = data?.session?.access_token || ''
     tokenRef.current = tok
-    if (!tok && session) setSession(null) // session expired — show sign-in
+    if (!tok && session) setSession(null)
     return tok
   }
 
-  // silent=true → no loading spinner, used for background polls
   async function loadResults(token, jid, silent = false) {
     if (!silent) setLoading(true)
     try {
@@ -118,24 +151,26 @@ export default function JobDetail() {
       if (!r.ok) {
         const d = await r.json().catch(() => ({}))
         if (!silent) showToast(d.error || 'Failed to load results', 'error')
-        return
+        return null
       }
       const d = await r.json()
       setJob(d.job)
       setResumes(d.resumes || [])
       setStats(d.stats)
+      return d
     } catch {
       if (!silent) showToast('Network error — could not load results', 'error')
+      return null
     } finally {
       if (!silent) setLoading(false)
     }
   }
 
-  // Silent background poll while resumes are pending/processing
+  // Silent background poll while resumes are pending/processing (only when not in active pipeline)
   useEffect(() => {
     if (!session || !jobId) return
     const hasPending = resumes.some(r => r.status === 'pending' || r.status === 'processing')
-    if (hasPending && !screening) {
+    if (hasPending && pipeline === 'idle') {
       clearInterval(pollRef.current)
       pollRef.current = setInterval(() => {
         loadResults(tokenRef.current, jobId, true)
@@ -144,14 +179,61 @@ export default function JobDetail() {
       clearInterval(pollRef.current)
     }
     return () => clearInterval(pollRef.current)
-  }, [resumes, screening, session, jobId]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [resumes, pipeline, session, jobId]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Auto-cancel pending delete confirmation after 4s of inactivity
+  // Auto-cancel pending delete confirmation after 4s
   useEffect(() => {
     if (!deleteConfirm) return
     const t = setTimeout(() => setDeleteConfirm(null), 4000)
     return () => clearTimeout(t)
   }, [deleteConfirm])
+
+  // Core streaming logic — shared by auto-pipeline and manual screen button
+  async function doScreeningStream(token, total) {
+    setScreenProgress({ done: 0, total })
+
+    const resp = await fetch('/api/screener/screen', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+      body: JSON.stringify({ job_id: jobId }),
+    })
+
+    if (!resp.ok) {
+      const d = await resp.json().catch(() => ({}))
+      showToast(d.error || `Screening failed (${resp.status})`, 'error')
+      return 0
+    }
+
+    const reader  = resp.body.getReader()
+    const decoder = new TextDecoder()
+    let buf = '', count = 0
+
+    outer: while (true) {
+      const { value, done: streamDone } = await reader.read()
+      if (streamDone) break
+      buf += decoder.decode(value, { stream: true })
+      const lines = buf.split('\n')
+      buf = lines.pop()
+      for (const line of lines) {
+        if (!line.trim()) continue
+        try {
+          const msg = JSON.parse(line)
+          if (msg.done === true && msg.processed !== undefined) break outer
+          if (msg.id) {
+            count++
+            setScreenProgress(p => ({ ...p, done: count }))
+            setResumes(prev => prev.map(r =>
+              r.id === msg.id
+                ? { ...r, status: msg.ok ? 'done' : 'error', score: msg.score ?? r.score, recommendation: msg.rec ?? r.recommendation }
+                : r
+            ))
+          }
+        } catch {}
+      }
+    }
+
+    return count
+  }
 
   async function handleUpload(files) {
     if (!files || files.length === 0) return
@@ -162,7 +244,6 @@ export default function JobDetail() {
     if (pdfs.length === 0) { showToast('Please select PDF files only.', 'error'); return }
     if (pdfs.length > 500) { showToast('Maximum 500 files per upload.', 'error'); return }
 
-    // Client-side file size check
     const oversized = pdfs.filter(f => f.size > MAX_FILE_MB * 1024 * 1024)
     if (oversized.length > 0) {
       showToast(
@@ -173,16 +254,25 @@ export default function JobDetail() {
       return
     }
 
-    // Reset file input so same files can be re-selected after fix
     if (fileRef.current) fileRef.current.value = ''
 
-    setUploading(true)
+    // Start pipeline
+    setPipeline('uploading')
+    startTimeRef.current = Date.now()
+    setElapsed(0)
+    setFileLog([])
+    setScannedCount(0)
     setUploadProgress({ done: 0, total: pdfs.length, errors: 0 })
 
     const token = await getToken()
-    if (!token) { setUploading(false); showToast('Session expired — please sign in again', 'error'); return }
+    if (!token) {
+      setPipeline('idle')
+      showToast('Session expired — please sign in again', 'error')
+      return
+    }
 
-    let done = 0, errors = 0
+    let uploadedOk = 0, uploadErrors = 0, localScanned = 0
+    const log = []
 
     for (let i = 0; i < pdfs.length; i += UPLOAD_CHUNK) {
       const batch = pdfs.slice(i, i + UPLOAD_CHUNK)
@@ -197,96 +287,93 @@ export default function JobDetail() {
         })
         const d = await r.json().catch(() => ({ results: [] }))
         if (!r.ok) {
-          errors += batch.length
+          uploadErrors += batch.length
+          batch.forEach(f => log.push({ name: f.name, ok: false }))
         } else {
-          done   += d.results?.filter(x => x.ok).length  || 0
-          errors += d.results?.filter(x => !x.ok).length || 0
+          ;(d.results || []).forEach(x => {
+            if (x.ok) {
+              uploadedOk++
+              if (x.scanned) localScanned++
+              log.push({ name: x.file, ok: true, scanned: x.scanned })
+            } else {
+              uploadErrors++
+              log.push({ name: x.file, ok: false })
+            }
+          })
         }
       } catch {
-        errors += batch.length
+        uploadErrors += batch.length
+        batch.forEach(f => log.push({ name: f.name, ok: false }))
       }
-      setUploadProgress({ done: done + errors, total: pdfs.length, errors })
+      setUploadProgress({ done: uploadedOk + uploadErrors, total: pdfs.length, errors: uploadErrors })
+      setFileLog(log.slice(-8))
+      if (localScanned > 0) setScannedCount(localScanned)
     }
 
-    setUploading(false)
-    setUploadProgress(null)
-
-    if (done === 0 && errors > 0) {
-      showToast(`Upload failed — ${errors} file${errors > 1 ? 's' : ''} could not be processed.`, 'error')
-    } else if (errors > 0) {
-      showToast(`${done} uploaded · ${errors} failed`, 'error')
-    } else {
-      showToast(`${done} resume${done !== 1 ? 's' : ''} uploaded`, 'success')
+    if (uploadedOk === 0 && uploadErrors > 0) {
+      setPipeline('idle')
+      startTimeRef.current = null
+      showToast(`Upload failed — ${uploadErrors} file${uploadErrors > 1 ? 's' : ''} could not be processed.`, 'error')
+      return
     }
 
-    await loadResults(token, jobId, true)
+    if (uploadErrors > 0) {
+      showToast(`${uploadedOk} uploaded · ${uploadErrors} failed`, 'error')
+    }
+
+    // Reload results to get accurate pending count
+    const freshToken = await getToken()
+    const freshData = await loadResults(freshToken, jobId, true)
+    const pendingCount = (freshData?.resumes || []).filter(r => r.status === 'pending' || r.status === 'error').length
+
+    if (pendingCount > 0) {
+      // Auto-trigger AI screening
+      setPipeline('screening')
+      try {
+        const screened = await doScreeningStream(freshToken, pendingCount)
+        if (screened > 0) {
+          showToast(`${screened} resume${screened !== 1 ? 's' : ''} screened by AI`, 'success')
+        }
+      } catch (e) {
+        showToast('Screening error: ' + (e.message || 'Unknown error'), 'error')
+      }
+      await loadResults(freshToken, jobId, true)
+    }
+
+    setPipeline('done')
   }
 
+  // Manual screen button — for re-screening pending resumes after initial upload
   async function startScreening() {
-    if (screening) return
+    if (pipeline !== 'idle') return
     const pending = resumes.filter(r => r.status === 'pending' || r.status === 'error')
     if (pending.length === 0) { showToast('No pending resumes to screen.', 'info'); return }
 
     const token = await getToken()
     if (!token) { showToast('Session expired — please sign in again', 'error'); return }
 
-    setScreening(true)
-    setScreenProgress({ done: 0, total: pending.length })
+    setPipeline('screening')
+    startTimeRef.current = Date.now()
+    setElapsed(0)
+    setScannedCount(0)
 
     try {
-      const resp = await fetch('/api/screener/screen', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
-        body: JSON.stringify({ job_id: jobId }),
-      })
-
-      if (!resp.ok) {
-        const d = await resp.json().catch(() => ({}))
-        showToast(d.error || `Screening failed (${resp.status})`, 'error')
-        setScreening(false)
-        return
-      }
-
-      const reader  = resp.body.getReader()
-      const decoder = new TextDecoder()
-      let buf    = ''
-      let count  = 0
-
-      outer: while (true) {
-        const { value, done: streamDone } = await reader.read()
-        if (streamDone) break
-
-        buf += decoder.decode(value, { stream: true })
-        const lines = buf.split('\n')
-        buf = lines.pop() // keep incomplete trailing line
-
-        for (const line of lines) {
-          if (!line.trim()) continue
-          try {
-            const msg = JSON.parse(line)
-            // Terminal message — server finished
-            if (msg.done === true && msg.processed !== undefined) break outer
-            if (msg.id) {
-              const success = msg.ok === true
-              count++
-              setScreenProgress(p => ({ ...p, done: count }))
-              setResumes(prev => prev.map(r =>
-                r.id === msg.id
-                  ? { ...r, status: success ? 'done' : 'error', score: msg.score ?? r.score, recommendation: msg.rec ?? r.recommendation }
-                  : r
-              ))
-            }
-          } catch {} // malformed NDJSON line — skip
-        }
-      }
-
+      const count = await doScreeningStream(token, pending.length)
       showToast(`Screening complete — ${count} resume${count !== 1 ? 's' : ''} processed`, 'success')
     } catch (e) {
       showToast('Screening error: ' + (e.message || 'Unknown error'), 'error')
     } finally {
-      setScreening(false)
       await loadResults(token, jobId, true)
+      setPipeline('done')
     }
+  }
+
+  function resetPipeline() {
+    setPipeline('idle')
+    setFileLog([])
+    setScannedCount(0)
+    setElapsed(0)
+    startTimeRef.current = null
   }
 
   async function exportExcel() {
@@ -320,13 +407,10 @@ export default function JobDetail() {
 
   async function confirmDelete(id) {
     if (deleteConfirm !== id) {
-      // First tap — show inline confirmation
       setDeleteConfirm(id)
       return
     }
-    // Second tap — actually delete
     setDeleteConfirm(null)
-    // Close expanded panel if this resume is open
     if (expanded === id) setExpanded(null)
 
     const token = await getToken()
@@ -342,7 +426,6 @@ export default function JobDetail() {
       }
       const deleted = resumes.find(r => r.id === id)
       setResumes(prev => prev.filter(r => r.id !== id))
-      // Keep stats in sync with new recommendation keys
       setStats(prev => {
         if (!prev || !deleted) return prev
         return {
@@ -361,7 +444,7 @@ export default function JobDetail() {
     }
   }
 
-  // Pre-compute rank map (avoids O(n²) findIndex inside render)
+  // Pre-compute rank map (O(1) lookup)
   const rankMap = Object.fromEntries(
     resumes.filter(r => r.status === 'done').map((r, i) => [r.id, i + 1])
   )
@@ -371,6 +454,11 @@ export default function JobDetail() {
     : resumes.filter(r => r.recommendation === filter || r.status === filter)
 
   const pendingCount = resumes.filter(r => r.status === 'pending' || r.status === 'error').length
+
+  // ETA for screening phase
+  const screenETA = screening && screenProgress.done > 0 && elapsed > 0
+    ? fmtETA((elapsed / screenProgress.done) * (screenProgress.total - screenProgress.done))
+    : null
 
   // Auth/loading gates
   if (authLoading) return (
@@ -448,12 +536,10 @@ export default function JobDetail() {
                     {exporting ? 'Exporting…' : '⬇ Export Excel'}
                   </button>
                 )}
-                {pendingCount > 0 && (
-                  <button onClick={startScreening} disabled={screening || uploading}
-                    style={{ background: '#ff6b00', color: '#fff', border: 'none', padding: '9px 18px', borderRadius: 9, fontWeight: 700, fontSize: 13, cursor: (screening || uploading) ? 'not-allowed' : 'pointer', opacity: (screening || uploading) ? .7 : 1, whiteSpace: 'nowrap' }}>
-                    {screening
-                      ? `Screening ${screenProgress.done}/${screenProgress.total}…`
-                      : `▶ Screen ${pendingCount} Resume${pendingCount !== 1 ? 's' : ''} with AI`}
+                {pendingCount > 0 && pipeline === 'idle' && (
+                  <button onClick={startScreening}
+                    style={{ background: '#ff6b00', color: '#fff', border: 'none', padding: '9px 18px', borderRadius: 9, fontWeight: 700, fontSize: 13, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                    ▶ Screen {pendingCount} Resume{pendingCount !== 1 ? 's' : ''} with AI
                   </button>
                 )}
               </div>
@@ -480,36 +566,95 @@ export default function JobDetail() {
               </div>
             )}
 
-            {/* Screening progress */}
-            {screening && (
-              <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #e5e7eb', padding: '14px 18px', marginBottom: 16 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: 13, fontWeight: 700, color: '#374151' }}>
-                  <span>🤖 AI screening in progress…</span>
-                  <span style={{ fontVariantNumeric: 'tabular-nums' }}>{screenProgress.done} / {screenProgress.total}</span>
-                </div>
-                <div style={{ background: '#f3f4f6', borderRadius: 999, height: 6, overflow: 'hidden' }}>
-                  <div style={{ background: '#ff6b00', height: '100%', borderRadius: 999, transition: 'width .4s', width: `${screenProgress.total ? (screenProgress.done / screenProgress.total) * 100 : 0}%` }} />
-                </div>
-              </div>
-            )}
+            {/* Unified pipeline progress panel */}
+            {pipeline !== 'idle' && (
+              <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e5e7eb', padding: '16px 18px', marginBottom: 16 }}>
 
-            {/* Upload progress */}
-            {uploading && uploadProgress && (
-              <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #e5e7eb', padding: '14px 18px', marginBottom: 16 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: 13, fontWeight: 700, color: '#374151' }}>
-                  <span>📤 Uploading PDFs…</span>
-                  <span style={{ fontVariantNumeric: 'tabular-nums' }}>{uploadProgress.done} / {uploadProgress.total}</span>
-                </div>
-                <div style={{ background: '#f3f4f6', borderRadius: 999, height: 6, overflow: 'hidden' }}>
-                  <div style={{ background: '#3b82f6', height: '100%', borderRadius: 999, transition: 'width .2s', width: `${uploadProgress.total ? (uploadProgress.done / uploadProgress.total) * 100 : 0}%` }} />
-                </div>
-                {uploadProgress.errors > 0 && (
-                  <div style={{ fontSize: 12, color: '#dc2626', marginTop: 6 }}>{uploadProgress.errors} file(s) failed</div>
+                {/* UPLOADING */}
+                {pipeline === 'uploading' && (
+                  <>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, fontSize: 13, fontWeight: 700, color: '#374151' }}>
+                      <span>📤 Uploading PDFs…</span>
+                      <span style={{ fontVariantNumeric: 'tabular-nums', color: '#6b7280' }}>
+                        {uploadProgress.done} / {uploadProgress.total}
+                      </span>
+                    </div>
+                    <div style={{ background: '#f3f4f6', borderRadius: 999, height: 7, overflow: 'hidden' }}>
+                      <div style={{ background: '#3b82f6', height: '100%', borderRadius: 999, transition: 'width .2s', width: `${uploadProgress.total ? (uploadProgress.done / uploadProgress.total) * 100 : 0}%` }} />
+                    </div>
+                    <div style={{ display: 'flex', gap: 12, marginTop: 5, fontSize: 11, color: '#9ca3af' }}>
+                      {elapsed > 0 && <span>Elapsed: {fmtElapsed(elapsed)}</span>}
+                      {uploadProgress.errors > 0 && <span style={{ color: '#dc2626' }}>{uploadProgress.errors} failed</span>}
+                    </div>
+                    {/* Recent file log */}
+                    {fileLog.length > 0 && (
+                      <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 3 }}>
+                        {fileLog.slice(-6).map((f, i) => (
+                          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11 }}>
+                            <span style={{ flexShrink: 0, color: f.scanned ? '#d97706' : f.ok ? '#16a34a' : '#dc2626' }}>
+                              {f.scanned ? '📷' : f.ok ? '✓' : '✗'}
+                            </span>
+                            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#6b7280', flex: 1 }}>{f.name}</span>
+                            {f.scanned && <span style={{ color: '#d97706', flexShrink: 0, fontSize: 10, fontWeight: 600 }}>no text</span>}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {scannedCount > 0 && (
+                      <div style={{ marginTop: 8, fontSize: 12, color: '#92400e', background: '#fef3c7', borderRadius: 7, padding: '5px 10px', fontWeight: 600 }}>
+                        ⚠ {scannedCount} scanned/image PDF{scannedCount > 1 ? 's' : ''} — no text could be extracted, will be skipped by AI
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {/* SCREENING */}
+                {pipeline === 'screening' && (
+                  <>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, fontSize: 13, fontWeight: 700, color: '#374151' }}>
+                      <span>🤖 Processing with AI…</span>
+                      <span style={{ fontVariantNumeric: 'tabular-nums', color: '#6b7280' }}>
+                        {screenProgress.done} / {screenProgress.total}
+                      </span>
+                    </div>
+                    <div style={{ background: '#f3f4f6', borderRadius: 999, height: 7, overflow: 'hidden' }}>
+                      <div style={{ background: '#ff6b00', height: '100%', borderRadius: 999, transition: 'width .4s', width: `${screenProgress.total ? (screenProgress.done / screenProgress.total) * 100 : 0}%` }} />
+                    </div>
+                    <div style={{ display: 'flex', gap: 12, marginTop: 5, fontSize: 11, color: '#9ca3af' }}>
+                      {elapsed > 0 && <span>Elapsed: {fmtElapsed(elapsed)}</span>}
+                      {screenETA && <span>ETA: {screenETA}</span>}
+                    </div>
+                    {scannedCount > 0 && (
+                      <div style={{ marginTop: 8, fontSize: 12, color: '#92400e', background: '#fef3c7', borderRadius: 7, padding: '5px 10px', fontWeight: 600 }}>
+                        ⚠ {scannedCount} scanned PDF{scannedCount > 1 ? 's' : ''} skipped — image-only, no text
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {/* DONE */}
+                {pipeline === 'done' && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+                    <div style={{ fontSize: 32, lineHeight: 1 }}>✅</div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontWeight: 800, fontSize: 15, color: '#16a34a', marginBottom: 3 }}>
+                        Done!{screenProgress.done > 0 ? ` ${screenProgress.done} resume${screenProgress.done !== 1 ? 's' : ''} screened` : ` ${uploadProgress.done} uploaded`}
+                      </div>
+                      <div style={{ fontSize: 12, color: '#6b7280' }}>
+                        {scannedCount > 0 && `${scannedCount} scanned PDF${scannedCount > 1 ? 's' : ''} skipped · `}
+                        Total time: {fmtElapsed(elapsed)}
+                      </div>
+                    </div>
+                    <button onClick={resetPipeline}
+                      style={{ background: '#ff6b00', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: 9, fontWeight: 700, fontSize: 13, cursor: 'pointer', flexShrink: 0 }}>
+                      View Results ↓
+                    </button>
+                  </div>
                 )}
               </div>
             )}
 
-            {/* Drop zone — drag counter prevents onDragLeave firing on child elements */}
+            {/* Drop zone */}
             <div
               onDragOver={e => e.preventDefault()}
               onDragEnter={e => {
@@ -525,21 +670,21 @@ export default function JobDetail() {
                 e.preventDefault()
                 dragCounter.current = 0
                 e.currentTarget.style.borderColor = '#d1d5db'
-                if (!uploading && !screening) handleUpload(e.dataTransfer.files)
+                if (pipeline === 'idle') handleUpload(e.dataTransfer.files)
               }}
-              onClick={() => { if (!uploading && !screening) fileRef.current?.click() }}
-              style={{ background: '#fff', border: '2px dashed #d1d5db', borderRadius: 14, padding: '24px 16px', textAlign: 'center', marginBottom: 20, cursor: (uploading || screening) ? 'not-allowed' : 'pointer', opacity: (uploading || screening) ? .5 : 1, transition: 'border-color .15s, opacity .15s' }}
+              onClick={() => { if (pipeline === 'idle') fileRef.current?.click() }}
+              style={{ background: '#fff', border: '2px dashed #d1d5db', borderRadius: 14, padding: '24px 16px', textAlign: 'center', marginBottom: 20, cursor: pipeline !== 'idle' ? 'not-allowed' : 'pointer', opacity: pipeline !== 'idle' ? .45 : 1, transition: 'border-color .15s, opacity .15s' }}
             >
               <div style={{ fontSize: 30, marginBottom: 6 }}>📄</div>
               <div style={{ fontWeight: 700, fontSize: 14, color: '#374151', marginBottom: 4 }}>
-                {uploading ? 'Upload in progress…' : 'Drop PDFs here or tap to browse'}
+                {uploading ? 'Upload in progress…' : screening ? 'AI screening in progress…' : 'Drop PDFs here or tap to browse'}
               </div>
-              <div style={{ fontSize: 12, color: '#9ca3af' }}>Up to 500 PDFs · Max {MAX_FILE_MB} MB per file</div>
+              <div style={{ fontSize: 12, color: '#9ca3af' }}>Up to 500 PDFs · Max {MAX_FILE_MB} MB per file · AI screens automatically after upload</div>
               <input ref={fileRef} type="file" accept=".pdf,application/pdf" multiple style={{ display: 'none' }}
                 onChange={e => handleUpload(e.target.files)} />
             </div>
 
-            {/* Filter tabs — horizontally scrollable on very small screens */}
+            {/* Filter tabs */}
             {resumes.length > 0 && (
               <div style={{ display: 'flex', gap: 5, marginBottom: 14, overflowX: 'auto', paddingBottom: 2, WebkitOverflowScrolling: 'touch' }}>
                 {[
@@ -558,12 +703,12 @@ export default function JobDetail() {
               </div>
             )}
 
-            {/* Results */}
+            {/* Results list */}
             {resumes.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '52px 20px', background: '#fff', borderRadius: 16, border: '1px solid #e5e7eb' }}>
                 <div style={{ fontSize: 44, marginBottom: 10 }}>📋</div>
                 <h3 style={{ fontWeight: 800, fontSize: 16, color: '#111827', marginBottom: 6 }}>No resumes yet</h3>
-                <p style={{ color: '#6b7280', fontSize: 13 }}>Upload PDFs above to start screening candidates with AI.</p>
+                <p style={{ color: '#6b7280', fontSize: 13 }}>Drop PDFs above — AI will screen them automatically after upload.</p>
               </div>
             ) : filtered.length === 0 ? (
               <div style={{ textAlign: 'center', padding: 36, background: '#fff', borderRadius: 14, border: '1px solid #e5e7eb', color: '#9ca3af', fontSize: 14 }}>
@@ -628,14 +773,13 @@ export default function JobDetail() {
                           }
                         </div>
 
-                        {/* Expand indicator */}
+                        {/* Expand indicator / delete */}
                         {r.status === 'done' && !isPendingDelete && (
                           <span style={{ color: '#d1d5db', fontSize: 11, flexShrink: 0 }}>
                             {expanded === r.id ? '▲' : '▼'}
                           </span>
                         )}
 
-                        {/* Inline delete confirm — shows instead of arrow when pending */}
                         {isPendingDelete ? (
                           <div style={{ display: 'flex', gap: 5, flexShrink: 0 }}>
                             <button
@@ -652,8 +796,8 @@ export default function JobDetail() {
                         ) : (
                           <button
                             onClick={e => { e.stopPropagation(); confirmDelete(r.id) }}
-                            disabled={screening}
-                            style={{ background: 'none', border: 'none', color: '#d1d5db', cursor: screening ? 'not-allowed' : 'pointer', fontSize: 18, padding: '4px', flexShrink: 0, lineHeight: 1, borderRadius: 4 }}
+                            disabled={pipeline !== 'idle'}
+                            style={{ background: 'none', border: 'none', color: '#d1d5db', cursor: pipeline !== 'idle' ? 'not-allowed' : 'pointer', fontSize: 18, padding: '4px', flexShrink: 0, lineHeight: 1, borderRadius: 4 }}
                             title="Remove resume"
                             aria-label="Remove resume"
                           >×</button>
