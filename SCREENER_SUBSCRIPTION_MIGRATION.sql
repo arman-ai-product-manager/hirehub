@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS screener_subscriptions (
   status                    TEXT        NOT NULL DEFAULT 'pending'
                                         CHECK (status IN ('pending', 'active', 'paused', 'cancelled', 'expired')),
   resume_limit              INTEGER     NOT NULL DEFAULT 100,  -- -1 = unlimited (Agency)
-  razorpay_subscription_id  TEXT        UNIQUE,
+  cashfree_subscription_id  TEXT        UNIQUE,
   current_period_start      TIMESTAMPTZ,
   current_period_end        TIMESTAMPTZ,
   created_at                TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -39,24 +39,30 @@ CREATE INDEX IF NOT EXISTS screener_resumes_company_created
   ON screener_resumes (company_id, created_at);
 
 -- ============================================================
+-- If the table already existed with razorpay_subscription_id,
+-- run this ALTER to rename the column:
+--
+--   ALTER TABLE screener_subscriptions
+--     RENAME COLUMN razorpay_subscription_id TO cashfree_subscription_id;
+--
+-- ============================================================
 -- Environment variables to set in Vercel / .env.local:
 --
---   RAZORPAY_KEY_ID          = rzp_live_xxx
---   RAZORPAY_KEY_SECRET      = secret_xxx
---   RAZORPAY_WEBHOOK_SECRET  = whsec_xxx   (from Razorpay dashboard → Webhooks)
---   RAZORPAY_PLAN_STARTER    = plan_xxx    (create in Razorpay → Subscriptions → Plans)
---   RAZORPAY_PLAN_PRO        = plan_xxx
---   RAZORPAY_PLAN_AGENCY     = plan_xxx
---   NEXT_PUBLIC_RAZORPAY_KEY_ID = rzp_live_xxx  (same as KEY_ID, exposed to browser)
+--   CASHFREE_APP_ID          = CF_live_xxx          (Cashfree App ID)
+--   CASHFREE_SECRET_KEY      = secret_xxx           (Cashfree Secret Key)
+--   CASHFREE_PLAN_STARTER    = plan_starter_xxx     (create in Cashfree dashboard → Subscriptions → Plans)
+--   CASHFREE_PLAN_PRO        = plan_pro_xxx
+--   CASHFREE_PLAN_AGENCY     = plan_agency_xxx
+--   NEXT_PUBLIC_APP_URL      = https://hirehub360.in
 --
--- Razorpay plan setup (do once in Razorpay dashboard):
---   Starter : ₹2,999 / month, interval=monthly
---   Pro     : ₹5,999 / month, interval=monthly
---   Agency  : ₹12,999 / month, interval=monthly
+-- Cashfree plan setup (do once in Cashfree dashboard → Subscriptions → Plans):
+--   Starter : ₹2,999 / month, interval=1, interval_type=MONTH
+--   Pro     : ₹5,999 / month, interval=1, interval_type=MONTH
+--   Agency  : ₹12,999 / month, interval=1, interval_type=MONTH
 --
--- Webhook URL to add in Razorpay dashboard:
+-- Webhook URL to add in Cashfree dashboard → Webhooks:
 --   https://hirehub360.in/api/screener/webhook
---   Events: subscription.activated, subscription.charged,
---           subscription.cancelled, subscription.completed,
---           subscription.pending, subscription.halted
+--   Events to subscribe: SUBSCRIPTION_AUTHORIZED, SUBSCRIPTION_CHARGED,
+--                        SUBSCRIPTION_CANCELLED, SUBSCRIPTION_EXPIRED,
+--                        SUBSCRIPTION_PENDING, SUBSCRIPTION_ON_HOLD
 -- ============================================================

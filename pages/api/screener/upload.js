@@ -117,8 +117,16 @@ export default async function handler(req, res) {
   if (!job) return res.status(403).json({ error: 'Job not found' })
 
   const uploaded = Array.isArray(files.resumes) ? files.resumes : files.resumes ? [files.resumes] : []
+
+  async function cleanupTempFiles(fileList) {
+    await Promise.all(fileList.map(f => fs.promises.unlink(f.filepath).catch(() => {})))
+  }
+
   if (uploaded.length === 0) return res.status(400).json({ error: 'No files uploaded' })
-  if (uploaded.length > 500) return res.status(400).json({ error: 'Max 500 files per batch' })
+  if (uploaded.length > 500) {
+    await cleanupTempFiles(uploaded)
+    return res.status(400).json({ error: 'Max 500 files per batch' })
+  }
 
   // Enforce subscription limit (server-side gate)
   const { data: sub } = await supabaseService
@@ -129,6 +137,7 @@ export default async function handler(req, res) {
 
   const isActive = sub?.status === 'active'
   if (!isActive) {
+    await cleanupTempFiles(uploaded)
     return res.status(402).json({ error: 'No active subscription. Subscribe to start screening resumes.', upgrade_required: true })
   }
 
@@ -144,6 +153,7 @@ export default async function handler(req, res) {
     const used      = usedCount || 0
     const remaining = limit - used
     if (remaining <= 0) {
+      await cleanupTempFiles(uploaded)
       return res.status(402).json({
         error:            `Monthly limit reached. You've used ${used}/${limit} screenings this month.`,
         upgrade_required: true,
