@@ -25,48 +25,121 @@ const LANDING_PLANS = [
   { key: 'agency',  name: 'Agency',  price: 12999, label: 'Unlimited resumes', popular: false, features: ['Unlimited AI screenings', 'All Pro features', 'Dedicated account manager'] },
 ]
 
+function SignInBox() {
+  const [email,    setEmail]    = useState('')
+  const [password, setPassword] = useState('')
+  const [loading,  setLoading]  = useState(false)
+  const [err,      setErr]      = useState('')
+  const [mode,     setMode]     = useState('signin') // 'signin' | 'signup'
+
+  async function handleEmail(e) {
+    e.preventDefault()
+    setErr('')
+    if (!SB) return
+    setLoading(true)
+    try {
+      const fn = mode === 'signup' ? SB.auth.signUp : SB.auth.signInWithPassword
+      const { error } = await fn.call(SB.auth, { email, password })
+      if (error) setErr(error.message)
+    } catch { setErr('Something went wrong') } finally { setLoading(false) }
+  }
+
+  async function handleGoogle() {
+    if (!SB) return
+    setLoading(true)
+    const { error } = await SB.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: (typeof window !== 'undefined' ? window.location.origin : '') + '/screener' },
+    })
+    if (error) { setErr(error.message); setLoading(false) }
+  }
+
+  const inp = { width: '100%', padding: '11px 13px', borderRadius: 9, border: '1.5px solid #d1d5db', fontSize: 14, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box', marginBottom: 10 }
+
+  return (
+    <div style={{ background: '#fff', borderRadius: 18, padding: '28px 26px', border: '1.5px solid #e5e7eb', maxWidth: 400, width: '100%', boxShadow: '0 8px 40px rgba(0,0,0,.08)' }}>
+      <h2 style={{ fontWeight: 900, fontSize: 20, color: '#111827', margin: '0 0 4px', letterSpacing: '-.03em' }}>
+        {mode === 'signup' ? 'Create account' : 'Sign in to get started'}
+      </h2>
+      <p style={{ fontSize: 13, color: '#6b7280', marginBottom: 20 }}>
+        {mode === 'signup' ? 'Free trial — no credit card required' : 'Access your AI Resume Screener dashboard'}
+      </p>
+
+      {/* Google */}
+      <button onClick={handleGoogle} disabled={loading} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, padding: '11px', border: '1.5px solid #e5e7eb', borderRadius: 9, background: '#fff', fontWeight: 600, fontSize: 14, cursor: 'pointer', marginBottom: 14, fontFamily: 'inherit' }}>
+        <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z"/></svg>
+        Continue with Google
+      </button>
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#d1d5db', fontSize: 12, marginBottom: 14 }}>
+        <div style={{ flex: 1, height: 1, background: '#e5e7eb' }}/> or <div style={{ flex: 1, height: 1, background: '#e5e7eb' }}/>
+      </div>
+
+      <form onSubmit={handleEmail}>
+        <input type="email" placeholder="you@company.com" value={email} onChange={e => setEmail(e.target.value)} required style={inp} />
+        <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required style={{ ...inp, marginBottom: 14 }} />
+        {err && <div style={{ background: '#fee2e2', color: '#dc2626', padding: '9px 12px', borderRadius: 8, fontSize: 13, marginBottom: 12 }}>{err}</div>}
+        <button type="submit" disabled={loading} style={{ width: '100%', background: '#ff6b00', color: '#fff', border: 'none', padding: '12px', borderRadius: 9, fontWeight: 700, fontSize: 14, cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? .7 : 1, fontFamily: 'inherit' }}>
+          {loading ? 'Please wait…' : mode === 'signup' ? 'Create Account →' : 'Sign In →'}
+        </button>
+      </form>
+
+      <p style={{ textAlign: 'center', fontSize: 13, color: '#6b7280', marginTop: 14 }}>
+        {mode === 'signin' ? (
+          <>No account? <button onClick={() => { setMode('signup'); setErr('') }} style={{ background: 'none', border: 'none', color: '#ff6b00', fontWeight: 700, cursor: 'pointer', fontSize: 13, padding: 0 }}>Sign up free →</button></>
+        ) : (
+          <>Already have one? <button onClick={() => { setMode('signin'); setErr('') }} style={{ background: 'none', border: 'none', color: '#ff6b00', fontWeight: 700, cursor: 'pointer', fontSize: 13, padding: 0 }}>Sign in →</button></>
+        )}
+      </p>
+    </div>
+  )
+}
+
 function LandingPage() {
   return (
     <div style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif', color: '#111827' }}>
       {/* Nav */}
       <nav style={{ padding: '14px 5vw', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff', borderBottom: '1px solid #f3f4f6', position: 'sticky', top: 0, zIndex: 100 }}>
-        <div style={{ fontWeight: 900, fontSize: 18, letterSpacing: '-.03em', color: '#1d1d1f' }}>
+        <a href="/" style={{ fontWeight: 900, fontSize: 18, letterSpacing: '-.03em', color: '#1d1d1f', textDecoration: 'none' }}>
           Hire<span style={{ color: '#ff6b00' }}>Hub</span><sup style={{ fontSize: '0.5em', color: '#ff6b00', fontWeight: 900 }}>360</sup>
-        </div>
-        <a href="/hirehub.html" style={{ background: '#ff6b00', color: '#fff', padding: '10px 22px', borderRadius: 9, fontWeight: 700, fontSize: 13, textDecoration: 'none' }}>
+        </a>
+        <a href="#signin" style={{ background: '#ff6b00', color: '#fff', padding: '10px 22px', borderRadius: 9, fontWeight: 700, fontSize: 13, textDecoration: 'none' }}>
           Sign In →
         </a>
       </nav>
 
-      {/* Hero */}
-      <section style={{ background: 'linear-gradient(135deg, #1d1d1f 0%, #2c2c2e 100%)', color: '#fff', padding: '80px 5vw 100px', textAlign: 'center' }}>
-        <div style={{ display: 'inline-block', background: 'rgba(255,107,0,.18)', border: '1px solid rgba(255,107,0,.35)', color: '#ff6b00', padding: '5px 16px', borderRadius: 999, fontSize: 11, fontWeight: 800, marginBottom: 24, letterSpacing: '.06em' }}>
-          AI-POWERED RESUME SCREENING
-        </div>
-        <h1 style={{ fontWeight: 900, fontSize: 'clamp(34px, 7vw, 64px)', letterSpacing: '-.04em', margin: '0 0 20px', lineHeight: 1.08 }}>
-          Screen 500 Resumes<br />
-          <span style={{ color: '#ff6b00' }}>in 10 Minutes</span>
-        </h1>
-        <p style={{ fontSize: 'clamp(15px, 2.2vw, 19px)', color: 'rgba(255,255,255,.6)', margin: '0 auto 40px', maxWidth: 540, lineHeight: 1.65 }}>
-          Upload any batch of PDFs. AI reads every resume, scores it against your job description, and ranks candidates — so you interview only the best.
-        </p>
-        <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-          <a href="/hirehub.html" style={{ background: '#ff6b00', color: '#fff', padding: '16px 36px', borderRadius: 12, fontWeight: 800, fontSize: 16, textDecoration: 'none', letterSpacing: '-.01em', boxShadow: '0 8px 32px rgba(255,107,0,.35)' }}>
-            Start Free Trial →
-          </a>
-          <a href="#pricing" style={{ background: 'rgba(255,255,255,.08)', color: '#fff', padding: '16px 28px', borderRadius: 12, fontWeight: 700, fontSize: 15, textDecoration: 'none', border: '1px solid rgba(255,255,255,.18)' }}>
-            See Pricing
-          </a>
-        </div>
+      {/* Hero — two column: headline left, sign-in box right */}
+      <section id="signin" style={{ background: 'linear-gradient(135deg, #1d1d1f 0%, #2c2c2e 100%)', color: '#fff', padding: '64px 5vw 72px' }}>
+        <div style={{ maxWidth: 1060, margin: '0 auto', display: 'flex', gap: 52, alignItems: 'center', flexWrap: 'wrap' }}>
 
-        {/* Social proof strip */}
-        <div style={{ marginTop: 52, display: 'flex', justifyContent: 'center', gap: 32, flexWrap: 'wrap' }}>
-          {[['500+', 'companies'], ['2M+', 'resumes screened'], ['10×', 'faster hiring']].map(([num, label]) => (
-            <div key={label} style={{ textAlign: 'center' }}>
-              <div style={{ fontWeight: 900, fontSize: 22, color: '#ff6b00', letterSpacing: '-.03em' }}>{num}</div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,.45)', marginTop: 2 }}>{label}</div>
+          {/* Left: headline */}
+          <div style={{ flex: 1, minWidth: 260 }}>
+            <div style={{ display: 'inline-block', background: 'rgba(255,107,0,.18)', border: '1px solid rgba(255,107,0,.35)', color: '#ff6b00', padding: '5px 16px', borderRadius: 999, fontSize: 11, fontWeight: 800, marginBottom: 24, letterSpacing: '.06em' }}>
+              AI-POWERED RESUME SCREENING
             </div>
-          ))}
+            <h1 style={{ fontWeight: 900, fontSize: 'clamp(32px, 5.5vw, 56px)', letterSpacing: '-.04em', margin: '0 0 18px', lineHeight: 1.08 }}>
+              Screen 500 Resumes<br />
+              <span style={{ color: '#ff6b00' }}>in 10 Minutes</span>
+            </h1>
+            <p style={{ fontSize: 'clamp(14px, 1.8vw, 17px)', color: 'rgba(255,255,255,.6)', margin: '0 0 32px', maxWidth: 480, lineHeight: 1.7 }}>
+              Upload any batch of PDFs. AI reads every resume, scores it 0–100 against your job description, and ranks candidates — so you interview only the best.
+            </p>
+
+            {/* Social proof */}
+            <div style={{ display: 'flex', gap: 28, flexWrap: 'wrap' }}>
+              {[['500+', 'companies'], ['2M+', 'resumes screened'], ['10×', 'faster hiring']].map(([num, label]) => (
+                <div key={label}>
+                  <div style={{ fontWeight: 900, fontSize: 20, color: '#ff6b00', letterSpacing: '-.03em' }}>{num}</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,.4)', marginTop: 2 }}>{label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right: sign-in box */}
+          <div style={{ flexShrink: 0, width: '100%', maxWidth: 400 }}>
+            <SignInBox />
+          </div>
         </div>
       </section>
 
@@ -162,7 +235,7 @@ function LandingPage() {
                     </li>
                   ))}
                 </ul>
-                <a href="/hirehub.html" style={{ display: 'block', textAlign: 'center', padding: '11px', borderRadius: 9, fontWeight: 700, fontSize: 13, textDecoration: 'none', background: plan.popular ? '#ff6b00' : '#1d1d1f', color: '#fff' }}>
+                <a href="#signin" style={{ display: 'block', textAlign: 'center', padding: '11px', borderRadius: 9, fontWeight: 700, fontSize: 13, textDecoration: 'none', background: plan.popular ? '#ff6b00' : '#1d1d1f', color: '#fff' }}>
                   Get Started →
                 </a>
               </div>
@@ -202,7 +275,7 @@ function LandingPage() {
           Ready to hire 10× faster?
         </h2>
         <p style={{ color: 'rgba(255,255,255,.55)', fontSize: 16, margin: '0 0 36px' }}>Join 500+ companies screening smarter with AI. No credit card required to start.</p>
-        <a href="/hirehub.html" style={{ background: '#ff6b00', color: '#fff', padding: '17px 44px', borderRadius: 12, fontWeight: 800, fontSize: 17, textDecoration: 'none', display: 'inline-block', boxShadow: '0 8px 32px rgba(255,107,0,.4)' }}>
+        <a href="#signin" style={{ background: '#ff6b00', color: '#fff', padding: '17px 44px', borderRadius: 12, fontWeight: 800, fontSize: 17, textDecoration: 'none', display: 'inline-block', boxShadow: '0 8px 32px rgba(255,107,0,.4)' }}>
           Start Screening Today →
         </a>
       </section>
