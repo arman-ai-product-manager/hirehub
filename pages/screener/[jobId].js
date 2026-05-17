@@ -2,6 +2,7 @@ import Head from 'next/head'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import UpgradeModal from '../../components/UpgradeModal'
+import ScreenerLayout from '../../components/ScreenerLayout'
 
 const SB = typeof window !== 'undefined'
   ? createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
@@ -455,6 +456,13 @@ export default function JobDetail() {
     try {
       const count = await doScreeningStream(token, pending.length)
       showToast(`Screening complete — ${count} resume${count !== 1 ? 's' : ''} processed`, 'success')
+      // Send completion email (fire-and-forget)
+      const shortlists = resumes.filter(r => r.recommendation === 'SHORTLIST').length
+      fetch('/api/screener/notify-complete', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+        body:    JSON.stringify({ job_id: jobId, job_title: job?.title, screened_count: count, shortlist_count: shortlists, job_url: window.location.href }),
+      }).catch(() => {})
     } catch (e) { showToast('Screening error: ' + (e.message || 'Unknown error'), 'error') }
     finally { await loadResults(token, jobId, true); loadSubscription(token); setPipeline('done') }
   }
@@ -661,20 +669,7 @@ export default function JobDetail() {
         />
       )}
 
-      <div style={{ minHeight: '100vh', background: '#f9fafb', fontFamily: 'system-ui,sans-serif' }}>
-        {/* ── Nav ── */}
-        <div style={{ background: '#fff', borderBottom: '1px solid #e5e7eb', padding: '0 5vw', height: 58, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0, overflow: 'hidden' }}>
-            <a href="/" style={{ fontWeight: 900, fontSize: 17, color: '#1d1d1f', textDecoration: 'none', letterSpacing: '-.03em', flexShrink: 0 }}>
-              Hire<span style={{ color: '#ff6b00' }}>Hub</span><sup style={{ fontSize: '0.5em', color: '#ff6b00', fontWeight: 900 }}>360</sup>
-            </a>
-            <span style={{ color: '#d1d5db', flexShrink: 0 }}>›</span>
-            <a href="/screener" style={{ fontSize: 13, color: '#6b7280', textDecoration: 'none', fontWeight: 600, flexShrink: 0 }}>Screener</a>
-            {job && (<><span style={{ color: '#d1d5db', flexShrink: 0 }}>›</span><span style={{ fontSize: 13, color: '#374151', fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{job.title}</span></>)}
-          </div>
-          <a href="/screener" style={{ fontSize: 13, color: '#6b7280', textDecoration: 'none', flexShrink: 0 }}>← Back</a>
-        </div>
-
+      <ScreenerLayout getToken={getToken} usage={usage} sub={sub} onShowUpgrade={() => setShowUpgrade(true)}>
         {loading ? (
           <div style={{ textAlign: 'center', padding: 80, color: '#9ca3af' }}>Loading…</div>
         ) : !job ? (
@@ -1199,7 +1194,7 @@ export default function JobDetail() {
 
           </div>
         )}
-      </div>
+      </ScreenerLayout>
     </>
   )
 }
