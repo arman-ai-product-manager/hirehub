@@ -72,25 +72,27 @@ async function processOne(file, jobId, userId) {
 
   const scanned = !rawText.trim()
 
-  const { data: resumeRow, error: insertErr } = await supabaseService
-    .from('screener_resumes')
-    .insert({
-      job_id:     jobId,
-      company_id: userId,
-      file_name:  fileName,
-      file_url:   fileUrl,
-      raw_text:   rawText.slice(0, 12000),
-      status:     rawText ? 'pending' : 'error',
-      error_msg:  rawText ? null : 'Could not extract text from PDF — file may be scanned or image-only',
-      ...meta,
-    })
-    .select()
-    .single()
+  try {
+    const { data: resumeRow, error: insertErr } = await supabaseService
+      .from('screener_resumes')
+      .insert({
+        job_id:     jobId,
+        company_id: userId,
+        file_name:  fileName,
+        file_url:   fileUrl,
+        raw_text:   rawText.slice(0, 12000),
+        status:     rawText ? 'pending' : 'error',
+        error_msg:  rawText ? null : 'Could not extract text from PDF — file may be scanned or image-only',
+        ...meta,
+      })
+      .select()
+      .single()
 
-  if (insertErr) {
-    return { file: fileName, ok: false, error: insertErr.message }
+    if (insertErr) return { file: fileName, ok: false, error: insertErr.message }
+    return { file: fileName, ok: true, id: resumeRow.id, name: meta.candidate_name, scanned }
+  } catch (e) {
+    return { file: fileName, ok: false, error: e.message || 'Database error' }
   }
-  return { file: fileName, ok: true, id: resumeRow.id, name: meta.candidate_name, scanned }
 }
 
 export default async function handler(req, res) {

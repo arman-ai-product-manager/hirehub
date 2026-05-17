@@ -131,11 +131,12 @@ export default async function handler(req, res) {
     .limit(500)
 
   if (resume_ids?.length > 0) {
-    // Still filter by status — never re-screen already completed resumes
+    // Still filter by job_id + status — never re-screen completed resumes or cross-job resumes
     query = supabaseService
       .from('screener_resumes')
       .select('id,file_name,raw_text,candidate_name,candidate_email,status')
       .in('id', resume_ids)
+      .eq('job_id', job_id)
       .eq('company_id', user.id)
       .in('status', ['pending', 'error'])
   }

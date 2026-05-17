@@ -16,15 +16,30 @@ function timeAgo(d) {
 }
 
 export default function ScreenerDashboard() {
-  const [session, setSession]     = useState(null)
+  const [session, setSession]         = useState(null)
   const [authLoading, setAuthLoading] = useState(true)
-  const [jobs, setJobs]           = useState([])
-  const [loading, setLoading]     = useState(true)
-  const [creating, setCreating]   = useState(false)
-  const [form, setForm]           = useState({ title: '', description: '', skills: '' })
-  const [saving, setSaving]       = useState(false)
-  const [err, setErr]             = useState('')
-  const [netErr, setNetErr]       = useState('')
+  const [jobs, setJobs]               = useState([])
+  const [loading, setLoading]         = useState(true)
+  const [creating, setCreating]       = useState(false)
+  const [form, setForm]               = useState({ title: '', description: '', skills: '' })
+  const [saving, setSaving]           = useState(false)
+  const [err, setErr]                 = useState('')
+  const [netErr, setNetErr]           = useState('')
+  const [deleteJobConfirm, setDeleteJobConfirm] = useState(null) // job id pending inline confirm
+
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (typeof document === 'undefined') return
+    document.body.style.overflow = creating ? 'hidden' : ''
+    return () => { document.body.style.overflow = '' }
+  }, [creating])
+
+  // Auto-cancel delete confirmation after 4s of inactivity
+  useEffect(() => {
+    if (!deleteJobConfirm) return
+    const t = setTimeout(() => setDeleteJobConfirm(null), 4000)
+    return () => clearTimeout(t)
+  }, [deleteJobConfirm])
 
   useEffect(() => {
     if (!SB) return
@@ -33,8 +48,18 @@ export default function ScreenerDashboard() {
       setAuthLoading(false)
       if (data.session) loadJobs(data.session.access_token)
       else setLoading(false)
+    }).catch(() => {
+      // Supabase unreachable — stop spinner so user sees the sign-in gate
+      setAuthLoading(false)
+      setLoading(false)
     })
   }, [])
+
+  async function getToken() {
+    if (!SB) return ''
+    const { data } = await SB.auth.getSession()
+    return data?.session?.access_token || ''
+  }
 
   async function loadJobs(token) {
     setLoading(true)
@@ -60,7 +85,8 @@ export default function ScreenerDashboard() {
     }
     setSaving(true)
     try {
-      const token = session?.access_token
+      const token = await getToken()
+      if (!token) { setErr('Session expired — please sign in again'); return }
       const skills = form.skills.split(',').map(s => s.trim()).filter(Boolean)
       const r = await fetch('/api/screener/jobs', {
         method: 'POST',
@@ -80,8 +106,14 @@ export default function ScreenerDashboard() {
   }
 
   async function deleteJob(id) {
-    if (!confirm('Delete this job and all its resumes? This cannot be undone.')) return
-    const token = session?.access_token
+    if (deleteJobConfirm !== id) {
+      // First tap — show inline confirmation
+      setDeleteJobConfirm(id)
+      return
+    }
+    // Second tap — actually delete
+    setDeleteJobConfirm(null)
+    const token = await getToken()
     try {
       const r = await fetch('/api/screener/jobs?id=' + id, {
         method: 'DELETE',
@@ -89,16 +121,15 @@ export default function ScreenerDashboard() {
       })
       if (!r.ok) {
         const d = await r.json().catch(() => ({}))
-        alert(d.error || 'Delete failed')
+        setNetErr(d.error || 'Delete failed')
         return
       }
       setJobs(prev => prev.filter(j => j.id !== id))
     } catch {
-      alert('Network error — delete failed')
+      setNetErr('Network error — delete failed')
     }
   }
 
-  // Show spinner while resolving auth to avoid a flash of the sign-in screen
   if (authLoading) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'system-ui,sans-serif', background: '#f9fafb' }}>
       <div style={{ color: '#9ca3af', fontSize: 14 }}>Loading…</div>
@@ -126,15 +157,15 @@ export default function ScreenerDashboard() {
 
       <div style={{ minHeight: '100vh', background: '#f9fafb', fontFamily: 'system-ui,sans-serif' }}>
         {/* Nav */}
-        <div style={{ background: '#fff', borderBottom: '1px solid #e5e7eb', padding: '0 5vw', height: 58, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <a href="/" style={{ fontWeight: 900, fontSize: 18, color: '#1d1d1f', textDecoration: 'none', letterSpacing: '-.03em' }}>
+        <div style={{ background: '#fff', borderBottom: '1px solid #e5e7eb', padding: '0 5vw', height: 58, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0, overflow: 'hidden' }}>
+            <a href="/" style={{ fontWeight: 900, fontSize: 18, color: '#1d1d1f', textDecoration: 'none', letterSpacing: '-.03em', flexShrink: 0 }}>
               Hire<span style={{ color: '#ff6b00' }}>Hub</span><sup style={{ fontSize: '0.5em', color: '#ff6b00', fontWeight: 900 }}>360</sup>
             </a>
-            <span style={{ color: '#d1d5db' }}>›</span>
-            <span style={{ fontWeight: 700, fontSize: 14, color: '#374151' }}>AI Resume Screener</span>
+            <span style={{ color: '#d1d5db', flexShrink: 0 }}>›</span>
+            <span style={{ fontWeight: 700, fontSize: 14, color: '#374151', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>AI Resume Screener</span>
           </div>
-          <a href="/hirehub.html" style={{ fontSize: 13, color: '#6b7280', textDecoration: 'none' }}>← Dashboard</a>
+          <a href="/hirehub.html" style={{ fontSize: 13, color: '#6b7280', textDecoration: 'none', flexShrink: 0 }}>← Dashboard</a>
         </div>
 
         <div style={{ maxWidth: 1100, margin: '0 auto', padding: '28px 5vw 60px' }}>
@@ -152,9 +183,9 @@ export default function ScreenerDashboard() {
 
           {/* Network error banner */}
           {netErr && (
-            <div style={{ background: '#fee2e2', color: '#dc2626', padding: '12px 16px', borderRadius: 10, fontSize: 13, fontWeight: 600, marginBottom: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span>{netErr}</span>
-              <button onClick={() => loadJobs(session.access_token)} style={{ background: 'none', border: '1.5px solid #dc2626', color: '#dc2626', padding: '4px 12px', borderRadius: 6, fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>Retry</button>
+            <div style={{ background: '#fee2e2', color: '#dc2626', padding: '12px 16px', borderRadius: 10, fontSize: 13, fontWeight: 600, marginBottom: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
+              <span style={{ flex: 1 }}>{netErr}</span>
+              <button onClick={async () => { setNetErr(''); loadJobs(await getToken()) }} style={{ background: 'none', border: '1.5px solid #dc2626', color: '#dc2626', padding: '4px 12px', borderRadius: 6, fontWeight: 700, fontSize: 12, cursor: 'pointer', flexShrink: 0 }}>Retry</button>
             </div>
           )}
 
@@ -167,7 +198,7 @@ export default function ScreenerDashboard() {
               <div style={{ background: '#fff', borderRadius: 18, padding: '28px 24px', width: '100%', maxWidth: 540, maxHeight: '90vh', overflowY: 'auto' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
                   <h2 style={{ fontWeight: 800, fontSize: 18, color: '#111827', margin: 0 }}>Create New Job</h2>
-                  <button onClick={() => setCreating(false)} style={{ background: 'none', border: 'none', fontSize: 20, color: '#9ca3af', cursor: 'pointer', padding: 0, lineHeight: 1 }}>×</button>
+                  <button onClick={() => setCreating(false)} style={{ background: 'none', border: 'none', fontSize: 22, color: '#9ca3af', cursor: 'pointer', padding: '4px 8px', lineHeight: 1 }} aria-label="Close">×</button>
                 </div>
                 <form onSubmit={createJob}>
                   <label style={{ display: 'block', fontWeight: 600, fontSize: 13, color: '#374151', marginBottom: 5 }}>Job Title *</label>
@@ -176,6 +207,7 @@ export default function ScreenerDashboard() {
                     onChange={e => setForm(p => ({ ...p, title: e.target.value }))}
                     placeholder="e.g. Senior React Developer"
                     required
+                    autoCapitalize="words"
                     style={{ width: '100%', padding: '10px 12px', borderRadius: 9, border: '1.5px solid #d1d5db', fontSize: 14, marginBottom: 14, boxSizing: 'border-box', outline: 'none' }}
                   />
 
@@ -196,6 +228,8 @@ export default function ScreenerDashboard() {
                     value={form.skills}
                     onChange={e => setForm(p => ({ ...p, skills: e.target.value }))}
                     placeholder="React, Node.js, AWS, SQL"
+                    autoCapitalize="none"
+                    autoCorrect="off"
                     style={{ width: '100%', padding: '10px 12px', borderRadius: 9, border: '1.5px solid #d1d5db', fontSize: 14, marginBottom: 20, boxSizing: 'border-box', outline: 'none' }}
                   />
 
@@ -233,41 +267,60 @@ export default function ScreenerDashboard() {
             </div>
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(280px,1fr))', gap: 14 }}>
-              {jobs.map(job => (
-                <div key={job.id} style={{ background: '#fff', borderRadius: 14, border: '1px solid #e5e7eb', padding: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <h3 style={{ fontWeight: 800, fontSize: 15, color: '#111827', margin: '0 0 3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{job.title}</h3>
-                      <div style={{ fontSize: 11, color: '#9ca3af' }}>{timeAgo(job.created_at)}</div>
-                    </div>
-                    <button onClick={() => deleteJob(job.id)}
-                      style={{ background: 'none', border: 'none', color: '#d1d5db', cursor: 'pointer', fontSize: 18, padding: 4, lineHeight: 1, flexShrink: 0, borderRadius: 4 }}
-                      title="Delete job">×</button>
-                  </div>
+              {jobs.map(job => {
+                const isPendingDelete = deleteJobConfirm === job.id
+                return (
+                  <div key={job.id} style={{ background: '#fff', borderRadius: 14, border: '1px solid ' + (isPendingDelete ? '#fca5a5' : '#e5e7eb'), padding: 20, display: 'flex', flexDirection: 'column', gap: 12, transition: 'border-color .15s' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <h3 style={{ fontWeight: 800, fontSize: 15, color: '#111827', margin: '0 0 3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{job.title}</h3>
+                        <div style={{ fontSize: 11, color: '#9ca3af' }}>{timeAgo(job.created_at)}</div>
+                      </div>
 
-                  {job.skills?.length > 0 && (
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-                      {job.skills.slice(0, 5).map(s => (
-                        <span key={s} style={{ background: '#f3f4f6', color: '#374151', fontSize: 10, fontWeight: 600, padding: '2px 7px', borderRadius: 999 }}>{s}</span>
-                      ))}
-                      {job.skills.length > 5 && <span style={{ fontSize: 10, color: '#9ca3af' }}>+{job.skills.length - 5}</span>}
+                      {/* Inline delete confirmation — two-tap on mobile */}
+                      {isPendingDelete ? (
+                        <div style={{ display: 'flex', gap: 5, flexShrink: 0 }}>
+                          <button onClick={() => deleteJob(job.id)}
+                            style={{ background: '#dc2626', color: '#fff', border: 'none', borderRadius: 7, padding: '6px 11px', fontWeight: 700, fontSize: 11, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                            Delete
+                          </button>
+                          <button onClick={() => setDeleteJobConfirm(null)}
+                            style={{ background: '#f3f4f6', color: '#374151', border: 'none', borderRadius: 7, padding: '6px 10px', fontWeight: 700, fontSize: 11, cursor: 'pointer' }}>
+                            Cancel
+                          </button>
+                        </div>
+                      ) : (
+                        <button onClick={() => deleteJob(job.id)}
+                          style={{ background: 'none', border: 'none', color: '#d1d5db', cursor: 'pointer', fontSize: 18, padding: '6px 10px', lineHeight: 1, flexShrink: 0, borderRadius: 6 }}
+                          title="Delete job"
+                          aria-label="Delete job">×</button>
+                      )}
                     </div>
-                  )}
 
-                  <div style={{ display: 'flex', gap: 10, fontSize: 12, flexWrap: 'wrap' }}>
-                    <span><b style={{ color: '#374151' }}>{job.total}</b> <span style={{ color: '#9ca3af' }}>uploaded</span></span>
-                    <span><b style={{ color: '#16a34a' }}>{job.done}</b> <span style={{ color: '#9ca3af' }}>screened</span></span>
-                    {job.total - job.done > 0 && (
-                      <span><b style={{ color: '#f59e0b' }}>{job.total - job.done}</b> <span style={{ color: '#9ca3af' }}>pending</span></span>
+                    {job.skills?.length > 0 && (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                        {job.skills.slice(0, 5).map(s => (
+                          <span key={s} style={{ background: '#f3f4f6', color: '#374151', fontSize: 10, fontWeight: 600, padding: '2px 7px', borderRadius: 999 }}>{s}</span>
+                        ))}
+                        {job.skills.length > 5 && <span style={{ fontSize: 10, color: '#9ca3af' }}>+{job.skills.length - 5}</span>}
+                      </div>
                     )}
-                  </div>
 
-                  <a href={`/screener/${job.id}`}
-                    style={{ display: 'block', textAlign: 'center', background: job.total > 0 ? '#ff6b00' : '#f3f4f6', color: job.total > 0 ? '#fff' : '#374151', padding: '10px', borderRadius: 9, fontWeight: 700, fontSize: 13, textDecoration: 'none' }}>
-                    {job.total === 0 ? 'Upload Resumes →' : job.done < job.total ? 'Continue Screening →' : 'View Results →'}
-                  </a>
-                </div>
-              ))}
+                    <div style={{ display: 'flex', gap: 10, fontSize: 12, flexWrap: 'wrap' }}>
+                      <span><b style={{ color: '#374151' }}>{job.total}</b> <span style={{ color: '#9ca3af' }}>uploaded</span></span>
+                      <span><b style={{ color: '#16a34a' }}>{job.done}</b> <span style={{ color: '#9ca3af' }}>screened</span></span>
+                      {job.total - job.done > 0 && (
+                        <span><b style={{ color: '#f59e0b' }}>{job.total - job.done}</b> <span style={{ color: '#9ca3af' }}>pending</span></span>
+                      )}
+                    </div>
+
+                    <a href={`/screener/${job.id}`}
+                      style={{ display: 'block', textAlign: 'center', background: job.total > 0 ? '#ff6b00' : '#f3f4f6', color: job.total > 0 ? '#fff' : '#374151', padding: '10px', borderRadius: 9, fontWeight: 700, fontSize: 13, textDecoration: 'none' }}>
+                      {job.total === 0 ? 'Upload Resumes →' : job.done < job.total ? 'Continue Screening →' : 'View Results →'}
+                    </a>
+                  </div>
+                )
+              })}
             </div>
           )}
         </div>

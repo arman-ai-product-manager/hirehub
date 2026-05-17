@@ -266,6 +266,8 @@ export default function JobDetail() {
 
     const token = await getToken()
     if (!token) {
+      startTimeRef.current = null
+      setElapsed(0)
       setPipeline('idle')
       showToast('Session expired — please sign in again', 'error')
       return
@@ -311,8 +313,9 @@ export default function JobDetail() {
     }
 
     if (uploadedOk === 0 && uploadErrors > 0) {
-      setPipeline('idle')
       startTimeRef.current = null
+      setElapsed(0)
+      setPipeline('idle')
       showToast(`Upload failed — ${uploadErrors} file${uploadErrors > 1 ? 's' : ''} could not be processed.`, 'error')
       return
     }
@@ -324,7 +327,15 @@ export default function JobDetail() {
     // Reload results to get accurate pending count
     const freshToken = await getToken()
     const freshData = await loadResults(freshToken, jobId, true)
-    const pendingCount = (freshData?.resumes || []).filter(r => r.status === 'pending' || r.status === 'error').length
+    if (!freshData) {
+      // Network error after upload — inform user, let them screen manually
+      showToast('Upload done but results failed to refresh. Tap "Screen Resumes" to run AI manually.', 'error')
+      startTimeRef.current = null
+      setElapsed(0)
+      setPipeline('idle')
+      return
+    }
+    const pendingCount = (freshData.resumes || []).filter(r => r.status === 'pending' || r.status === 'error').length
 
     if (pendingCount > 0) {
       // Auto-trigger AI screening
@@ -588,7 +599,7 @@ export default function JobDetail() {
                     </div>
                     {/* Recent file log */}
                     {fileLog.length > 0 && (
-                      <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 3 }}>
+                      <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 3, maxHeight: 110, overflowY: 'auto' }}>
                         {fileLog.slice(-6).map((f, i) => (
                           <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11 }}>
                             <span style={{ flexShrink: 0, color: f.scanned ? '#d97706' : f.ok ? '#16a34a' : '#dc2626' }}>
@@ -677,7 +688,7 @@ export default function JobDetail() {
             >
               <div style={{ fontSize: 30, marginBottom: 6 }}>📄</div>
               <div style={{ fontWeight: 700, fontSize: 14, color: '#374151', marginBottom: 4 }}>
-                {uploading ? 'Upload in progress…' : screening ? 'AI screening in progress…' : 'Drop PDFs here or tap to browse'}
+                {uploading ? 'Upload in progress…' : screening ? 'AI screening in progress…' : 'Tap to browse or drag PDFs here'}
               </div>
               <div style={{ fontSize: 12, color: '#9ca3af' }}>Up to 500 PDFs · Max {MAX_FILE_MB} MB per file · AI screens automatically after upload</div>
               <input ref={fileRef} type="file" accept=".pdf,application/pdf" multiple style={{ display: 'none' }}
