@@ -80,16 +80,18 @@ export default async function handler(req, res) {
   const { data: resumes } = await query
   if (!resumes?.length) return res.json({ ok: true, processed: 0 })
 
-  // Mark all as processing
+  // Mark all as processing — ignore errors (RLS may already block some; they'll get error status)
   await supabaseService
     .from('screener_resumes')
     .update({ status: 'processing' })
     .in('id', resumes.map(r => r.id))
+    .eq('company_id', user.id)
 
   // Stream progress via JSON lines (process in batches of 5)
   res.setHeader('Content-Type', 'application/x-ndjson')
   res.setHeader('Transfer-Encoding', 'chunked')
   res.setHeader('Cache-Control', 'no-cache')
+  res.setHeader('X-Accel-Buffering', 'no') // disable Nginx buffering on Vercel
 
   let processed = 0
   const BATCH = 5
@@ -98,26 +100,34 @@ export default async function handler(req, res) {
     const batch = resumes.slice(i, i + BATCH)
     await Promise.all(batch.map(async resume => {
       try {
-        if (!resume.raw_text?.trim()) throw new Error('Empty resume text')
+        if (!resume.raw_text?.trim()) throw new Error('Empty resume — could not extract text from PDF')
         const result = await screenOne(resume, job)
 
+        // Validate AI returned sane values
+        const score = typeof result.score === 'number'
+          ? Math.max(0, Math.min(100, Math.round(result.score)))
+          : 0
+        const rec = ['hire', 'consider', 'reject'].includes(result.recommendation)
+          ? result.recommendation : 'reject'
+
         await supabaseService.from('screener_resumes').update({
-          score:          Math.max(0, Math.min(100, result.score || 0)),
-          recommendation: result.recommendation || 'reject',
-          summary:        result.summary || '',
-          strengths:      result.strengths || [],
-          gaps:           result.gaps || [],
+          score,
+          recommendation: rec,
+          summary:        (result.summary   || '').slice(0, 500),
+          strengths:      (result.strengths || []).slice(0, 4).map(s => String(s).slice(0, 120)),
+          gaps:           (result.gaps      || []).slice(0, 4).map(s => String(s).slice(0, 120)),
           status:         'done',
           processed_at:   new Date().toISOString(),
           error_msg:      null,
-        }).eq('id', resume.id)
+        }).eq('id', resume.id).eq('company_id', user.id)
 
         processed++
-        res.write(JSON.stringify({ id: resume.id, done: true, score: result.score, name: resume.candidate_name }) + '\n')
+        res.write(JSON.stringify({ id: resume.id, done: true, score, name: resume.candidate_name || resume.file_name }) + '\n')
       } catch (e) {
         await supabaseService.from('screener_resumes').update({
-          status: 'error', error_msg: e.message
-        }).eq('id', resume.id)
+          status: 'error',
+          error_msg: (e.message || 'Unknown error').slice(0, 200),
+        }).eq('id', resume.id).eq('company_id', user.id)
         res.write(JSON.stringify({ id: resume.id, done: false, error: e.message }) + '\n')
       }
     }))
