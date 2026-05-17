@@ -113,7 +113,7 @@ function LandingPage() {
             {[
               { icon: '⚡', title: 'Instant AI Analysis', desc: 'Each resume gets a 0–100 score, recommendation (Shortlist / Maybe / Reject), and specific reasoning — in seconds.' },
               { icon: '📊', title: 'Smart Ranking', desc: 'Candidates auto-ranked by fit. Filter by score, experience, or skills match. Export shortlist to CSV in one click.' },
-              { icon: '🔒', title: 'Your Data, Secure', desc: 'Resumes stored in encrypted cloud storage. GDPR-compliant. Delete any candidate's data instantly.' },
+              { icon: '🔒', title: 'Your Data, Secure', desc: "Resumes stored in encrypted cloud storage. GDPR-compliant. Delete any candidate's data instantly." },
               { icon: '📱', title: 'Works Everywhere', desc: 'Full mobile support. Review candidates, add to interview queue, and screen new batches from your phone.' },
               { icon: '📦', title: 'Batch Upload', desc: 'Drag and drop up to 500 PDFs at once. AI processes them all in parallel — no waiting, no queue.' },
               { icon: '✉️', title: 'Smart Notifications', desc: 'Get an email when screening is complete. Weekly digest of your hiring activity, automatically.' },
