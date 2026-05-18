@@ -32,6 +32,6 @@ export default async function handler(req, res) {
 
     res.json({ text: data.choices?.[0]?.message?.content || '' })
   } catch (e) {
-    res.status(500).json({ error: e.message })
+    return res.status(500).json({ error: e.message })
   }
 }

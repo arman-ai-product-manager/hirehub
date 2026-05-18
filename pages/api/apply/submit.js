@@ -20,7 +20,7 @@ export default async function handler(req, res) {
     // ── Re-validate: banned ───────────────────────────────────────
     const { data: cand } = await supabaseService
       .from('candidates')
-      .select('id,name,skills,experience_years,bio,is_banned')
+      .select('id,name,skills,experience_years,bio,is_banned,plan')
       .eq('id', uid).maybeSingle()
 
     if (cand?.is_banned) return res.status(403).json({ error: 'Account suspended' })
@@ -35,12 +35,15 @@ export default async function handler(req, res) {
     const { data: limitRow } = await supabaseService
       .from('apply_limits').select('daily_count,apply_date').eq('candidate_id', uid).maybeSingle()
     const dailyUsed = (limitRow && limitRow.apply_date === today) ? (limitRow.daily_count || 0) : 0
-    if (dailyUsed >= 10) return res.status(429).json({ error: 'Daily apply limit reached' })
+    const candidatePlan = cand?.plan || 'free'
+    const dailyLimit = (candidatePlan && candidatePlan !== 'free') ? Infinity : 10
+    if (dailyUsed >= dailyLimit) return res.status(429).json({ error: 'Daily apply limit reached' })
 
     // ── Fetch job details ─────────────────────────────────────────
     const { data: job } = await supabaseService
       .from('jobs').select('id,company_id,company_name,title,status').eq('id', job_id).maybeSingle()
-    if (!job || job.status !== 'active') return res.status(404).json({ error: 'Job not found or no longer active' })
+    if (!job || !['active','published','open'].includes(job.status))
+      return res.status(404).json({ error: 'Job not found or no longer active' })
 
     // ── 30-day spam guard ─────────────────────────────────────────
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
@@ -93,7 +96,7 @@ export default async function handler(req, res) {
       metadata:    { company_id: job.company_id, company: job.company_name, title: job.title },
     }).catch(() => {})
 
-    return res.json({ ok: true, application_id: appId, daily_used: dailyUsed + 1, daily_limit: 10 })
+    return res.json({ ok: true, application_id: appId, daily_used: dailyUsed + 1, daily_limit: dailyLimit === Infinity ? null : dailyLimit })
   } catch (err) {
     return res.status(500).json({ error: err.message })
   }

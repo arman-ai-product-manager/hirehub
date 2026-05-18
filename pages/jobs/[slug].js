@@ -261,10 +261,10 @@ export default function JobPage({ job, similarJobs }) {
 
 export async function getStaticPaths() {
   const { data: jobs } = await supabaseService
-    .from('jobs').select('id,title,company_name,location').eq('status','active').limit(500)
+    .from('jobs').select('id,title,company_name,location,slug').in('status',['active','published','open']).limit(500)
 
   const dbPaths = (jobs || []).map(j => ({
-    params: { slug: mkSlug(j.title)+'-'+mkSlug(j.company_name)+'-'+mkSlug(j.location) }
+    params: { slug: j.slug || mkSlug(j.title)+'-'+mkSlug(j.company_name)+'-'+mkSlug(j.location) }
   }))
 
   const demoPaths = DEMO_JOBS.map(j => ({
@@ -307,24 +307,35 @@ function buildSimilar(target, allJobs) {
 }
 
 export async function getStaticProps({ params }) {
-  // 1. Check real DB jobs
-  const { data: jobs } = await supabaseService.from('jobs').select('*').eq('status','active')
-  const dbAndDemo = [...(jobs || []), ...DEMO_JOBS]
-  const dbJob = (jobs || []).find(j =>
+  // 1. Try direct slug column match (most reliable — matches what SPA generates)
+  const { data: bySlug } = await supabaseService
+    .from('jobs').select('*')
+    .in('status', ['active', 'published', 'open'])
+    .eq('slug', params.slug)
+    .maybeSingle()
+
+  const { data: allJobs } = await supabaseService
+    .from('jobs').select('*').in('status', ['active', 'published', 'open'])
+  const dbAndDemo = [...(allJobs || []), ...DEMO_JOBS]
+
+  if (bySlug) {
+    return { props: { job: bySlug, similarJobs: buildSimilar(bySlug, dbAndDemo) }, revalidate: 3600 }
+  }
+
+  // 2. Fall back to computed slug match (handles legacy URLs without slug column)
+  const dbJob = (allJobs || []).find(j =>
     mkSlug(j.title)+'-'+mkSlug(j.company_name)+'-'+mkSlug(j.location) === params.slug
   )
   if (dbJob) {
-    const similarJobs = buildSimilar(dbJob, dbAndDemo)
-    return { props: { job: dbJob, similarJobs }, revalidate: 3600 }
+    return { props: { job: dbJob, similarJobs: buildSimilar(dbJob, dbAndDemo) }, revalidate: 3600 }
   }
 
-  // 2. Fall back to demo jobs
+  // 3. Fall back to demo jobs
   const demoJob = DEMO_JOBS.find(j =>
     mkSlug(j.title)+'-'+mkSlug(j.company_name)+'-'+mkSlug(j.location) === params.slug
   )
   if (demoJob) {
-    const similarJobs = buildSimilar(demoJob, dbAndDemo)
-    return { props: { job: demoJob, similarJobs }, revalidate: 86400 }
+    return { props: { job: demoJob, similarJobs: buildSimilar(demoJob, dbAndDemo) }, revalidate: 86400 }
   }
 
   return { notFound: true }

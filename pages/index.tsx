@@ -246,20 +246,7 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
         .fc-feats{display:flex;flex-direction:column;gap:10px;flex:1;min-width:200px}
         .fc-feat{display:flex;align-items:center;gap:10px;font-size:13px;color:#ccc}
         .fc-icon{width:28px;height:28px;background:rgba(255,107,0,.18);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
-        /* 7 FEATURES SECTION */
-        .feat-sec{background:#0a0a0a;padding:48px 5vw;margin-bottom:0}
-        .feat-sec-head{text-align:center;margin-bottom:32px}
-        .feat-sec-head h2{font-size:clamp(22px,4vw,38px);font-weight:900;color:#fff;letter-spacing:-.04em;margin-bottom:8px}
-        .feat-sec-head p{color:#666;font-size:15px}
-        .feat7-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;max-width:1200px;margin:0 auto}
-        .feat7{background:#111;border:1px solid #222;border-radius:16px;padding:22px;transition:border-color .2s,transform .2s;text-decoration:none;display:block}
-        .feat7:hover{border-color:#ff6b00;transform:translateY(-2px)}
-        .feat7-top{display:flex;align-items:center;gap:12px;margin-bottom:12px}
-        .feat7-ic{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
-        .feat7-name{font-size:15px;font-weight:800;color:#fff;letter-spacing:-.02em}
-        .feat7-badge{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#666;margin-top:1px}
-        .feat7-desc{font-size:13px;color:#777;line-height:1.65}
-        @media(max-width:640px){.feat7-grid{grid-template-columns:1fr}.feat-sec{padding:36px 5vw}}
+        /* (screener spotlight uses inline styles) */
         /* TRUST */
         .trust{background:#fff;padding:36px 5vw;border-top:1px solid #e5e5ea;border-bottom:1px solid #e5e5ea;text-align:center;margin-bottom:0}
         .trust h2{font-size:clamp(20px,3vw,32px);font-weight:900;letter-spacing:-.04em;margin-bottom:8px}
@@ -295,39 +282,13 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
           <a href="/" className="hide-mob">Jobs</a>
           <a href="/companies" className="hide-mob">Companies</a>
 
-          {/* AI Tools dropdown */}
-          <div className="nav-drop hide-mob" onClick={e => e.stopPropagation()}>
-            <button className={`nav-drop-btn ${activeDropdown==='ai' ? 'open' : ''}`} onClick={() => setActiveDropdown(d => d==='ai' ? null : 'ai')}>
-              AI Tools
-              <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M1 1l4 4 4-4"/></svg>
-            </button>
-            {activeDropdown === 'ai' && (
-              <div className="drop-menu wide" onClick={e => e.stopPropagation()}>
-                <div className="drop-col">
-                  <div className="drop-col-title">For Job Seekers</div>
-                  <a href="/resume-upload" className="drop-item"><span className="drop-item-icon" style={{background:'#fff7ed'}}>📄</span>Resume Parser</a>
-                  <a href="/cover-letter" className="drop-item"><span className="drop-item-icon" style={{background:'#f0f9ff'}}>✍️</span>Cover Letter</a>
-                  <a href="/interview-prep" className="drop-item"><span className="drop-item-icon" style={{background:'#fdf4ff'}}>🎯</span>Interview Prep</a>
-                  <a href="/mock-interview" className="drop-item"><span className="drop-item-icon" style={{background:'#1e1b4b20'}}>🎙</span>Mock Interview</a>
-                  <a href="/skill-gap" className="drop-item"><span className="drop-item-icon" style={{background:'#f0f9ff'}}>📈</span>Skill Gap Analyzer</a>
-                  <a href="/salary-calculator" className="drop-item"><span className="drop-item-icon" style={{background:'#f0fdf4'}}>💰</span>Salary Calculator</a>
-                  <a href="/salaries" className="drop-item"><span className="drop-item-icon" style={{background:'#f0fdf4'}}>📊</span>Salary Guides</a>
-                </div>
-                <div className="drop-divider"/>
-                <div className="drop-col">
-                  <div className="drop-col-title">For Employers</div>
-                  <a href="/cv-screener" className="drop-item"><span className="drop-item-icon" style={{background:'#fff7ed'}}>🤖</span>Bulk CV Screener</a>
-                  <a href="/jd-optimizer" className="drop-item"><span className="drop-item-icon" style={{background:'#fdf4ff'}}>📝</span>JD Optimizer</a>
-                  <a href="/post-job" className="drop-item"><span className="drop-item-icon" style={{background:'#fff7ed'}}>📢</span>Post a Job</a>
-                  <div className="drop-col-title" style={{marginTop:8}}>More Tools</div>
-                  <a href="/negotiate" className="drop-item"><span className="drop-item-icon" style={{background:'#f0fdf4'}}>🤝</span>Salary Coach</a>
-                  <a href="/salaries" className="drop-item"><span className="drop-item-icon" style={{background:'#f0fdf4'}}>📊</span>Salary Guides</a>
-                  <a href="/features" className="drop-item" style={{opacity:.6}}><span className="drop-item-icon" style={{background:'#f5f5f7'}}>⭐</span>HireHub Score</a>
-                  <a href="/features" className="drop-item" style={{opacity:.6}}><span className="drop-item-icon" style={{background:'#f5f5f7'}}>🌐</span>LiveWork & BlindHire</a>
-                </div>
-              </div>
-            )}
-          </div>
+          {/* AI Screener — direct highlighted link */}
+          <a href="/screener" className="hide-mob"
+            style={{display:'flex',alignItems:'center',gap:6,background:'rgba(255,107,0,.12)',color:'#ff6b00',padding:'7px 15px',borderRadius:8,fontWeight:700,fontSize:13,border:'1px solid rgba(255,107,0,.3)',transition:'all .15s',textDecoration:'none'}}
+            onMouseOver={e=>{(e.currentTarget as HTMLAnchorElement).style.background='#ff6b00';(e.currentTarget as HTMLAnchorElement).style.color='#fff'}}
+            onMouseOut={e=>{(e.currentTarget as HTMLAnchorElement).style.background='rgba(255,107,0,.12)';(e.currentTarget as HTMLAnchorElement).style.color='#ff6b00'}}>
+            🤖 AI Resume Screener
+          </a>
 
           {/* More dropdown */}
           <div className="nav-drop hide-mob" onClick={e => e.stopPropagation()}>
@@ -337,10 +298,8 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
             </button>
             {activeDropdown === 'more' && (
               <div className="drop-menu" onClick={e => e.stopPropagation()}>
-                <a href="/features" className="drop-item"><span className="drop-item-icon" style={{background:'#0a0a0a'}}>🚀</span>Features</a>
                 <a href="/pricing" className="drop-item"><span className="drop-item-icon" style={{background:'#f0fdf4'}}>💳</span>Pricing</a>
                 <a href="/blog" className="drop-item"><span className="drop-item-icon" style={{background:'#f0f9ff'}}>📝</span>Blog</a>
-                <a href="/job-alerts" className="drop-item"><span className="drop-item-icon" style={{background:'#fff7ed'}}>🔔</span>Job Alerts</a>
               </div>
             )}
           </div>
@@ -369,28 +328,20 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
                     <a href="/my-applications" className="drop-item"><span className="drop-item-icon" style={{background:'#f5f5f7'}}>📋</span>My Applications</a>
                     <a href="/saved-jobs" className="drop-item"><span className="drop-item-icon" style={{background:'#fff7ed'}}>❤️</span>Saved Jobs{savedCount > 0 ? ` (${savedCount})` : ''}</a>
                     <a href="/resume-upload" className="drop-item"><span className="drop-item-icon" style={{background:'#f0fdf4'}}>📄</span>My Resume</a>
-                    <div className="drop-col-title" style={{marginTop:8}}>AI Tools</div>
-                    <a href="/resume-upload" className="drop-item"><span className="drop-item-icon" style={{background:'#fff7ed'}}>📄</span>Resume Parser</a>
-                    <a href="/cover-letter" className="drop-item"><span className="drop-item-icon" style={{background:'#f0f9ff'}}>✍️</span>Cover Letter</a>
-                    <a href="/interview-prep" className="drop-item"><span className="drop-item-icon" style={{background:'#fdf4ff'}}>🎯</span>Interview Prep</a>
-                    <a href="/mock-interview" className="drop-item"><span className="drop-item-icon" style={{background:'#1e1b4b20'}}>🎙</span>Mock Interview</a>
-                    <a href="/skill-gap" className="drop-item"><span className="drop-item-icon" style={{background:'#f0f9ff'}}>📈</span>Skill Gap</a>
-                    <a href="/salary-calculator" className="drop-item"><span className="drop-item-icon" style={{background:'#f0fdf4'}}>💰</span>Salary Calculator</a>
+                    <div className="drop-col-title" style={{marginTop:8}}>More</div>
+                    <a href="/screener" className="drop-item"><span className="drop-item-icon" style={{background:'rgba(255,107,0,.12)'}}>🤖</span>AI Resume Screener</a>
+                    <a href="/blog" className="drop-item"><span className="drop-item-icon" style={{background:'#f0f9ff'}}>📝</span>Blog</a>
+                    <a href="/pricing" className="drop-item"><span className="drop-item-icon" style={{background:'#f0fdf4'}}>💳</span>Pricing</a>
                   </div>
                   <div className="drop-divider"/>
-                  {/* col 2 — premium features */}
+                  {/* col 2 — screener + resources */}
                   <div className="drop-col">
-                    <div className="drop-col-title" style={{color:'#ff6b00'}}>Premium Features — Unlocked</div>
-                    <a href="/negotiate" className="drop-item"><span className="drop-item-icon" style={{background:'#f0fdf4'}}>🤝</span>AI Salary Coach</a>
-                    <a href="/salaries" className="drop-item"><span className="drop-item-icon" style={{background:'#f0fdf4'}}>📊</span>Salary Guides</a>
-                    <a href="/jd-optimizer" className="drop-item"><span className="drop-item-icon" style={{background:'#fdf4ff'}}>📝</span>JD Optimizer</a>
-                    <a href="/cv-screener" className="drop-item"><span className="drop-item-icon" style={{background:'#fff7ed'}}>🤖</span>CV Screener</a>
-                    <div className="drop-col-title" style={{marginTop:8}}>Coming Soon</div>
-                    <a href="/features" className="drop-item" style={{opacity:.55}}><span className="drop-item-icon" style={{background:'#f5f5f7'}}>⭐</span>HireHub Score</a>
-                    <a href="/features" className="drop-item" style={{opacity:.55}}><span className="drop-item-icon" style={{background:'#f5f5f7'}}>📡</span>LiveWork</a>
-                    <a href="/features" className="drop-item" style={{opacity:.55}}><span className="drop-item-icon" style={{background:'#f5f5f7'}}>🎭</span>BlindHire</a>
-                    <a href="/features" className="drop-item" style={{opacity:.55}}><span className="drop-item-icon" style={{background:'#f5f5f7'}}>⚡</span>InstantHire</a>
-                    <a href="/features" className="drop-item" style={{opacity:.55}}><span className="drop-item-icon" style={{background:'#f5f5f7'}}>🏆</span>WorkerFirst</a>
+                    <div className="drop-col-title" style={{color:'#ff6b00'}}>For Recruiters</div>
+                    <a href="/screener" className="drop-item" style={{background:'#fff8f4',borderRadius:8}}><span className="drop-item-icon" style={{background:'rgba(255,107,0,.15)'}}>🤖</span><span><strong style={{color:'#ff6b00'}}>AI Resume Screener</strong><br/><span style={{fontSize:11,color:'#888'}}>Screen 500 CVs in 10 min</span></span></a>
+                    <a href="/screener#pricing" className="drop-item"><span className="drop-item-icon" style={{background:'#f0fdf4'}}>💳</span>Screener Pricing</a>
+                    <div className="drop-col-title" style={{marginTop:8}}>Resources</div>
+                    <a href="/pricing" className="drop-item"><span className="drop-item-icon" style={{background:'#f0fdf4'}}>💳</span>Pricing</a>
+                    <a href="/blog" className="drop-item"><span className="drop-item-icon" style={{background:'#f0f9ff'}}>📝</span>Blog</a>
                   </div>
                 </div>
               )}
@@ -418,39 +369,16 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
 
               <div className="m-section-title">Browse</div>
               <a href="/" onClick={() => setMenuOpen(false)}><span className="m-icon">🔍</span>Browse Jobs</a>
-              <a href="/companies" onClick={() => setMenuOpen(false)}><span className="m-icon">🏢</span>Companies</a>
-              <a href="/job-alerts" onClick={() => setMenuOpen(false)}><span className="m-icon">🔔</span>Job Alerts</a>
               <a href="/blog" onClick={() => setMenuOpen(false)}><span className="m-icon">📝</span>Blog</a>
+              <a href="/pricing" onClick={() => setMenuOpen(false)}><span className="m-icon">💳</span>Pricing</a>
 
-              <div className="m-section-title">AI Tools for Job Seekers</div>
-              <a href="/resume-upload" onClick={() => setMenuOpen(false)}><span className="m-icon">📄</span>Resume Parser</a>
-              <a href="/cover-letter" onClick={() => setMenuOpen(false)}><span className="m-icon">✍️</span>Cover Letter</a>
-              <a href="/interview-prep" onClick={() => setMenuOpen(false)}><span className="m-icon">🎯</span>Interview Prep</a>
-              <a href="/mock-interview" onClick={() => setMenuOpen(false)}><span className="m-icon">🎙</span>Mock Interview</a>
-              <a href="/skill-gap" onClick={() => setMenuOpen(false)}><span className="m-icon">📈</span>Skill Gap Analyzer</a>
-              <a href="/salary-calculator" onClick={() => setMenuOpen(false)}><span className="m-icon">💰</span>Salary Calculator</a>
-              <a href="/salaries" onClick={() => setMenuOpen(false)}><span className="m-icon">📊</span>Salary Guides</a>
-
-              <div className="m-section-title">For Employers</div>
-              <a href="/cv-screener" onClick={() => setMenuOpen(false)}><span className="m-icon">🤖</span>Bulk CV Screener</a>
-              <a href="/jd-optimizer" onClick={() => setMenuOpen(false)}><span className="m-icon">📝</span>JD Optimizer</a>
+              <div className="m-section-title" style={{color:'#ff6b00'}}>For Recruiters</div>
+              <a href="/screener" onClick={() => setMenuOpen(false)} style={{background:'#fff8f4'}}><span className="m-icon">🤖</span><strong style={{color:'#ff6b00'}}>AI Resume Screener</strong></a>
 
               {user && <>
-                <div className="m-section-title" style={{color:'#ff6b00'}}>My Account</div>
+                <div className="m-section-title">My Account</div>
                 <a href="/my-applications" onClick={() => setMenuOpen(false)}><span className="m-icon">📋</span>My Applications</a>
                 <a href="/saved-jobs" onClick={() => setMenuOpen(false)}><span className="m-icon">❤️</span>Saved Jobs{savedCount > 0 ? ` (${savedCount})` : ''}</a>
-                <a href="/resume-upload" onClick={() => setMenuOpen(false)}><span className="m-icon">📄</span>My Resume</a>
-                <div className="m-section-title" style={{color:'#ff6b00'}}>Premium — Unlocked</div>
-                <a href="/negotiate" onClick={() => setMenuOpen(false)}><span className="m-icon">🤝</span>AI Salary Coach</a>
-                <a href="/salaries" onClick={() => setMenuOpen(false)}><span className="m-icon">📊</span>Salary Guides</a>
-                <a href="/jd-optimizer" onClick={() => setMenuOpen(false)}><span className="m-icon">📝</span>JD Optimizer</a>
-                <a href="/cv-screener" onClick={() => setMenuOpen(false)}><span className="m-icon">🤖</span>CV Screener</a>
-                <div className="m-section-title">Coming Soon</div>
-                <a href="/features" onClick={() => setMenuOpen(false)} style={{opacity:.55}}><span className="m-icon">⭐</span>HireHub Score</a>
-                <a href="/features" onClick={() => setMenuOpen(false)} style={{opacity:.55}}><span className="m-icon">📡</span>LiveWork</a>
-                <a href="/features" onClick={() => setMenuOpen(false)} style={{opacity:.55}}><span className="m-icon">🎭</span>BlindHire</a>
-                <a href="/features" onClick={() => setMenuOpen(false)} style={{opacity:.55}}><span className="m-icon">⚡</span>InstantHire</a>
-                <a href="/features" onClick={() => setMenuOpen(false)} style={{opacity:.55}}><span className="m-icon">🏆</span>WorkerFirst</a>
               </>}
 
               <div className="m-drawer-footer">
@@ -627,7 +555,7 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
           <div style={{background:'rgba(255,107,0,.2)',color:'#ff6b00',padding:'5px 14px',borderRadius:999,fontSize:11,fontWeight:700,display:'inline-block',marginBottom:16,textTransform:'uppercase',letterSpacing:'.06em'}}>🏢 For Companies</div>
           <h2>Hire Smarter,<br /><span style={{color:'#ff6b00'}}>Not Harder</span></h2>
           <p>AI screens hundreds of CVs in seconds. Get ranked candidates by fit score — not a pile of resumes. India's fastest hiring platform.</p>
-          <a href="/hirehub.html" className="fc-btn">Post a Job Free →</a>
+          <a href="/screener" className="fc-btn">Try AI Resume Screener →</a>
         </div>
         <div className="fc-feats">
           {[
@@ -646,39 +574,35 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
         </div>
       </div>
 
-      {/* 7 WORLD-FIRST FEATURES */}
-      <div className="feat-sec">
-        <div className="feat-sec-head">
-          <div style={{display:'inline-block',background:'rgba(255,107,0,.15)',color:'#ff6b00',padding:'5px 16px',borderRadius:999,fontSize:11,fontWeight:700,textTransform:'uppercase',letterSpacing:'.08em',marginBottom:14,border:'1px solid rgba(255,107,0,.3)'}}>🚀 7 World-First Features</div>
-          <h2>No Platform Has Built <span style={{color:'#ff6b00'}}>Any of These</span></h2>
-          <p>We didn't copy LinkedIn. We didn't copy Naukri. Built for India's 500 million workers.</p>
-        </div>
-        <div className="feat7-grid">
-          {[
-            {icon:'⭐',color:'#ff6b00',name:'HireHub Score',badge:'Work Credit Score',desc:'India\'s first CIBIL-like work reputation system. Built from attendance, ratings & skill tests — travels with you everywhere.'},
-            {icon:'🤖',color:'#6366f1',name:'AI Salary Agent',badge:'AI Salary Negotiator',desc:'You set your desired salary. Our AI negotiates with the company on your behalf — real-time, data-backed, zero awkwardness.'},
-            {icon:'📡',color:'#9333ea',name:'LiveWork',badge:'Live Work Streaming',desc:'Freelancers stream their screen live while working. Clients watch in real time. Pay-per-minute billing ticks like a taxi meter.'},
-            {icon:'🔗',color:'#0891b2',name:'VerifiedWork',badge:'Blockchain Certificates',desc:'Every project earns a blockchain certificate that cannot be faked, altered, or deleted. Employers scan a QR to verify instantly.'},
-            {icon:'🔄',color:'#059669',name:'WorkerFirst',badge:'Reverse Hiring',desc:'Workers post their availability and rate. Companies browse and apply to them. Premium workers get 5+ company applications daily.'},
-            {icon:'⚡',color:'#dc2626',name:'InstantHire',badge:'1-Hour Hire',desc:'Post an emergency need. GPS-matched workers confirmed and on-site within 60 minutes. Swiggy delivery speed — for talent.'},
-            {icon:'🕶️',color:'#8b5cf6',name:'BlindHire',badge:'Dark Apply',desc:'Apply with skills + score only. Zero name, photo, or age shown until after shortlist. Pure merit. Zero bias. Every MNC\'s dream.'},
-          ].map(f => (
-            <a key={f.name} href="/features" className="feat7">
-              <div className="feat7-top">
-                <div className="feat7-ic" style={{background:f.color+'22',border:`1px solid ${f.color}44`}}>
-                  <span>{f.icon}</span>
-                </div>
-                <div>
-                  <div className="feat7-name">{f.name}</div>
-                  <div className="feat7-badge">{f.badge}</div>
-                </div>
+      {/* AI RESUME SCREENER SPOTLIGHT */}
+      <div style={{background:'linear-gradient(135deg,#0f0f0f 0%,#1a0800 100%)',padding:'52px 5vw'}}>
+        <div style={{maxWidth:1100,margin:'0 auto',display:'flex',gap:52,alignItems:'center',flexWrap:'wrap'}}>
+          <div style={{flex:1,minWidth:260}}>
+            <div style={{background:'rgba(255,107,0,.2)',color:'#ff6b00',padding:'5px 14px',borderRadius:999,fontSize:11,fontWeight:700,display:'inline-block',marginBottom:16,textTransform:'uppercase',letterSpacing:'.06em',border:'1px solid rgba(255,107,0,.3)'}}>🤖 AI-Powered Tool — Live Now</div>
+            <h2 style={{fontSize:'clamp(26px,4vw,44px)',fontWeight:900,color:'#fff',letterSpacing:'-.04em',lineHeight:1.15,marginBottom:14}}>Screen 500 Resumes<br/><span style={{color:'#ff6b00'}}>in 10 Minutes</span></h2>
+            <p style={{color:'#999',fontSize:16,lineHeight:1.75,marginBottom:28,maxWidth:400}}>Stop spending 3 days shortlisting manually. Paste your job description, upload resumes — AI scores every candidate 0–100 by fit. You call only the best.</p>
+            <div style={{display:'flex',gap:12,flexWrap:'wrap'}}>
+              <a href="/screener" style={{display:'inline-block',background:'#ff6b00',color:'#fff',padding:'13px 28px',borderRadius:999,fontWeight:700,fontSize:15,textDecoration:'none'}}>Try Free →</a>
+              <a href="/screener#pricing" style={{display:'inline-block',background:'rgba(255,255,255,.08)',color:'#fff',padding:'13px 24px',borderRadius:999,fontWeight:600,fontSize:14,textDecoration:'none',border:'1px solid rgba(255,255,255,.15)'}}>See Pricing</a>
+            </div>
+            <p style={{color:'#444',fontSize:12,marginTop:12}}>Plans from ₹1,499/month · 5-min setup · No IT required</p>
+          </div>
+          <div style={{flex:1,minWidth:260,display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+            {([
+              ['⚡','10 min','Screen 500 resumes instantly'],
+              ['🎯','AI Score','0–100 fit ranking per resume'],
+              ['📄','Any format','PDF, Word, all file types'],
+              ['📊','Dashboard','Weekly analytics & trends'],
+              ['📧','Email alerts','Screening complete notification'],
+              ['🔒','Secure','Your data, private & protected'],
+            ] as [string,string,string][]).map(([icon,n,l]) => (
+              <div key={n} style={{background:'rgba(255,255,255,.04)',borderRadius:12,padding:'16px',border:'1px solid #2a2a2a'}}>
+                <div style={{fontSize:20,marginBottom:6}}>{icon}</div>
+                <div style={{color:'#fff',fontWeight:800,fontSize:15,letterSpacing:'-.02em'}}>{n}</div>
+                <div style={{color:'#555',fontSize:12,marginTop:3,lineHeight:1.4}}>{l}</div>
               </div>
-              <p className="feat7-desc">{f.desc}</p>
-            </a>
-          ))}
-        </div>
-        <div style={{textAlign:'center',marginTop:28}}>
-          <a href="/features" style={{display:'inline-block',background:'#ff6b00',color:'#fff',padding:'12px 32px',borderRadius:999,fontWeight:700,fontSize:14,textDecoration:'none'}}>Explore All 7 Features →</a>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -780,12 +704,10 @@ export default function Home({ jobs, total, forCompany }: { jobs: Job[], total: 
             <a href="/resume/your-name">My Resume Page</a>
           </div>
           <div className="fc-col">
-            <h4>Intelligence</h4>
-            <a href="/salary-intelligence">Salary Data</a>
-            <a href="/skill-intelligence">Skill Trends</a>
-            <a href="/workforce-heatmap">Hiring Heatmap</a>
-            <a href="/features">7 AI Features</a>
-            <a href="/pricing">Pricing</a>
+            <h4>Resources</h4>
+            <a href="/screener">AI Resume Screener</a>
+            <a href="/screener#pricing">Screener Pricing</a>
+            <a href="/pricing">Platform Pricing</a>
             <a href="/blog">Blog</a>
             <a href="/sitemap.xml">Sitemap</a>
           </div>
